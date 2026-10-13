@@ -1,0 +1,152 @@
+# API 層
+
+> 決策理由見 [ADR-0003](../adr/0003-dto-matches-backend-contract.md)(DTO 與後端一致)、
+> [ADR-0006](../adr/0006-api-errors-judged-in-one-place.md)(錯誤集中判讀)。
+> 契約文件放 `docs/api/`;錯誤文案規則見 [error-handling.md](./error-handling.md)。
+
+## 1. 所有 HTTP 走 `apiClient`
+
+**規則**:HTTP 請求一律經過 [`api/apiClient.ts`](../../src/api/apiClient.ts) 匯出的 `apiClient`。
+不在其他地方 `axios.create()`、`import axios`、或直接 `fetch` 後端。
+
+`apiClient` 做三件事:
+
+1. `baseURL` 取自 `VITE_API_BASE_URL`(預設 `/api`)。
+2. request interceptor 附上 `getAuthHeaders()` 的認證 header。
+3. response interceptor **拆掉 `res.data`**,呼叫端直接拿到 DTO;錯誤**原樣拋出**,不在這裡轉換或吞掉。
+
+```ts
+// ✅
+apiClient.get<CurrentUser>('/me'); // Promise<CurrentUser>
+```
+
+```ts
+// ❌
+const res = await axios.get('/api/me');
+return res.data;
+```
+
+**強制**:ESLint `no-restricted-imports`——`components/`、`pages/`、`hooks/` 禁止 import `axios`。
+
+`httpClient`(原始 axios instance)只在需要操作 axios 本身時使用(註冊額外 interceptor、測試)。
+不走 axios 的請求(例如串流 `fetch`)要自己帶 `getAuthHeaders()`,讓身分只有一個來源。
+
+## 2. 認證 header
+
+**規則**:換認證方式用 `setAuthHeaderProvider()`,provider **每次請求都被呼叫,不快取回傳值**;
+回傳值完全取代預設 header。不在個別 endpoint 手動加 `Authorization`。
+
+```ts
+// ✅ 登入後
+setAuthHeaderProvider(() => ({ Authorization: `Bearer ${readToken()}` }));
+```
+
+```ts
+// ❌ provider 外快取:token 換了仍送舊值
+const headers = { Authorization: `Bearer ${readToken()}` };
+setAuthHeaderProvider(() => headers);
+```
+
+權限與登入流程見 [auth.md](./auth.md)。
+
+## 3. Endpoint module
+
+**規則**:一個資源一個檔案 `api/<資源>Api.ts`,每個端點一個具名 arrow function,明寫回傳型別。
+
+- 路徑一律用 `apiPath()` 組,**逐段 `encodeURIComponent`**。
+- 清單端點用 `expectArray()` 包:回應不是陣列時丟 `TypeError`,讓 `DataBoundary` 顯示錯誤卡,
+  而不是在 render 時炸在 `.map`。
+- 不做其他 runtime 驗證;型別由 `types/api/` 保證(編譯期)。
+
+```ts
+// ✅ src/api/itemApi.ts
+export const listItems = async (): Promise<Item[]> =>
+  expectArray<Item>(await apiClient.get<unknown>(apiPath('items')), 'GET /items');
+
+export const createItem = (body: CreateItemRequest): Promise<Item> => apiClient.post<Item>(apiPath('items'), body);
+
+export const deleteItem = (id: string): Promise<void> => apiClient.delete(apiPath('items', id));
+```
+
+```ts
+// ❌ 字串拼接:id 含 `/` 或 `?` 會改變路徑
+apiClient.delete(`/items/${id}`);
+// ❌ 清單沒防線:後端回 { data: [...] } 時元件 render 才爆
+export const listItems = () => apiClient.get<Item[]>('/items');
+```
+
+`apiPath('items', 'a/b')` → `/items/a%2Fb`。
+
+## 4. DTO 型別與後端逐字一致
+
+**規則**
+
+- `types/api/<資源>.ts` 的欄位名、大小寫、列舉值與後端**逐字一致**,不在前端改名、不設轉換層。
+- 只收前端有用到的欄位;沒有消費端的欄位不收(契約文件 `docs/api/` 照實記錄即可)。
+- request 型別另外宣告:`CreateItemRequest`、`UpdateItemRequest`。
+- 列舉用字串 union,不用 `enum`。
+- 前端需要的衍生形狀(顯示用標籤、排序)在使用點算,不寫回 DTO。
+
+**原因**:兩邊看到同一個名字,對契約時不用在腦中翻譯;轉換層是另一個會壞、會漏改的地方。
+
+```ts
+// ✅ src/types/api/item.ts
+export interface Item {
+  id: string;
+  name: string;
+  status: ItemStatus;
+  updatedAt: string;
+}
+
+export type ItemStatus = 'ACTIVE' | 'ARCHIVED';
+```
+
+```ts
+// ❌ 改名、轉型
+export interface Item {
+  itemId: string; // 後端是 id
+  isActive: boolean; // 後端是 status
+  updatedAt: Date; // 線路上是字串
+}
+```
+
+## 5. 錯誤判讀只在 `apiError.ts`
+
+**規則**:「這是什麼錯」只在 [`api/apiError.ts`](../../src/api/apiError.ts) 判斷。呼叫端不自己挖
+`error.response.data`、不比對 `error.name`、不判斷 `status === 404`。
+
+| 函式                  | 意義                                                        |
+| --------------------- | ----------------------------------------------------------- |
+| `isOffline(error)`    | 連不到後端(沒有 HTTP 回應,且不是取消)                       |
+| `isCanceled(error)`   | 請求被取消(以 `name` 判斷,跨 realm 也可靠)                  |
+| `httpStatus(error)`   | HTTP 狀態碼,非 HTTP 錯誤為 `undefined`                      |
+| `isNotFound(error)`   | **只有 404** 代表「不在了」;500、逾時、斷線都不能說成已刪除 |
+| `isForbidden(error)`  | 403                                                         |
+| `errorCode(error)`    | 後端 body 的 `code`,決定介面文案                            |
+| `errorMessage(error)` | 後端原話,只當技術細節                                       |
+
+```ts
+// ✅
+import { isNotFound } from '@/api/apiError';
+if (isNotFound(error)) { ... }
+```
+
+```ts
+// ❌
+if (axios.isAxiosError(error) && error.response?.status === 404) { ... }
+const text = error.response?.data?.message; // 後端原話當主文案
+```
+
+元件可以 import `@/api/apiError`(分層規則的唯一例外)。錯誤 body 形狀定義在
+[`types/api/error.ts`](../../src/types/api/error.ts) 的 `ApiErrorBody`;轉成文案由
+`utils/describeError.ts` 負責。
+
+## 6. 新增一個端點
+
+1. 在 `docs/api/` 確認或補上契約。
+2. `types/api/<資源>.ts` 加 DTO / request 型別。
+3. `api/<資源>Api.ts` 加函式(`apiPath`、清單用 `expectArray`)。
+4. 新的錯誤 code 加進 `KNOWN_ERROR_CODES` 並補字典(`errorCodeCoverage` 測試會檢查)。
+5. `hooks/` 加 `queryOptions` / mutation([data-fetching.md](./data-fetching.md))。
+6. 在 `mocks/handlers.ts` 的 `pendingHandlers` 補 handler;真後端上線後搬到 `shippedHandlers`
+   ([mocking.md](./mocking.md))。

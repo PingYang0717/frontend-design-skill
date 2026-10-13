@@ -1,0 +1,21 @@
+.shell {
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 16px;
+  background: var(--app-color-bg-container);
+  border-bottom: 1px solid var(--app-color-border-secondary);
+}
+
+.sider {
+  background: var(--app-color-bg-container);
+  border-inline-end: 1px solid var(--app-color-border-secondary);
+}
+
+.content {
+  padding: 24px;
+}

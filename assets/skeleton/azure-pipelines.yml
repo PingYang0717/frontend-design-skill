@@ -1,0 +1,48 @@
+# Azure DevOps Pipelines:PR 與主分支的品質關卡。四項全綠才能合併(在分支原則設定 Build validation 指向這條 pipeline)。
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  npm_config_cache: $(Pipeline.Workspace)/.npm
+
+steps:
+  - task: NodeTool@0
+    displayName: 'Use Node.js'
+    inputs:
+      versionSpec: '22.22.x'
+
+  - task: Cache@2
+    displayName: 'Cache npm'
+    inputs:
+      key: 'npm | "$(Agent.OS)" | package-lock.json'
+      restoreKeys: |
+        npm | "$(Agent.OS)"
+      path: $(npm_config_cache)
+
+  # 一律 npm ci:完全依 lockfile 安裝,不會悄悄升級套件。
+  - script: npm ci
+    displayName: 'Install dependencies'
+    env:
+      HUSKY: '0'
+
+  - script: npm run lint
+    displayName: 'Lint'
+
+  - script: npm run typecheck
+    displayName: 'Typecheck'
+
+  - script: npm test
+    displayName: 'Test'
+
+  - script: npm run build
+    displayName: 'Build'

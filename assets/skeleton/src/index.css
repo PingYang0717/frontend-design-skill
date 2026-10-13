@@ -1,0 +1,14 @@
+/* 全域樣式只放 CSS Module 處理不了的規則(頁面重設、portal 到 body 的 antd 元素樣式)。
+   顏色一律用 theme/ 產生的 --app-* 變數,不寫死色碼;字型由 antd token 套用。 */
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--app-color-bg-layout);
+  color: var(--app-color-text);
+}
