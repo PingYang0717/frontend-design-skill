@@ -5,8 +5,10 @@
 
 | 項目     | 內容                         |
 | -------- | ---------------------------- |
+| 狀態     | ready-for-agent              |
 | 前置任務 | 第一個真實功能的任務單已合併 |
 | 規格     | 無(純清理)                   |
+| 分支     | chore/T-999-remove-example   |
 
 ## 要做的事
 
@@ -25,5 +27,6 @@
 ## 驗收條件
 
 - [ ] `npm run lint`、`npm run typecheck`、`npm test`、`npm run build` 全部通過
-- [ ] `node <skill>/scripts/check-placeholders.mjs .` 沒有範例功能的警告
+- [ ] 上列 6 個檔案 / 資料夾都已不存在
 - [ ] `grep -ri "item" src` 只剩真實功能的內容
+- [ ] 本檔「狀態」已改為 `done`,`docs/tasks/README.md` 同步

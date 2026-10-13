@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## 0.2.0(2026-10-13)
+
+接上 [mattpocock/skills](https://github.com/mattpocock/skills):產出停在「`/implement` 可以直接吃」的狀態。
+
+- `CONTEXT.md` 改名 `GLOSSARY.md`(格式本來就相同;`domain-modeling`、`tdd`、`wait-what` 讀這個檔名),所有交叉引用一併改
+- 任務單加「狀態」列(`ready-for-agent` / `in-progress` / `needs-human` / `done`)、「分支」列、「測試 seam」與「待確認」節;
+  新增 `docs/tasks/README.md` 索引範本。`docs/tasks/` 就是 local issue tracker
+- 新增 `templates/agents/`(`issue-tracker.md`、`domain.md`),`AGENTS.md` 範本加 `## Agent skills` 與「測試 seam」兩節;
+  專案不需要再跑 `/setup-matt-pocock-skills`
+- prototype 原檔改為**進版控**(`docs/prototype/`),ADR-0001 與骨架 `.gitignore` 同步;新增 `scripts/screenshot-prototype.mjs` +
+  `templates/prototype-screens.json`,步驟 2 為每個畫面產 `docs/prototype/screens/<id>[-dark].png`,任務單「參考畫面」直接連圖
+- Skill 根目錄加 `package.json`(Playwright、Prettier 是 Skill 自己的 devDependency,不進骨架)
+- 停頓點改成 `grilling` 的分輪問法(frontier、每題附建議答案、事實自己查)
+- `check-placeholders` 新增:任務單狀態列、參考畫面存在、沒有截圖時警告
+- `task-remove-example` 的驗收不再引用 `<skill>` 路徑
+- `SKILL.md` 新增「接 mattpocock skills」對照表;明確**不用** `/to-spec`、`/to-tickets`,`/implement-spec` 可用但未試跑
+
+### 已知限制(新增)
+
+- 截圖腳本只試過單檔 HTML prototype;多頁 HTML 用 `hash` 以外的方式開啟時要自己在 `screens.json` 寫 `click` 步驟
+- `/implement` 的整段流程(骨架 → 第一張任務 → tdd → code-review)尚未在真實專案跑過一輪
+
 ## 0.1.0(2026-10-13)
 
 第一版。以 erd-cowork-frontend 為底稿萃取,依團隊 13 項決議調整。

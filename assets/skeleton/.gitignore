@@ -18,6 +18,3 @@ npm-debug.log*
 # OS
 .DS_Store
 Thumbs.db
-
-# UI/UX 交付的 prototype 原檔不進版控,放 docs/prototype/ 時改用連結或另行保管(見 docs/adr)。
-docs/prototype/*.html

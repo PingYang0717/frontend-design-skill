@@ -12,7 +12,7 @@
 ## 開工前要讀
 
 1. 這份 `AGENTS.md`
-2. [`CONTEXT.md`](./CONTEXT.md):領域名詞。寫程式、測試名稱、commit 一律用這裡的詞,不用「避免」欄的同義詞
+2. [`GLOSSARY.md`](./GLOSSARY.md):領域名詞。寫程式、測試名稱、commit 一律用這裡的詞,不用「避免」欄的同義詞
 3. 任務單指到的規格(`docs/specs/`)與任務單本身(`docs/tasks/`)
 4. 任務碰到的領域對應的 `docs/conventions/` 與 `docs/adr/`
 5. 與既有 ADR 衝突時,**在回報裡明講**,不要默默蓋過
@@ -66,6 +66,16 @@ src/
 
 <!-- FILL: 列出本專案預計的 components/<domain>/ 子資料夾(依任務單建立,建立骨架時尚不存在),各用一句話說明。不列骨架的範例 items/。來源:docs/_bootstrap/prototype-analysis.md 的元件清單。 -->
 
+## 測試 seam
+
+測試只在這兩個邊界寫,開工前不用再議:
+
+- **頁面與元件行為**:`renderApp('/路徑')` 從網址進入,經過真的 Provider、路由與 `DataBoundary`,打 MSW 假後端;
+  斷言畫面文字(引用字典)。不 mock hook、不單獨 render 元件。抓什麼、漏什麼見 `docs/conventions/testing.md`
+- **純函式**(`utils/`、`api/apiError.ts`):直接單元測試
+
+每個 scenario 一個 `it`,名稱帶 scenario 編號;prototype 的視覺一致性不靠測試,靠 PR 截圖對照 `docs/prototype/screens/`。
+
 ## 本專案特有規則
 
 <!-- FILL: 只列本專案偏離或補充團隊標準的規則,每條連到對應 ADR(docs/adr/0017 起)。至少要有路由模式那一條。沒有其他偏離就只留路由模式。 -->
@@ -92,5 +102,10 @@ src/
 
 ## 文件規則
 
-文件(`AGENTS.md`、`ARCHITECTURE.md`、`CONTEXT.md`、`docs/`)只寫現行規則,不留歷史與日期;每檔 200 行以內。
+文件(`AGENTS.md`、`ARCHITECTURE.md`、`GLOSSARY.md`、`docs/`)只寫現行規則,不留歷史與日期;每檔 200 行以內。
 團隊規範(`docs/conventions/`、`docs/adr/0001–0016`)來自團隊公版,**不在專案內修改**;要偏離就寫新的 ADR。
+
+## Agent skills
+
+- **Issue tracker**:local markdown——規格在 `docs/specs/`、任務在 `docs/tasks/`,狀態寫在任務單裡。見 [`docs/agents/issue-tracker.md`](./docs/agents/issue-tracker.md)
+- **Domain docs**:single-context——`GLOSSARY.md` 在根目錄、ADR 在 `docs/adr/`(團隊格式)。見 [`docs/agents/domain.md`](./docs/agents/domain.md)

@@ -4,7 +4,7 @@
 
 <!-- FILL: 2–3 句說明:給誰用、解決什麼問題、主要有哪些功能。來源:docs/_bootstrap/prototype-analysis.md 的「專案概要」。 -->
 
-名詞定義見 [`CONTEXT.md`](./CONTEXT.md)。
+名詞定義見 [`GLOSSARY.md`](./GLOSSARY.md)。
 
 ---
 
@@ -74,7 +74,7 @@ API 契約的唯一來源是 [`docs/api/`](./docs/api/);每條端點的狀態(�
 | ------------------------------------------ | ----------------------------- |
 | [`AGENTS.md`](./AGENTS.md)                 | coding agent 動工前必讀的規則 |
 | [`ARCHITECTURE.md`](./ARCHITECTURE.md)     | 架構與規則背後的理由          |
-| [`CONTEXT.md`](./CONTEXT.md)               | 領域名詞與該避免的說法        |
+| [`GLOSSARY.md`](./GLOSSARY.md)             | 領域名詞與該避免的說法        |
 | [`docs/conventions/`](./docs/conventions/) | 團隊開發規範                  |
 | [`docs/adr/`](./docs/adr/)                 | 架構決策紀錄                  |
 | [`docs/api/`](./docs/api/)                 | API 契約與對接核對表          |

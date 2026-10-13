@@ -19,8 +19,8 @@ Iconify 上的鏡像 `ant-design:xxx-outlined`)。
 同時餵給 antd `ConfigProvider`(`theme/antdTheme.ts`)與 CSS Modules 讀的 `--app-*` 變數
 (`theme/cssVars.ts`)。不靠 antd 演算法推導「差不多」的顏色:antd 預設的深色表面
 (`#000000` / `#141414` / `#1f1f1f`)多半不是設計稿的值。prototype 的 token 表在收件分析
-時整理一次,之後改色只改 `tokens.ts`。prototype 原檔不進版控(`.gitignore` 擋
-`docs/prototype/*.html`),由團隊另行保管或以連結指向。
+時整理一次,之後改色只改 `tokens.ts`。prototype 原檔與每個畫面的截圖進版控(`docs/prototype/`),
+讓之後在乾淨 context 裡開工的 agent 看得到驗收標準,而不是只看文字描述。
 
 **3. 元件與 CSS 不寫死色碼。** CSS Module 一律寫 `var(--app-color-text)` 這種形式;
 `tokens.ts` 沒有的顏色先補 token,再使用。

@@ -12,23 +12,36 @@
 | 問題                                                                           | 用途                                                                                                                                                  |
 | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 專案名稱:中文顯示名、英文顯示名、slug(英文小寫 kebab-case)                     | `package.json` name、`<title>`、字典 `app.name`(zhTW / en)、文件標題。沒有英文名稱時,英文顯示名用 slug 轉 Title Case(`room-booking` → `Room Booking`) |
-| 一句話說明:給誰用、做什麼                                                      | README、AGENTS、CONTEXT                                                                                                                               |
+| 一句話說明:給誰用、做什麼                                                      | README、AGENTS、GLOSSARY                                                                                                                              |
 | prototype 檔案、版本(或交付日期)、**團隊共享的存放位置**(雲端硬碟、文件庫連結) | `docs/prototype/README.md` 記共享位置,不記本機路徑                                                                                                    |
 | 部署環境:能否設定伺服器 fallback、是否部署在子路徑                             | 路由模式 ADR                                                                                                                                          |
 | 後端現況:已有 / 開發中 / 未開始;有無 API 文件;認證方式                         | `docs/api/`、mock 範圍                                                                                                                                |
 | 是否需要多語系(預設只做繁中,英文字典仍保留)                                    | i18n                                                                                                                                                  |
 | 是否需要深色模式                                                               | theme                                                                                                                                                 |
 
-prototype 是單一 HTML 時,依團隊慣例**不進版控**(`.gitignore` 已排除 `docs/prototype/*.html`)。
-使用者要求放進 repo 時,刪掉 `.gitignore` 那一行。
+prototype 原檔**進版控**:HTML 複製到 `<project>/docs/prototype/<檔名>`(檔名帶版本,例如 `prototype-v1.2.html`);
+設計檔連結或截圖則放 `docs/prototype/screens/` 並在 `docs/prototype/README.md` 記來源。之後在乾淨 context 裡開工的
+agent 只看得到 repo 裡的東西,所以驗收標準必須在 repo 裡。
 
-## 步驟 2:分析 prototype
+## 步驟 2:分析 prototype 與截圖
 
 依 `references/prototype-analysis.md` 進行,把 `templates/prototype-analysis.md` 複製到
-`<project>/docs/_bootstrap/prototype-analysis.md` 再填。這是步驟 3 之前專案資料夾裡唯一的內容,不算「既有內容」。
+`<project>/docs/_bootstrap/prototype-analysis.md` 再填。這與 `docs/prototype/` 是步驟 3 之前專案資料夾裡唯一的內容,不算「既有內容」。
 
-**完成後停下來**,把待確認問題、缺漏狀態的預設做法、路由模式、後端現況一次交給使用者。
-收到回答後填進分析檔第 11、12 節。
+分析檔第 2 節的畫面清單定稿後,為每個畫面截圖:
+
+```bash
+cp <skill>/templates/prototype-screens.json <project>/docs/prototype/screens.json
+# 填 file(prototype 檔名)、每個畫面的 id(與分析檔第 2 節一致,kebab-case)與進入步驟、深色切換步驟(沒有就 null)
+node <skill>/scripts/screenshot-prototype.mjs <project>
+```
+
+- 進入步驟怎麼找:單檔 React / Vue 成品通常用 hash 或某個 state 切換畫面——先試 `hash`;不行就找選單項目的文字或
+  `aria-label` 用 `click`;對話框、抽屜要先進到所屬畫面再 `click` 開啟它
+- 失敗的畫面腳本會列出來:修 `screens.json` 再用 `--only <id>` 重跑那幾張;**真的截不到的列入待確認**,不要略過
+- 使用者用 Figma 或只給截圖時沒有 `screens.json`:把拿到的圖存成 `docs/prototype/screens/<id>.png`,命名規則相同
+
+**完成後停下來**,依 `references/prototype-analysis.md` 的「停頓點」分輪提問。收到回答後填進分析檔第 11、12 節。
 
 ## 步驟 3:建立骨架
 
@@ -69,35 +82,40 @@ npm ci
 8. **權限**:`src/constants/permissions.ts` 依權限矩陣新增代碼;`src/mocks/db.ts` 的 `currentUser.permissions`
    給齊所有權限,開發期才看得到全部畫面
 9. **外殼**:header、側欄與 prototype 不同時(圖示、語言切換、使用者選單),**不在這一步改**;開一張任務單處理
-10. **範例功能**:保留 Item 範例,把 `templates/task-remove-example.md` 放進 `docs/tasks/`
+10. **範例功能**:保留 Item 範例,把 `templates/task-remove-example.md` 放進 `docs/tasks/`(狀態已是 `ready-for-agent`,
+    前置任務是第一張真實功能)
 
 每改完一批就跑 `npm run lint && npm run typecheck && npm test`,不要累積到最後。
 
 ## 步驟 4:產出文件
 
-| 來源                                                                                  | 目的地                                         | 處理                                                 |
-| ------------------------------------------------------------------------------------- | ---------------------------------------------- | ---------------------------------------------------- |
-| `references/standards/*`                                                              | `docs/conventions/`                            | 原樣複製                                             |
-| `references/adr-baseline/*`                                                           | `docs/adr/`                                    | 原樣複製                                             |
-| `templates/adr-router-mode.md`                                                        | `docs/adr/0017-router-mode.md`                 | 填寫;其他偏離從 0018 起用 `templates/adr.md`         |
-| `templates/README.md`、`AGENTS.md`、`ARCHITECTURE.md`、`CONTEXT.md`、`CLAUDE.md`      | 專案根目錄                                     | 填寫                                                 |
-| `templates/prototype-README.md`                                                       | `docs/prototype/README.md`                     | 填寫                                                 |
-| `templates/api-interface-auth.md`                                                     | `docs/api/interface-auth.md`                   | 填寫(`GET /me` 是骨架既有端點)                       |
-| `templates/api-interface.md`                                                          | `docs/api/interface-<domain>.md`(每個領域一份) | 依分析檔第 7 節填寫;未經後端確認的標「草案」         |
-| `templates/api-checklist.md`                                                          | `docs/api/api-checklist.md`                    | 每條端點一列,含 `GET /me`                            |
-| `templates/feature-spec.md`                                                           | `docs/specs/<feature>.md`(每個功能一份)        | 依分析檔填寫 BDD,含缺漏狀態的 scenario               |
-| `templates/task.md`                                                                   | `docs/tasks/<ID>-<slug>.md`                    | 每個垂直切片一張,對應 scenario 編號;外殼調整也開一張 |
-| `templates/task-remove-example.md`                                                    | `docs/tasks/T-999-remove-example.md`           | 原樣複製                                             |
-| `templates/feature-spec.md`、`task.md`、`adr.md`、`bug-report.md`、`api-interface.md` | `docs/templates/`                              | 原樣複製,給之後新增用                                |
+| 來源                                                                                  | 目的地                                         | 處理                                                                                                                              |
+| ------------------------------------------------------------------------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `references/standards/*`                                                              | `docs/conventions/`                            | 原樣複製                                                                                                                          |
+| `references/adr-baseline/*`                                                           | `docs/adr/`                                    | 原樣複製                                                                                                                          |
+| `templates/adr-router-mode.md`                                                        | `docs/adr/0017-router-mode.md`                 | 填寫;其他偏離從 0018 起用 `templates/adr.md`                                                                                      |
+| `templates/README.md`、`AGENTS.md`、`ARCHITECTURE.md`、`GLOSSARY.md`、`CLAUDE.md`     | 專案根目錄                                     | 填寫                                                                                                                              |
+| `templates/prototype-README.md`                                                       | `docs/prototype/README.md`                     | 填寫                                                                                                                              |
+| `templates/api-interface-auth.md`                                                     | `docs/api/interface-auth.md`                   | 填寫(`GET /me` 是骨架既有端點)                                                                                                    |
+| `templates/api-interface.md`                                                          | `docs/api/interface-<domain>.md`(每個領域一份) | 依分析檔第 7 節填寫;未經後端確認的標「草案」                                                                                      |
+| `templates/api-checklist.md`                                                          | `docs/api/api-checklist.md`                    | 每條端點一列,含 `GET /me`                                                                                                         |
+| `templates/feature-spec.md`                                                           | `docs/specs/<feature>.md`(每個功能一份)        | 依分析檔填寫 BDD,含缺漏狀態的 scenario                                                                                            |
+| `templates/task.md`                                                                   | `docs/tasks/<ID>-<slug>.md`                    | 每個垂直切片一張,對應 scenario 編號;外殼調整也開一張;狀態一律 `ready-for-agent`,「參考畫面」連到 `docs/prototype/screens/` 的 png |
+| `templates/tasks-README.md`                                                           | `docs/tasks/README.md`                         | 填寫:所有任務一列,與各任務單的狀態一致                                                                                            |
+| `templates/task-remove-example.md`                                                    | `docs/tasks/T-999-remove-example.md`           | 原樣複製                                                                                                                          |
+| `templates/agents/issue-tracker.md`、`domain.md`                                      | `docs/agents/`                                 | 原樣複製(mattpocock skills 的設定;`AGENTS.md` 的 `## Agent skills` 指向這裡)                                                      |
+| `templates/feature-spec.md`、`task.md`、`adr.md`、`bug-report.md`、`api-interface.md` | `docs/templates/`                              | 原樣複製,給之後新增用                                                                                                             |
 
 填寫原則:
 
 - 每個 `<!-- FILL: ... -->` 依它寫的來源填寫,**填完刪掉註解本身**;`{{PLACEHOLDER}}` 全部替換
 - 不知道的資訊寫「待確認」並列入分析檔第 11 節,不要編造
-- **Item 範例功能不寫進任何文件**(README 路由表、ARCHITECTURE 的 domain 與權限、CONTEXT 名詞);
+- **Item 範例功能不寫進任何文件**(README 路由表、ARCHITECTURE 的 domain 與權限、GLOSSARY 名詞);
   它只存在到 T-999 完成,文件描述的是專案本身
-- 名詞一律用 `CONTEXT.md` 的詞;路由、權限代碼、元件名稱在各文件之間必須一致
-- 任務單切法:一張 = 一個可展示的功能切片;第一張選最能代表專案的畫面,讓它成為後續任務的參考
+- 名詞一律用 `GLOSSARY.md` 的詞;路由、權限代碼、元件名稱在各文件之間必須一致
+- 任務單切法:一張 = 一個可展示的功能切片;第一張選最能代表專案的畫面,讓它成為後續任務的參考。
+  「前置任務」就是 blocked-by:第一張與外殼調整那張沒有前置;其餘依賴第一張;T-999 依賴第一張。
+  任務單裡**要寫檔案路徑**(這是 `/implement` 在這個骨架裡不迷路的原因),但不貼程式碼
 - 規格的 scenario 編號前綴用功能縮寫(例如 `ORD`),跨文件引用都用這個編號
 - 「文件不留日期」的例外:`docs/prototype/README.md` 的版本紀錄、規格的偏離紀錄(記 prototype 版本)
 - 「每檔 200 行」不適用 `docs/_bootstrap/`:分析檔是一次性的工作紀錄,寫完整比壓行數重要
@@ -111,7 +129,8 @@ node <skill>/scripts/check-placeholders.mjs .
 ```
 
 - 四個指令全綠(lint 不得有 warning);`check-placeholders` 0 個 ERROR(範例功能的 WARN 是預期的)
-- 抽查連結:`docs/conventions/` 與 `docs/adr/` 互相連結、README 文件地圖的連結都存在
+- 抽查連結:`docs/conventions/` 與 `docs/adr/` 互相連結、README 文件地圖的連結都存在、每張任務單的「參考畫面」
+  指到存在的 png
 - 全部通過後做第一次 commit(訊息需符合 commitlint):
   `git add -A && git commit -m "chore: bootstrap project from frontend-project-bootstrap v<版本>"`
 - 回報給使用者:
@@ -119,7 +138,7 @@ node <skill>/scripts/check-placeholders.mjs .
   2. 產出的檔案清單(依資料夾分組)
   3. 偏離團隊標準之處與對應 ADR
   4. 仍待確認的問題(含沒有建議答案、只能寫「待確認」的項目)
-  5. 建議的第一張任務單
+  5. 建議的第一張任務單,以及開工指令:`git checkout -b <任務單的分支>` 後 `/implement docs/tasks/<ID>-<slug>.md`
 
 ## 無人值守時
 

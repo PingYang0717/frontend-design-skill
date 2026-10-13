@@ -43,7 +43,7 @@ flowchart LR
 
 本專案預計的領域(`components/<domain>/`,依任務單逐一建立;不列骨架的範例 `items/`):
 
-<!-- FILL: 表格:domain 資料夾名稱、對應 CONTEXT.md 的名詞、包含哪些主要元件、對應哪些頁面。來源:prototype-analysis.md 的元件清單。 -->
+<!-- FILL: 表格:domain 資料夾名稱、對應 GLOSSARY.md 的名詞、包含哪些主要元件、對應哪些頁面。來源:prototype-analysis.md 的元件清單。 -->
 
 | domain | 領域名詞 | 主要元件 | 用在哪些頁面 |
 | ------ | -------- | -------- | ------------ |

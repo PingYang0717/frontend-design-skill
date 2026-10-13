@@ -24,7 +24,7 @@ const walk = (dir) =>
 const PLACEHOLDER = /\{\{[A-Z][A-Z0-9_]*\}\}/g;
 const FILL = /<!--\s*FILL\b/g;
 const docFiles = [
-  ...['README.md', 'AGENTS.md', 'ARCHITECTURE.md', 'CONTEXT.md', 'CLAUDE.md'].map((f) => join(root, f)),
+  ...['README.md', 'AGENTS.md', 'ARCHITECTURE.md', 'GLOSSARY.md', 'CLAUDE.md'].map((f) => join(root, f)),
   ...(existsSync(join(root, 'docs')) ? walk(join(root, 'docs')) : []),
   // docs/templates/ 是給之後複製用的空白範本,本來就帶著 placeholder。
 ].filter((f) => existsSync(f) && f.endsWith('.md') && !relative(root, f).startsWith(join('docs', 'templates')));
@@ -56,7 +56,29 @@ if (/<title>App<\/title>/.test(readIf('index.html'))) errors.push('index.html �
 if (readIf('src/i18n/zhTW.ts').includes("name: '系統名稱'")) errors.push('src/i18n/zhTW.ts 的 app.name 仍是預設值');
 if (readIf('src/i18n/en.ts').includes("name: 'App name'")) errors.push('src/i18n/en.ts 的 app.name 仍是預設值');
 
-// 4. 範例功能仍在(第一個真實功能完成後應刪除)
+// 4. 任務單的「參考畫面」要指到存在的截圖;沒有任何截圖時提醒
+const tasksDir = join(root, 'docs', 'tasks');
+const screensDir = join(root, 'docs', 'prototype', 'screens');
+if (existsSync(tasksDir)) {
+  const taskFiles = walk(tasksDir).filter((f) => f.endsWith('.md') && !f.endsWith('README.md'));
+  for (const file of taskFiles) {
+    const text = readFileSync(file, 'utf8');
+    for (const match of text.matchAll(/docs\/prototype\/screens\/([\w-]+\.png)/g)) {
+      if (!existsSync(join(screensDir, match[1]))) {
+        errors.push(`${relative(root, file)} 參考畫面不存在:${match[0]}`);
+      }
+    }
+    if (!/^\|\s*狀態\s*\|\s*(ready-for-agent|in-progress|needs-human|done)\s*\|/m.test(text)) {
+      errors.push(
+        `${relative(root, file)} 缺少「狀態」列或狀態值不在 ready-for-agent / in-progress / needs-human / done`
+      );
+    }
+  }
+  const pngs = existsSync(screensDir) ? readdirSync(screensDir).filter((f) => f.endsWith('.png')) : [];
+  if (pngs.length === 0) warnings.push('docs/prototype/screens/ 沒有任何截圖;實作 agent 只能靠文字描述畫面。');
+}
+
+// 5. 範例功能仍在(第一個真實功能完成後應刪除)
 const EXAMPLE_FILES = [
   'src/types/api/item.ts',
   'src/api/itemApi.ts',
