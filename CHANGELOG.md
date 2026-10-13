@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.0.0(2026-10-13)
+
+第一個正式發布版(tag `v1.0.0`),內容與 0.2.0 相同;從這一版開始依語意化版本升版。
+
 ## 0.2.0(2026-10-13)
 
 接上 [mattpocock/skills](https://github.com/mattpocock/skills):產出停在「`/implement` 可以直接吃」的狀態。
