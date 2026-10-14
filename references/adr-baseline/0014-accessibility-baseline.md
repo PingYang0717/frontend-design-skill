@@ -3,7 +3,7 @@
 ## 背景
 
 antd 元件本身大多可及,但組合起來之後常出現缺口:純圖示按鈕沒有名稱、自己刻的彈出面板
-接不住焦點、對話框關閉後焦點掉回 `<body>`、文字直接寫在 JSX 裡沒有進字典、讀取狀態對螢幕
+接不住焦點、對話框關閉後焦點掉回 `<body>`、可讀名稱漏寫或每列都一樣、讀取狀態對螢幕
 閱讀器無聲。這些問題都不會讓畫面壞掉,所以不會在一般測試中被發現。
 
 無障礙規則若只在各元件的註解裡,就看不到全貌;跨檔案的約定(例如觸發器與面板之間的焦點
@@ -19,14 +19,14 @@ antd 元件本身大多可及,但組合起來之後常出現缺口:純圖示按�
 - **純圖示按鈕一律用 `components/common/IconButton`**,`label` 同時當 Tooltip 與
   `aria-label`。不自己組 `Button` + `Tooltip`。
 - 沒有可見標籤的輸入元件(搜尋框、`Segmented`、`Select`)帶 `aria-label`。
-- `aria-label` 的文字進字典([ADR-0010](0010-ui-copy-in-typed-dictionary.md)):它是使用者
+- `aria-label` 的文字與畫面文案同等對待(選了 i18n 時進字典,ADR-0010):它是使用者
   讀到的文字。
 - 圖示只用 `@ant-design/icons`,不用 emoji 或文字符號頂替
   ([ADR-0001](0001-visual-authority-is-the-prototype.md))。
 
 ### status-announcement:讀取狀態要被念出來
 
-`SuspenseLoader` 的 fallback 帶 `role="status"`,文案說出在載入什麼(`t.common.loading(what)`)。
+`SuspenseLoader` 的 fallback 帶 `role="status"`,文案說出在載入什麼(「`${what}載入中…`」)。
 錯誤卡用 antd `Result`,主句說出哪一塊失敗。
 
 ### page-language:`<html lang>` 跟著介面語言
@@ -53,8 +53,8 @@ antd 元件本身大多可及,但組合起來之後常出現缺口:純圖示按�
 ✅
 
 ```tsx
-<IconButton danger icon={<DeleteOutlined />} label={t.items.delete.label(item.name)} onClick={confirm} />
-<Segmented aria-label={t.header.theme} options={themeOptions} />
+<IconButton danger icon={<DeleteOutlined />} label={`刪除 ${item.name}`} onClick={confirm} />
+<Input.Search aria-label="搜尋" placeholder="依名稱搜尋" />
 ```
 
 ❌
@@ -66,7 +66,7 @@ antd 元件本身大多可及,但組合起來之後常出現缺口:純圖示按�
 
 ### 測試用無障礙查詢
 
-測試以 `getByRole(…, { name })`、`getByLabelText` 定位元件,名稱引用字典。查不到就代表
+測試以 `getByRole(…, { name })`、`getByLabelText` 定位元件,名稱與畫面文字相同(選了 i18n 時引用字典)。查不到就代表
 螢幕閱讀器也找不到——無障礙缺口在測試中直接變成失敗。範本:`ItemsPage.test.tsx`。
 
 規則細節見 [`accessibility.md`](../conventions/accessibility.md)。

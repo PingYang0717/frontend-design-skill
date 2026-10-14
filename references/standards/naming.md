@@ -10,7 +10,7 @@
 | 頁面               | `pages/<Name>/<Name>Page.tsx`     | `pages/Items/ItemsPage.tsx`          | `pages/items.tsx`、`pages/Items/index.tsx` |
 | 元件樣式           | 與元件同名 + `.module.css`        | `LoadErrorPanel.module.css`          | `styles.css`、`LoadErrorPanel.css`         |
 | hook               | camelCase,`use` 開頭              | `useItems.ts`、`useItemMutations.ts` | `itemsHook.ts`                             |
-| store              | `use<Name>Store.ts`               | `useThemeStore.ts`                   | `themeStore.ts`                            |
+| store              | `use<Name>Store.ts`               | `useLayoutStore.ts`                  | `layoutStore.ts`                           |
 | endpoint module    | `<資源>Api.ts`(單數)              | `itemApi.ts`、`authApi.ts`           | `items.service.ts`、`api.ts`               |
 | DTO 型別檔         | 資源名單數小寫                    | `types/api/item.ts`                  | `types/api/Items.d.ts`                     |
 | 純函式             | camelCase,動詞開頭                | `describeError.ts`                   | `ErrorUtils.ts`                            |
@@ -42,8 +42,8 @@
 
 **規則**:用 `is` / `has` / `can` / `should` 開頭;對應的 setter 是 `set` + 去掉 `is` 的名字。
 
-- ✅ `isDarkMode` / `setDarkMode`、`isSiderCollapsed` / `setSiderCollapsed`、`isCreateOpen` / `setCreateOpen`
-- ❌ `dark`、`collapsed`、`open`(與動作或元件 prop 混淆)
+- ✅ `isSiderCollapsed` / `setSiderCollapsed`、`isCreateOpen` / `setCreateOpen`、`isDarkMode` / `setDarkMode`
+- ❌ `collapsed`、`open`、`dark`(與動作或元件 prop 混淆)
 
 例外:antd 元件的 prop 照 antd 命名(`open`、`loading`、`collapsed`)。
 
@@ -81,16 +81,16 @@ queryKey 的結構規則見 [data-fetching.md](./data-fetching.md) 的「queryKe
 | `ROUTES` key     | camelCase,與 `NavKey` 一致                      | `ROUTES.items` ↔ `NavKey 'items'`     |
 | 權限代碼         | `<資源>:<動作>`,與後端逐字一致                  | `'items:read'`、`'items:write'`       |
 | URL query 參數   | 短、小寫                                        | `?q=`、`?page=`、`?tab=`              |
-| localStorage key | `app:<名稱>`,一律在 `constants/storage.ts` 定義 | `THEME_STORAGE_KEY = 'app:theme'`     |
+| localStorage key | `app:<名稱>`,一律在 `constants/storage.ts` 定義 | `LAYOUT_STORAGE_KEY = 'app:layout'`   |
 
-## 7. 文案字典 key
+## 7. 文案字典 key(選了 i18n 模組時)
 
 **規則**:巢狀物件,第一層是 domain(`items`、`errors`、`common`),最後一層描述用途而非內容。
 
 - ✅ `t.items.create.nameRequired`、`t.common.retry`
 - ❌ `t.pleaseEnterName`、`t.items.text1`
 
-詳見 [i18n.md](./i18n.md)。
+詳見 `i18n.md`。
 
 ## 8. CSS Modules class
 

@@ -45,13 +45,13 @@ export const PERMISSIONS = {
 
 ```tsx
 // 選單項目
-{ key: 'items', path: ROUTES.items, icon: <AppstoreOutlined />, label: (t) => t.nav.items, permission: PERMISSIONS.itemsRead },
+{ key: 'items', path: ROUTES.items, icon: <AppstoreOutlined />, label: '項目管理', permission: PERMISSIONS.itemsRead },
 ```
 
 ```tsx
 <Can permission={PERMISSIONS.itemsWrite}>
   <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)}>
-    {t.common.create}
+    新增
   </Button>
 </Can>
 ```
@@ -61,7 +61,7 @@ export const PERMISSIONS = {
 ```tsx
 const user = useCurrentUser();
 
-return <>{user.role === 'admin' && <Button>{t.common.delete}</Button>}</>;
+return <>{user.role === 'admin' && <Button>刪除</Button>}</>;
 ```
 
 ```tsx

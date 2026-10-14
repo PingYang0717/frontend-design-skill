@@ -27,7 +27,6 @@
     }
   },
   "include": ["src"],
-  // 測試檔與測試工具由 tsconfig.test.json 檢查。mocks/ 仍會因 main.tsx 的動態 import 被一起檢查,
-  // 但正式產物不含它:import.meta.env.DEV 在 build 時為 false,整段被移除(ADR-0011)。
-  "exclude": ["src/test", "src/mocks", "src/**/*.test.ts", "src/**/*.test.tsx"]
+  // 測試檔與測試工具由 tsconfig.test.json 檢查。
+  "exclude": ["src/test", "src/**/*.test.ts", "src/**/*.test.tsx"]
 }

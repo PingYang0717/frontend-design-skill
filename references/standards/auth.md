@@ -88,7 +88,7 @@ const canWrite = user.permissions.includes('items:write'); // 自己判斷、手
   key: 'items',
   path: ROUTES.items,
   icon: <AppstoreOutlined />,
-  label: (t) => t.nav.items,
+  label: '項目管理',
   permission: PERMISSIONS.itemsRead,
 },
 ```
@@ -128,7 +128,7 @@ const ItemsPage: React.FC = () => {
 ```tsx
 <Can permission={PERMISSIONS.itemsWrite}>
   <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)}>
-    {t.common.create}
+    新增
   </Button>
 </Can>
 ```
@@ -136,11 +136,11 @@ const ItemsPage: React.FC = () => {
 ❌ 錯誤
 
 ```tsx
-<Button disabled={!user.permissions.includes('items:write')}>{t.common.create}</Button>
+<Button disabled={!user.permissions.includes('items:write')}>新增</Button>
 ```
 
 **隱藏還是停用?** 預設隱藏。只有 prototype 明確畫出「停用並提示原因」時才改成停用,此時用
-`usePermission` 取得布林值,並以 Tooltip 說明原因(文案進字典)。
+`usePermission` 取得布林值,並以 Tooltip 說明原因(選了 i18n 時文案進字典)。
 
 ## 6. 選單過濾
 
@@ -154,7 +154,8 @@ const ItemsPage: React.FC = () => {
 3. 頁面:在 `navEntries.tsx` 該入口設定 `permission`(不在選單的頁面,於 `routes.tsx` 用
    `RequirePermission` 包住)。
 4. 頁面內的按鈕/區塊:用 `<Can>` 包住。
-5. Mock:`src/mocks/db.ts` 的 `seedUser()` 視需要加入新權限,開發期才看得到畫面。
+5. 測試使用者:選了 msw 模組 → `src/mocks/db.ts` 的 `seedUser()` 加入新權限(開發期 `dev:mock` 才看得到畫面);
+   沒選 → `src/test/fixtures.ts` 的 `TEST_USER` 加入。
 6. 測試:至少一個「沒有權限」的案例——把 `db.currentUser.permissions` 改掉,斷言入口或按鈕
    不存在(範本見 `src/components/auth/RequirePermission.test.tsx` 與
    `src/pages/Items/ItemsPage.test.tsx` 的 `hides write actions from a read-only user`)。
@@ -163,7 +164,7 @@ const ItemsPage: React.FC = () => {
 db.currentUser = { ...db.currentUser, permissions: ['items:read'] };
 renderApp('/items');
 await screen.findByText('範例項目 A');
-expect(screen.queryByRole('button', { name: new RegExp(t.common.create) })).not.toBeInTheDocument();
+expect(screen.queryByRole('button', { name: /新增/ })).not.toBeInTheDocument();
 ```
 
 ## 8. 認證 header

@@ -6,20 +6,8 @@ import { connectSession } from '@/app/session';
 
 import './index.css';
 
-/** 開發期 mock:只在 `npm run dev:mock`(VITE_ENABLE_MOCKS=true)時啟動 MSW。
- *  `import.meta.env.DEV` 在正式建置會被替換成 false,整段連同 mocks/ 一起被移除。 */
-const enableMocking = async () => {
-  if (!import.meta.env.DEV || import.meta.env.VITE_ENABLE_MOCKS !== 'true') {
-    return;
-  }
-  const { worker } = await import('@/mocks/browser');
-  await worker.start({ onUnhandledFrame: 'bypass' });
-};
-
 // 登入狀態接上 apiClient(帶 token、401 清 session),要在第一個請求之前。
 connectSession();
-
-await enableMocking();
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

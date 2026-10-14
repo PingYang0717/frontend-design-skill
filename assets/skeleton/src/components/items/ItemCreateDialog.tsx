@@ -1,10 +1,7 @@
 import React from 'react';
 import { Form, Input, Modal } from 'antd';
-import { useForm } from 'react-hook-form';
 
-import FormField from '@/components/common/FormField';
 import { useCreateItem } from '@/hooks/useItemMutations';
-import { useTranslations } from '@/i18n/useTranslations';
 import type { CreateItemRequest } from '@/types/api/item';
 
 interface ItemCreateDialogProps {
@@ -12,52 +9,38 @@ interface ItemCreateDialogProps {
   onClose: () => void;
 }
 
-/** 表單範本:React Hook Form 管狀態與驗證,antd 只負責版面與輸入元件,每個欄位一個 FormField。
- *  型別用 types/api/ 的 request 型別,送出用 mutation 的 mutateAsync(docs/conventions/forms.md)。 */
+/** 表單範本:antd Form 管狀態與驗證,`Form.Item name` 一個欄位一個。
+ *  型別用 types/api/ 的 request 型別,送出用 mutation 的 mutateAsync(docs/conventions/components.md)。 */
 const ItemCreateDialog: React.FC<ItemCreateDialogProps> = ({ open, onClose }) => {
-  const { control, handleSubmit, reset } = useForm<CreateItemRequest>({ defaultValues: { name: '' } });
+  const [form] = Form.useForm<CreateItemRequest>();
   const createItem = useCreateItem();
-  const t = useTranslations();
 
-  const submit = handleSubmit(async (values) => {
+  const submit = async (values: CreateItemRequest) => {
     try {
       await createItem.mutateAsync(values);
     } catch {
       // 失敗已由 useActionMutation 以 toast 回報;對話框保持開啟,使用者填的內容不會消失。
       return;
     }
-    reset();
-    onClose();
-  });
-
-  const close = () => {
-    reset();
     onClose();
   };
 
   return (
     <Modal
       open={open}
-      title={t.items.create.title}
-      okText={t.common.create}
-      cancelText={t.common.cancel}
+      title="新增項目"
+      okText="新增"
+      cancelText="取消"
       confirmLoading={createItem.isPending}
-      onOk={() => void submit()}
-      onCancel={close}
+      onOk={() => form.submit()}
+      onCancel={onClose}
       destroyOnHidden
     >
-      <Form layout="vertical" onFinish={() => void submit()}>
-        <FormField
-          control={control}
-          name="name"
-          label={t.items.create.nameLabel}
-          rules={{
-            required: t.items.create.nameRequired,
-            validate: (value) => value.trim() !== '' || t.items.create.nameRequired,
-          }}
-        >
-          {(field) => <Input {...field} autoFocus />}
-        </FormField>
+      {/* clearOnDestroy:對話框關閉時表單卸載並清空,下次打開是空白的,不必手動 resetFields。 */}
+      <Form form={form} layout="vertical" clearOnDestroy onFinish={(values) => void submit(values)}>
+        <Form.Item name="name" label="名稱" rules={[{ required: true, whitespace: true, message: '請輸入名稱' }]}>
+          <Input autoFocus />
+        </Form.Item>
       </Form>
     </Modal>
   );

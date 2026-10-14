@@ -17,13 +17,7 @@ const NO_PARENT_RELATIVE = {
   message: '跨資料夾請用 `@/` 路徑;同資料夾才用 `./`(docs/conventions/project-structure.md)。',
 };
 
-/** 正式程式碼不得依賴 mock;只有 main.tsx(開發期開關)、mocks/ 自己與測試可以。 */
-const NO_MOCKS = {
-  group: ['@/mocks/*'],
-  message: 'mock 只給開發期開關(main.tsx)與測試使用;正式程式碼不得依賴(ADR-0011)。',
-};
-
-/** 分層規則不套用在測試:測試需要 import mocks 與跨層組裝。 */
+/** 分層規則不套用在測試:測試需要跨層組裝。 */
 const TEST_FILES = ['src/**/*.test.ts', 'src/**/*.test.tsx'];
 
 /** 各層「不准 import 什麼」。依賴方向:pages → components → hooks → api → types/utils/constants。 */
@@ -121,7 +115,7 @@ export default [
     files,
     ignores: TEST_FILES,
     rules: {
-      'no-restricted-imports': ['error', { paths, patterns: [NO_PARENT_RELATIVE, NO_MOCKS, ...patterns] }],
+      'no-restricted-imports': ['error', { paths, patterns: [NO_PARENT_RELATIVE, ...patterns] }],
     },
   })),
 ];

@@ -87,7 +87,7 @@ export const useItem = (id: string) => useSuspenseQuery(itemQuery(id)).data;
 
 ```tsx
 // ✅ src/pages/Items/ItemsPage.tsx
-<DataBoundary what={t.items.entity}>
+<DataBoundary what="項目">
   <ItemTable keyword={debouncedKeyword} />
 </DataBoundary>
 ```
@@ -129,23 +129,22 @@ export const useUnreadCount = () => useQuery(unreadCountQuery).data;
 **規則**
 
 - 所有寫入一律用 [`useActionMutation`](../../src/hooks/useActionMutation.ts),不直接用 `useMutation`。
-- 失敗預設以 toast 回報(文案依錯誤 code 查字典,見 [error-handling.md](./error-handling.md))。
+- 失敗預設以 toast 回報(文案依錯誤 code 決定,見 [error-handling.md](./error-handling.md))。
   覆寫 `onError`(例如錯誤要顯示在表單欄位)時,在呼叫端註解寫理由。
 - 成功後 `invalidateQueries` 對應的 queryKey,引用 `xxxQueryKey`;`await` 它,讓 mutation 在清單更新後才結束。
-- 成功提示用 `App.useApp()` 的 `message`,文案進字典。
+- 成功提示用 `App.useApp()` 的 `message`(選了 i18n 時文案進字典)。
 
 ```ts
 // ✅ src/hooks/useItemMutations.ts
 export const useCreateItem = () => {
   const queryClient = useQueryClient();
   const { message } = App.useApp();
-  const t = useTranslations();
 
   return useActionMutation({
     mutationFn: createItem,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: itemsQueryKey, exact: true });
-      message.success(t.items.create.success);
+      message.success('已新增項目');
     },
   });
 };

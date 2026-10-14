@@ -43,7 +43,7 @@ if (error.response?.status === 404 || error.code === 'ERR_NETWORK') { … }
 ✅ 正確(`src/pages/Items/ItemsPage.tsx`)
 
 ```tsx
-<DataBoundary what={t.items.entity}>
+<DataBoundary what="項目">
   <ItemTable keyword={debouncedKeyword} />
 </DataBoundary>
 ```
@@ -56,7 +56,7 @@ if (isLoading) return <Spin />;
 if (error) return <div>載入失敗</div>;
 ```
 
-- `what` 傳字典裡的名詞(`t.items.entity`),它會組進「項目載入失敗」「找不到這筆項目」。
+- `what` 傳這個區塊的名詞(「項目」;選了 i18n 時用字典的 `t.items.entity`),它會組進「項目載入失敗」「找不到這筆項目」。
 - 例外(用 `useQuery` 自己處理狀態)要在 hook 註解寫理由,見 [data-fetching.md](./data-fetching.md)。
 - 錯誤卡需要「讀取失敗」以外的位置時,直接用 `LoadErrorPanel`(傳 `error`、`what`、`onRetry`),
   不要自己用 `Result` 重刻。
@@ -73,7 +73,7 @@ return useActionMutation({
   mutationFn: createItem,
   onSuccess: async () => {
     await queryClient.invalidateQueries({ queryKey: itemsQueryKey, exact: true });
-    message.success(t.items.create.success);
+    message.success('已新增項目');
   },
 });
 ```
@@ -135,24 +135,23 @@ export interface ApiErrorBody {
 
 1. 與後端確認 code 字串(SCREAMING_CASE,規格或後端契約要列出)。
 2. 加進 `src/types/api/error.ts` 的 `KNOWN_ERROR_CODES`。
-3. 在 `src/i18n/zhTW.ts` 的 `errors.byCode` 加一句——`satisfies Record<KnownErrorCode, string>`
-   會讓漏寫直接 typecheck 失敗。
-4. 在 `src/i18n/en.ts` 的 `errors.byCode` 加對應英文(型別由 zhTW 推導,漏寫同樣編譯失敗)。
-5. `src/i18n/errorCodeCoverage.test.ts` 會逐一檢查每個 code 在每種語言都有非空文案
-   (執行期保險,防止填了空字串)。
+3. 在 `src/utils/describeError.ts` 的 `ERROR_COPY_BY_CODE` 加一句——它是 `Record<KnownErrorCode, string>`,
+   漏寫直接 typecheck 失敗。
+4. 選了 i18n 模組時,第 3 步改為在 `src/i18n/zhTW.ts` 與 `en.ts` 的 `errors.byCode` 各加一句(同樣由型別強制),
+   `src/i18n/errorCodeCoverage.test.ts` 會再逐一檢查每個 code 在每種語言都有非空文案。
 
 ✅ 正確
 
 ```ts
 export const KNOWN_ERROR_CODES = ['VALIDATION_FAILED', 'CONFLICT', 'QUOTA_EXCEEDED'] as const;
-// zhTW.errors.byCode
+// utils/describeError.ts 的 ERROR_COPY_BY_CODE(選了 i18n 時是 zhTW.errors.byCode)
 QUOTA_EXCEEDED: '已達到上限,請刪除不需要的項目後再試。',
 ```
 
 ❌ 錯誤
 
 ```ts
-if (errorCode(error) === 'QUOTA_EXCEEDED') message.error('已達上限'); // 散落在元件、沒進字典
+if (errorCode(error) === 'QUOTA_EXCEEDED') message.error('已達上限'); // 散落在元件,沒集中在一處
 ```
 
 只寫句子、不決定呈現位置:同一個 code 在錯誤卡或 toast 都查同一句,呈現由呼叫端決定。

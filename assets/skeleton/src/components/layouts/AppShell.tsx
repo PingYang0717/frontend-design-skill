@@ -3,8 +3,8 @@ import { Layout, Menu } from 'antd';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 
 import DataBoundary from '@/components/common/DataBoundary';
+import { APP_NAME } from '@/constants/app';
 import { usePermissionChecker } from '@/hooks/usePermission';
-import { useTranslations } from '@/i18n/useTranslations';
 import { useLayoutStore } from '@/stores/useLayoutStore';
 import AppHeader from './AppHeader';
 import { NAV_ENTRIES } from './navEntries';
@@ -17,12 +17,11 @@ const AppShell: React.FC = () => {
   const navigate = useNavigate();
   const isAllowed = usePermissionChecker();
   const isSiderCollapsed = useLayoutStore((state) => state.isSiderCollapsed);
-  const t = useTranslations();
 
   const menuItems = NAV_ENTRIES.filter((entry) => isAllowed(entry.permission)).map((entry) => ({
     key: entry.path,
     icon: entry.icon,
-    label: entry.label(t),
+    label: entry.label,
   }));
 
   return (
@@ -38,7 +37,7 @@ const AppShell: React.FC = () => {
           />
         </Layout.Sider>
         <Layout.Content className={styles.content}>
-          <DataBoundary what={t.app.name}>
+          <DataBoundary what={APP_NAME}>
             <Outlet />
           </DataBoundary>
         </Layout.Content>

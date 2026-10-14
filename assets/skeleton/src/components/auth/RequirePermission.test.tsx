@@ -1,24 +1,24 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 
-import { zhTW as t } from '@/i18n/zhTW';
-import { db } from '@/mocks/db';
+import { getCurrentUser } from '@/api/authApi';
+import { TEST_USER } from '@/test/fixtures';
 import { renderApp } from '@/test/renderApp';
 
 describe('RequirePermission', () => {
   it('sends a user without the permission to the 403 page', async () => {
-    db.currentUser = { ...db.currentUser, permissions: [] };
+    vi.mocked(getCurrentUser).mockResolvedValue({ ...TEST_USER, permissions: [] });
     const { router } = renderApp('/items');
 
-    expect(await screen.findByText(t.pages.forbidden.title)).toBeInTheDocument();
+    expect(await screen.findByText('沒有權限')).toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/403');
   });
 
   it('hides the menu entry the user cannot open', async () => {
-    db.currentUser = { ...db.currentUser, permissions: [] };
+    vi.mocked(getCurrentUser).mockResolvedValue({ ...TEST_USER, permissions: [] });
     renderApp('/');
 
-    expect(await screen.findByText(t.pages.home.welcome(db.currentUser.name))).toBeInTheDocument();
-    expect(screen.queryByRole('menuitem', { name: t.nav.items })).not.toBeInTheDocument();
+    expect(await screen.findByText(`歡迎回來,${TEST_USER.name}`)).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: '項目管理' })).not.toBeInTheDocument();
   });
 });

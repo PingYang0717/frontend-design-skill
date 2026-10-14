@@ -5,63 +5,46 @@
 
 ## 1. `theme/tokens.ts` 是唯一色票來源
 
-**規則:** 所有顏色、圓角、字級、字型都定義在
-[`src/theme/tokens.ts`](../../src/theme/tokens.ts) 的 `LIGHT_TOKENS` / `DARK_TOKENS`。
-這張表餵三個消費端,全部由它**推導**,不另外維護:
+**規則:** 所有顏色、圓角、字級、字型都定義在 `src/theme/tokens.ts` 的 `TOKENS`
+(選了 dark-mode 模組時是 `LIGHT_TOKENS` / `DARK_TOKENS`,見 `dark-mode.md`)。
+這張表餵所有消費端,全部由它**推導**,不另外維護:
 
-| 消費端                | 檔案                                                         | 產物                      |
-| --------------------- | ------------------------------------------------------------ | ------------------------- |
-| antd `ConfigProvider` | `src/theme/antdTheme.ts` 的 `buildAntdTheme(isDarkMode)`     | antd 元件的 token         |
-| CSS Modules           | `src/theme/cssVars.ts` 的 `themeCssText(isDarkMode)`         | `:root { --app-*: … }`    |
-| AG Grid(`DataGrid`)   | `src/theme/agGridTheme.ts` 的 `buildAgGridTheme(isDarkMode)` | Theming API 的 theme 物件 |
+| 消費端                | 檔案                                             | 產物                                    |
+| --------------------- | ------------------------------------------------ | --------------------------------------- |
+| antd `ConfigProvider` | `src/theme/antdTheme.ts` 的 `buildAntdTheme()`   | antd 元件的 token                       |
+| CSS Modules           | `src/theme/cssVars.ts` 的 `themeCssText()`       | `:root { --app-*: … }`                  |
+| AG Grid(選了 ag-grid) | `src/theme/agGridTheme.ts` 的 `useAgGridTheme()` | Theming API 的 theme 物件(`ag-grid.md`) |
 
-**原因:** 每個消費端各抄一份,改色時一定漏一邊;只有一張表,深淺兩主題與 antd / AG Grid / 自寫元件才會一致。
+**原因:** 每個消費端各抄一份,改色時一定漏一邊;只有一張表,antd、表格與自寫元件才會一致。
 
 ❌ 錯誤:在元件、CSS Module、`index.css` 寫 `#1677ff`、`rgba(0,0,0,.45)`、`white`。
 工具管不到這條,靠 review 與 PR 範本的自我檢查。
 
 ## 2. 數值從 prototype 逐值擷取
 
-**規則:** 新專案收件時,依 prototype 的 design token 表,把 `LIGHT_TOKENS` 與 `DARK_TOKENS`
-的每個值**逐值**換成 prototype 的值(light、dark 各一組)。不要用 antd 演算法推導出「差不多」
-的顏色,也不要目測取色。
+**規則:** 新專案收件時,依 prototype 的 design token 表,把 `TOKENS` 的每個值**逐值**換成 prototype 的值。
+不要用 antd 演算法推導出「差不多」的顏色,也不要目測取色。
 
-**原因:** antd 預設深色表面色(`#000000` / `#141414` / `#1f1f1f`)通常與設計稿不同,差一點點
-的灰色在並排時一眼就看得出來;使用者驗收的對象是 prototype。
+**原因:** antd 預設色與設計稿通常差一點點,差一點點的灰色在並排時一眼就看得出來;使用者驗收的對象是 prototype。
 
 - prototype 有、`ThemeTokens` 沒有的 token:先在 `ThemeTokens` 加欄位,再到 `cssVars.ts` 的
   `CSS_VAR_NAMES` 加對應變數名(`Record<keyof ThemeTokens, string>` 會逼你補上),需要的話
   在 `antdTheme.ts` 對應到 antd token。
 - 字型堆疊只在 `tokens.ts` 的 `FONT_FAMILY` 寫一次。
 
-## 3. seed token 兩主題都餵亮色值
+## 3. seed token 與 map / alias token
 
-**規則:** antd 的 seed token(`colorPrimary`、`colorSuccess`、`colorWarning`、`colorError`)
-兩個主題都餵 `LIGHT_TOKENS` 的值;map / alias token(表面、邊框、文字)直接餵當前主題的值。
-
-**原因:** antd 的 `darkAlgorithm` 會從 seed 推導深色色盤;餵已經變暗的值,會被**再暗一次**。
-map / alias token 在推導之後才套用,所以要給最終值。
-
-✅ 正確(`src/theme/antdTheme.ts`)
-
-```ts
-colorPrimary: LIGHT_TOKENS.primary,   // seed:永遠亮色
-colorBgContainer: tokens.bgContainer, // map/alias:當前主題
-```
-
-❌ 錯誤
-
-```ts
-colorPrimary: tokens.primary, // 深色主題若給了暗色主色,會被 darkAlgorithm 再壓暗
-```
+**規則:** antd 的 seed token(`colorPrimary`、`colorSuccess`、`colorWarning`、`colorError`)餵 prototype 的主色與
+狀態色,hover、active 等衍生色交給 antd 演算法;map / alias token(表面、邊框、文字)直接餵 prototype 的最終值。
+選了 dark-mode 時,seed token 兩個主題都餵亮色值(原因見 `dark-mode.md` 第 2 節)。
 
 ## 4. CSS 變數宣告在 `:root`
 
-**規則:** `--app-*` 變數由 `AppProviders` 渲染一段 `<style>{themeCssText(isDarkMode)}</style>`,
+**規則:** `--app-*` 變數由 `AppProviders` 渲染一段 `<style>{themeCssText()}</style>`,
 宣告在 `:root`,不掛在某個 wrapper `<div>` 上。
 
 **原因:** 對話框、下拉選單、Tooltip 都 portal 到 `document.body`,在 wrapper 之外;變數掛在
-wrapper 上,這些浮層會讀不到,深色模式時安靜地停在 fallback 值。
+wrapper 上,這些浮層會讀不到,安靜地停在 fallback 值。
 
 ## 5. CSS Modules
 
@@ -114,7 +97,7 @@ wrapper 上,這些浮層會讀不到,深色模式時安靜地停在 fallback 值
 ✅ 正確
 
 ```tsx
-<IconButton danger icon={<DeleteOutlined />} label={t.items.delete.label(item.name)} />
+<IconButton danger icon={<DeleteOutlined />} label={`刪除 ${item.name}`} />
 ```
 
 ❌ 錯誤
@@ -129,13 +112,13 @@ wrapper 上,這些浮層會讀不到,深色模式時安靜地停在 fallback 值
 **規則:** `Tag`、`Badge` 這類元件的 `color` 只用 antd **語意色名**:`success`、`warning`、`error`、
 `processing`、`default`。不用具名色(`green`、`red`、`blue`…),也不傳色碼。
 
-**原因:** 語意色名由 theme token(`colorSuccess` 等)推導,跟著 `tokens.ts` 與深淺主題變;
-具名色是 antd 內建色盤,不受 token 管,換了主色或切深色就與設計稿脫節。
+**原因:** 語意色名由 theme token(`colorSuccess` 等)推導,跟著 `tokens.ts`(與深淺主題)變;
+具名色是 antd 內建色盤,不受 token 管,換了主色(或切深色)就與設計稿脫節。
 
 ✅ 正確(`src/components/items/ItemTable.tsx`)
 
 ```tsx
-<Tag color={item.status === 'ACTIVE' ? 'success' : 'default'}>{t.items.status[item.status]}</Tag>
+<Tag color={status === 'ACTIVE' ? 'success' : 'default'}>{STATUS_LABELS[status]}</Tag>
 ```
 
 ❌ 錯誤:`<Tag color="green">`、`<Tag color="#52c41a">`
@@ -161,6 +144,5 @@ wrapper 上,這些浮層會讀不到,深色模式時安靜地停在 fallback 值
 
 ## 10. 深淺主題
 
-- 主題狀態在 `useThemeStore`(`isDarkMode`,persist 到 localStorage)。
-- 新加的畫面兩個主題都要看過;PR 有改畫面時附淺色、深色截圖各一張(PR 範本要求)。
-- 不用 `@media (prefers-color-scheme)` 自己判斷主題:主題只由 store 決定,與 antd 同步。
+基底只有一組 `TOKENS`,沒有主題切換。需要深色模式時收件選 dark-mode 模組,規則見 `dark-mode.md`;
+不要自己加 `@media (prefers-color-scheme)` 或第二組色票。

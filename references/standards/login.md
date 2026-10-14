@@ -5,18 +5,18 @@
 
 ## 0. 組成
 
-| 落點           | 檔案                                   | 做什麼                                                                         |
-| -------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
-| DTO            | `types/api/auth.ts`                    | `LoginRequest`、`LoginResponse`,與公司登入服務逐字一致                         |
-| 端點           | `api/authApi.ts`                       | `login`、`logout`、`getCurrentUser`                                            |
-| 登入狀態       | `stores/useSessionStore.ts`            | `accessToken`、`setAccessToken`、`clearSession`;persist 到 `app:session`       |
-| 接上 apiClient | `app/session.ts` 的 `connectSession()` | 每個請求帶 `Authorization: Bearer <token>`;收到 401 就 `clearSession()`        |
-| 守衛           | `components/auth/RequireAuth.tsx`      | 沒有 session 導到 `ROUTES.login`,記住原本的網址                                |
-| 登入頁         | `pages/Login/LoginPage.tsx`            | 帳號 / 密碼表單;失敗訊息顯示在表單內;已登入就導回                              |
-| 寫入 hook      | `hooks/useSessionMutations.ts`         | `useLogin`(成功存 token)、`useLogout`(清 session、清快取)                      |
-| 登出入口       | `components/layouts/UserMenu.tsx`      | header 右側:使用者姓名 + 登出                                                  |
-| 路由           | `app/routes.tsx`                       | `PublicLayout`(登入頁)與 `RequireAuth` 包住的 `RootLayout`(其餘頁面)兩個區域   |
-| 假後端         | `mocks/handlers.ts`、`mocks/db.ts`     | `POST /auth/login`、`POST /auth/logout`;`GET /me` 檢查 token;帳密 `MOCK_LOGIN` |
+| 落點           | 檔案                                                                                 | 做什麼                                                                                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DTO            | `types/api/auth.ts`                                                                  | `LoginRequest`、`LoginResponse`,與公司登入服務逐字一致                                                                                                  |
+| 端點           | `api/authApi.ts`                                                                     | `login`、`logout`、`getCurrentUser`                                                                                                                     |
+| 登入狀態       | `stores/useSessionStore.ts`                                                          | `accessToken`、`setAccessToken`、`clearSession`;persist 到 `app:session`                                                                                |
+| 接上 apiClient | `app/session.ts` 的 `connectSession()`                                               | 每個請求帶 `Authorization: Bearer <token>`;收到 401 就 `clearSession()`                                                                                 |
+| 守衛           | `components/auth/RequireAuth.tsx`                                                    | 沒有 session 導到 `ROUTES.login`,記住原本的網址                                                                                                         |
+| 登入頁         | `pages/Login/LoginPage.tsx`                                                          | 帳號 / 密碼表單;失敗訊息顯示在表單內;已登入就導回                                                                                                       |
+| 寫入 hook      | `hooks/useSessionMutations.ts`                                                       | `useLogin`(成功存 token)、`useLogout`(清 session、清快取)                                                                                               |
+| 登出入口       | `components/layouts/UserMenu.tsx`                                                    | header 右側:使用者姓名 + 登出                                                                                                                           |
+| 路由           | `app/routes.tsx`                                                                     | `PublicLayout`(登入頁)與 `RequireAuth` 包住的 `RootLayout`(其餘頁面)兩個區域                                                                            |
+| 假後端         | 選了 msw:`mocks/handlers.ts`、`mocks/db.ts`;沒選:`test/setup.ts`、`test/fixtures.ts` | msw:`POST /auth/login`、`POST /auth/logout`、`GET /me` 檢查 token,帳密 `MOCK_LOGIN`;沒選:`vi.mock('@/api/authApi')`,`getCurrentUser` 預設回 `TEST_USER` |
 
 ```mermaid
 flowchart LR
@@ -66,9 +66,9 @@ flowchart LR
 
 **規則:** 登入頁的版面、欄位、錯誤呈現由骨架決定,專案不重做:
 
-- 置中的 `Card`,上方是 `t.app.name` 與副標;欄位是帳號、密碼;按鈕 `block`。
+- 置中的 `Card`,上方是系統名稱(`APP_NAME`,選了 i18n 時是 `t.app.name`)與副標;欄位是帳號、密碼;按鈕 `block`。
 - 登入失敗顯示在表單上方的 `Alert`(`role="alert"`),文案由 `describeActionError` 依後端 `code`
-  查字典;`INVALID_CREDENTIALS` 已在 `KNOWN_ERROR_CODES`。**不用 toast**(`useLogin` 已覆寫 `onError`)。
+  決定(`describeActionError`);`INVALID_CREDENTIALS` 已在 `KNOWN_ERROR_CODES`。**不用 toast**(`useLogin` 已覆寫 `onError`)。
 - 已登入的使用者進到 `/login` 直接導回。
 - prototype 畫了登入頁時,只調整 token(色票、字型)與文案,不改結構;確實需要不同結構(例如
   加公司 logo、說明文字)時改骨架,讓所有專案一起變。
@@ -86,7 +86,7 @@ flowchart LR
 
 | 方式                                         | 要改的檔案                                                                                                                                                  | 不動的檔案                                                      |
 | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| 帳密登入,回 Bearer token(骨架預設)           | `types/api/auth.ts`、`api/authApi.ts`、`mocks/handlers.ts` 的欄位名與路徑對齊公司登入服務                                                                   | store、`app/session.ts`、`RequireAuth`、`LoginPage`、`UserMenu` |
+| 帳密登入,回 Bearer token(骨架預設)           | `types/api/auth.ts`、`api/authApi.ts`(選了 msw 還有 `mocks/handlers.ts`)的欄位名與路徑對齊公司登入服務                                                      | store、`app/session.ts`、`RequireAuth`、`LoginPage`、`UserMenu` |
 | SSO 跳轉(OIDC / SAML),callback 帶 token 回來 | `LoginPage` 的表單換成「以公司帳號登入」按鈕導向 IdP;新增 `pages/AuthCallback/` 讀取 token 後 `setAccessToken`,放在 `PublicLayout` 區域;`useLogin` 改為導向 | store、`app/session.ts`、`RequireAuth`、`UserMenu`              |
 | Gateway / Cookie(前端沒有 token)             | `app/session.ts` 不帶 header,401 時改為 `window.location.assign(<gateway 登入網址>)`;`RequireAuth` 改以 `useCurrentUser` 成功與否判斷;`LoginPage` 可移除    | `UserMenu`、`useLogout`(改呼叫 gateway 的登出)                  |
 

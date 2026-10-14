@@ -37,7 +37,7 @@
 
 ```tsx
 // pages/Items/ItemsPage.tsx
-<DataBoundary what={t.items.entity}>
+<DataBoundary what="項目">
   <ItemTable keyword={debouncedKeyword} />
 </DataBoundary>
 ```

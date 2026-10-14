@@ -20,8 +20,8 @@ src/
   components/   依 domain 切:common / layouts / auth / items …
   constants/    路由、權限、storage key 等共用常數
   hooks/        資料 hook(queryOptions + useSuspenseQuery)與跨元件的 UI hook
-  i18n/         介面文案字典
-  mocks/        MSW handler 與假資料(開發期 mock 與測試共用)
+  i18n/         介面文案字典(選了 i18n 模組時)
+  mocks/        MSW handler 與假資料(選了 msw 模組時;開發期 mock 與測試共用)
   pages/        路由頁面:只組裝、只放 DataBoundary
   stores/       Zustand store(只放 UI 狀態)
   test/         測試 setup 與 render helper

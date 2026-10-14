@@ -3,18 +3,16 @@ import { Button, Result } from 'antd';
 import { useNavigate } from 'react-router';
 
 import { ROUTES } from '@/constants/routes';
-import { useTranslations } from '@/i18n/useTranslations';
 
 const ForbiddenPage: React.FC = () => {
   const navigate = useNavigate();
-  const t = useTranslations();
 
   return (
     <Result
       status="403"
-      title={t.pages.forbidden.title}
-      subTitle={t.pages.forbidden.description}
-      extra={<Button onClick={() => navigate(ROUTES.home)}>{t.common.backHome}</Button>}
+      title="沒有權限"
+      subTitle="你的帳號沒有存取這個頁面的權限,如有需要請聯絡系統管理員。"
+      extra={<Button onClick={() => navigate(ROUTES.home)}>回首頁</Button>}
     />
   );
 };

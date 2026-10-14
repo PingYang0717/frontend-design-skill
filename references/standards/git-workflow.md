@@ -105,16 +105,16 @@ PR 標題與 commit 訊息格式相同:`feat(items): 新增項目建立對話框
 
 範本在 `.azuredevops/pull_request_template.md`,每一欄都要填,沒有就寫「無」:
 
-| 欄位       | 填什麼                                                        |
-| ---------- | ------------------------------------------------------------- |
-| 變更說明   | 做了什麼、為什麼                                              |
-| 對應需求   | 規格(`docs/spec/`)的章節或畫面;有 scenario 編號就寫編號       |
-| 畫面截圖   | 有改畫面就附淺色、深色各一張                                  |
-| 偏離設計稿 | 與 prototype 不同的地方與原因,是否已回報 UX                   |
-| 自我檢查   | 逐項勾選(四項檢查、字典、資料抓取寫法、色碼、權限、mock、ADR) |
+| 欄位       | 填什麼                                                                           |
+| ---------- | -------------------------------------------------------------------------------- |
+| 變更說明   | 做了什麼、為什麼                                                                 |
+| 對應需求   | 規格(`docs/spec/`)的章節或畫面;有 scenario 編號就寫編號                          |
+| 畫面截圖   | 有改畫面就附截圖;選了 dark-mode 時淺色、深色各一張                               |
+| 偏離設計稿 | 與 prototype 不同的地方與原因,是否已回報 UX                                      |
+| 自我檢查   | 逐項勾選(四項檢查、資料抓取寫法、色碼、權限、ADR;選了 i18n、msw 再加字典與 mock) |
 
-自我檢查項目對應的規範:[i18n.md](./i18n.md)、[data-fetching.md](./data-fetching.md)、
-[styling-theme.md](./styling-theme.md)、[auth.md](./auth.md)、[mocking.md](./mocking.md)。
+自我檢查項目對應的規範:[data-fetching.md](./data-fetching.md)、[styling-theme.md](./styling-theme.md)、[auth.md](./auth.md);
+選了模組時還有 `i18n.md`、`msw.md`。
 偏離團隊規範的決定要寫 ADR(`docs/adr/`,編號接續現有最大號)。
 
 ## 5. 分支原則(Branch policies)

@@ -1,4 +1,4 @@
-import { type ThemeTokens, tokensFor } from './tokens';
+import { type ThemeTokens, TOKENS } from './tokens';
 
 /** token 名稱 → CSS 變數名稱。CSS Module 一律寫 `var(--app-color-text)` 這種形式。 */
 const CSS_VAR_NAMES: Record<keyof ThemeTokens, string> = {
@@ -23,10 +23,9 @@ const toCssValue = (key: keyof ThemeTokens, value: string | number): string =>
   typeof value === 'number' && key !== 'fontFamily' ? `${value}px` : String(value);
 
 /** 宣告在 `:root`:對話框、下拉選單會 portal 到 body,掛在 wrapper 上的變數它們讀不到。 */
-export const themeCssText = (isDarkMode: boolean): string => {
-  const tokens = tokensFor(isDarkMode);
+export const themeCssText = (): string => {
   const declarations = (Object.keys(CSS_VAR_NAMES) as Array<keyof ThemeTokens>)
-    .map((key) => `${CSS_VAR_NAMES[key]}: ${toCssValue(key, tokens[key])};`)
+    .map((key) => `${CSS_VAR_NAMES[key]}: ${toCssValue(key, TOKENS[key])};`)
     .join(' ');
   return `:root { ${declarations} }`;
 };

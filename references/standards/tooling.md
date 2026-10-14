@@ -34,10 +34,10 @@
 | `stores/`                                | `@/api/*`、`@/hooks/*`、`@/components/*`、`@/pages/*`               | Zustand 只放 UI 狀態,伺服器資料走 TanStack Query                             |
 | `api/`、`utils/`、`types/`、`constants/` | `@/hooks/*`、`@/stores/*`、`@/components/*`、`@/pages/*`、`@/app/*` | 底層不可反向依賴                                                             |
 | `i18n/`、`theme/`                        | `@/api/*`、`@/hooks/*`、`@/components/*`、`@/pages/*`、`@/app/*`    | 只依賴 stores、types、constants                                              |
-| `app/` 與以上各層                        | `@/mocks/*`(`NO_MOCKS`)                                             | 正式程式碼不得依賴 mock;只有 `main.tsx`(開發期開關)、`mocks/` 自己與測試可以 |
+| `app/` 與以上各層(選了 msw 時)           | `@/mocks/*`(`NO_MOCKS`)                                             | 正式程式碼不得依賴 mock;只有 `main.tsx`(開發期開關)、`mocks/` 自己與測試可以 |
 | 所有檔案                                 | `../*`、`../**`                                                     | 跨資料夾一律 `@/`;相對路徑會繞過上面的比對                                   |
 
-分層規則**不套用在測試檔**(`src/**/*.test.ts(x)`,`TEST_FILES`):測試需要 import mocks 與跨層組裝。
+分層規則**不套用在測試檔**(`src/**/*.test.ts(x)`,`TEST_FILES`):測試需要 import mocks、fixtures 與跨層組裝。
 `../` 的禁令在測試檔仍然有效(由基本設定帶入)。
 
 ✅ 正確
@@ -59,7 +59,7 @@ import axios from 'axios'; // 元件自己開 HTTP
 把 `NO_PARENT_RELATIVE` 與 `NO_MOCKS` 自動併進每個分層區塊。新增分層規則時加進 `LAYER_RULES`
 陣列(沒有額外限制的層也要列,例如 `app/` 的 `patterns: []`,`NO_MOCKS` 才套得上),不要另寫區塊。
 
-`mocks/`、`test/` 與 `src/main.tsx` 不在 `LAYER_RULES` 內,它們的依賴方向靠 review。
+`mocks/`(選了 msw 時)、`test/` 與 `src/main.tsx` 不在 `LAYER_RULES` 內,它們的依賴方向靠 review。
 
 ## 3. Commit 前:husky + lint-staged + commitlint
 
@@ -92,7 +92,7 @@ import axios from 'axios'; // 元件自己開 HTTP
 | Install dependencies | `npm ci`(`HUSKY=0`)                  | 只依 lockfile 安裝,不一致就失敗;CI 不裝 git hook |
 | Lint                 | `npm run lint`                       | oxlint + ESLint                                  |
 | Typecheck            | `npm run typecheck`                  | `tsc -b`:app、test、node 三份 tsconfig           |
-| Test                 | `npm test`                           | Vitest 全部測試(含兩支 i18n 守門測試)            |
+| Test                 | `npm test`                           | Vitest 全部測試(選了 i18n 時含兩支守門測試)      |
 | Build                | `npm run build`                      | `tsc -b tsconfig.app.json && vite build`         |
 
 四項檢查全綠才能合併:在 `main` 的分支原則設定 Build validation 指向這條 pipeline
@@ -104,8 +104,8 @@ import axios from 'axios'; // 元件自己開 HTTP
 | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | `npm install`                       | 安裝依賴。本機用 `npm install`;只有 CI 用 `npm ci`(見 [ADR-0016](../adr/0016-dependency-versioning-and-lockfile.md)) |
 | `npm run dev`                       | 開發伺服器,`/api` 轉給 `VITE_PROXY_TARGET`(預設 `http://localhost:8080`)                                             |
-| `npm run dev:mock`                  | 開發伺服器 + MSW 假後端(讀 `.env.mock`,見 [mocking.md](./mocking.md))                                                |
-| `npm run build`                     | 正式建置(只檢查 `tsconfig.app.json`,不含 mocks)                                                                      |
+| `npm run dev:mock`                  | 選了 msw 才有:開發伺服器 + MSW 假後端(讀 `.env.mock`,見 `msw.md`)                                                    |
+| `npm run build`                     | 正式建置(只檢查 `tsconfig.app.json`,不含測試)                                                                        |
 | `npm run preview`                   | 預覽 build 產物                                                                                                      |
 | `npm run typecheck`                 | 三份 tsconfig 全部檢查                                                                                               |
 | `npm run lint` / `npm run lint:fix` | 檢查 / 自動修正                                                                                                      |

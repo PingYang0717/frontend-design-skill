@@ -4,13 +4,13 @@
 
 ## 1. 四種狀態,四個位置
 
-| 狀態                                                          | 放哪裡           | 骨架範例                                              |
-| ------------------------------------------------------------- | ---------------- | ----------------------------------------------------- |
-| 伺服器資料(API 回來的任何東西)                                | TanStack Query   | `useItems()`、`useCurrentUser()`                      |
-| 可分享、重新整理要保留的檢視條件(篩選、搜尋、分頁、tab、排序) | URL query string | `ItemsPage` 的 `?q=`                                  |
-| 跨頁面、跨元件的全域 UI 狀態                                  | Zustand          | `useThemeStore`、`useLayoutStore`、`useLanguageStore` |
-| 登入狀態(token):client 端的 session,不是伺服器資料            | Zustand          | `useSessionStore`(見 [login.md](./login.md))          |
-| 只有一個元件(或一對父子)在用的 UI 狀態                        | `useState`       | `ItemsPage` 的 `isCreateOpen`                         |
+| 狀態                                                          | 放哪裡           | 骨架範例                                                            |
+| ------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------- |
+| 伺服器資料(API 回來的任何東西)                                | TanStack Query   | `useItems()`、`useCurrentUser()`                                    |
+| 可分享、重新整理要保留的檢視條件(篩選、搜尋、分頁、tab、排序) | URL query string | `ItemsPage` 的 `?q=`                                                |
+| 跨頁面、跨元件的全域 UI 狀態                                  | Zustand          | `useLayoutStore`;選了模組時還有 `useThemeStore`、`useLanguageStore` |
+| 登入狀態(token):client 端的 session,不是伺服器資料            | Zustand          | `useSessionStore`(見 [login.md](./login.md))                        |
+| 只有一個元件(或一對父子)在用的 UI 狀態                        | `useState`       | `ItemsPage` 的 `isCreateOpen`                                       |
 
 表單欄位值由 antd `Form` 自己管理,不另外放 state。
 
@@ -87,60 +87,62 @@ onChange={(event) => setSearchParams(event.target.value ? { q: event.target.valu
 - state 與 action 寫在同一個 `interface <Name>State`。
 - 一律包 `devtools`(最外層)並給 `name`;每個 `set` 帶 action 名稱(第三個參數)。
 - 需要跨重新整理記住的才加 `persist`,storage key 一律取自 `constants/storage.ts`。
-- 元件讀取用 selector,一次取一個值:`useThemeStore((state) => state.isDarkMode)`。
-- 非元件程式要讀值用 `useXxxStore.getState()`(例:`i18n/useTranslations.ts` 的 `getTranslations`)。
+- 元件讀取用 selector,一次取一個值:`useLayoutStore((state) => state.isSiderCollapsed)`。
+- 非元件程式要讀值用 `useXxxStore.getState()`(例:`app/session.ts` 讀 `useSessionStore.getState().accessToken`)。
 
 **原因**:selector 讓元件只在用到的值改變時重繪;devtools 的 action 名稱讓除錯時看得出是誰改的。
 
 ### 範本
 
 ```ts
-// src/stores/useThemeStore.ts
+// src/stores/useLayoutStore.ts
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
-import { THEME_STORAGE_KEY } from '@/constants/storage';
+import { LAYOUT_STORAGE_KEY } from '@/constants/storage';
 
-/** Zustand store 範本:只放 UI 狀態;需要跨重新整理記住的才加 persist。
- *  devtools 放最外層,DevTools 才看得到 persist 還原後的值。 */
-interface ThemeState {
-  isDarkMode: boolean;
-  setDarkMode: (isDarkMode: boolean) => void;
+interface LayoutState {
+  isSiderCollapsed: boolean;
+  setSiderCollapsed: (isSiderCollapsed: boolean) => void;
 }
 
-export const useThemeStore = create<ThemeState>()(
+/** devtools 放最外層,DevTools 才看得到 persist 還原後的值。 */
+export const useLayoutStore = create<LayoutState>()(
   devtools(
     persist(
       (set) => ({
-        isDarkMode: false,
-        setDarkMode: (isDarkMode) => set({ isDarkMode }, false, 'setDarkMode'),
+        isSiderCollapsed: false,
+        setSiderCollapsed: (isSiderCollapsed) => set({ isSiderCollapsed }, false, 'setSiderCollapsed'),
       }),
-      { name: THEME_STORAGE_KEY }
+      { name: LAYOUT_STORAGE_KEY }
     ),
-    { name: 'Theme' }
+    { name: 'Layout' }
   )
 );
 ```
 
 不需要 persist 時,拿掉 `persist(...)` 那層即可:`devtools((set) => ({ ... }), { name: 'Xxx' })`。
+選了模組時還有 `useLanguageStore`(i18n)、`useThemeStore`(dark-mode),寫法相同。
 
 ### 使用
 
 ```tsx
 // ✅ 一次取一個值
-const isDarkMode = useThemeStore((state) => state.isDarkMode);
-const setDarkMode = useThemeStore((state) => state.setDarkMode);
+const isSiderCollapsed = useLayoutStore((state) => state.isSiderCollapsed);
+const setSiderCollapsed = useLayoutStore((state) => state.setSiderCollapsed);
 ```
 
 ```tsx
 // ❌ 取整個 store:任何欄位改變都會重繪
-const { isDarkMode, setDarkMode } = useThemeStore();
+const { isSiderCollapsed, setSiderCollapsed } = useLayoutStore();
 ```
 
 ```ts
 // ❌ 沒有 devtools、action 沒名字、storage key 寫死
-export const useThemeStore = create<ThemeState>()(
-  persist((set) => ({ isDarkMode: false, setDarkMode: (v) => set({ isDarkMode: v }) }), { name: 'theme' })
+export const useLayoutStore = create<LayoutState>()(
+  persist((set) => ({ isSiderCollapsed: false, setSiderCollapsed: (v) => set({ isSiderCollapsed: v }) }), {
+    name: 'layout',
+  })
 );
 ```
 
@@ -148,7 +150,7 @@ export const useThemeStore = create<ThemeState>()(
 
 | ✅ 適合                          | ❌ 不適合                              |
 | -------------------------------- | -------------------------------------- |
-| 主題、語言、側欄開合、登入 token | 清單資料、目前使用者(→ TanStack Query) |
+| 側欄開合、登入 token、主題、語言 | 清單資料、目前使用者(→ TanStack Query) |
 | 跨頁面保留的草稿                 | 篩選、分頁(→ URL)                      |
 | 全域的「目前選取」且不需分享連結 | 只有一個對話框用的開關(→ `useState`)   |
 

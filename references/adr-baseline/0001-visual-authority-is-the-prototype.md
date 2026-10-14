@@ -15,10 +15,10 @@ Iconify 上的鏡像 `ant-design:xxx-outlined`)。
 **1. 樣式、排版、圖示必須符合 prototype——不是參考,是驗收標準。** 包含間距、字級、圓角、
 收合與展開等版面行為,以及每一個圖示的選用。
 
-**2. 色票只有一個來源:`src/theme/tokens.ts`,逐值取自 prototype。** light 與 dark 各一組,
+**2. 色票只有一個來源:`src/theme/tokens.ts`,逐值取自 prototype。**(選了 dark-mode 模組時 light 與 dark 各一組)
 同時餵給 antd `ConfigProvider`(`theme/antdTheme.ts`)與 CSS Modules 讀的 `--app-*` 變數
-(`theme/cssVars.ts`)。不靠 antd 演算法推導「差不多」的顏色:antd 預設的深色表面
-(`#000000` / `#141414` / `#1f1f1f`)多半不是設計稿的值。prototype 的 token 表在收件分析
+(`theme/cssVars.ts`)。不靠 antd 演算法推導「差不多」的顏色:antd 的預設色
+多半不是設計稿的值。prototype 的 token 表在收件分析
 時整理一次,之後改色只改 `tokens.ts`。prototype 原檔進版控(`docs/prototype/`),規格放 `docs/spec/`,
 讓之後在乾淨 context 裡開工的 agent 看得到驗收標準,而不是只看文字描述。
 
@@ -43,14 +43,14 @@ Iconify 上的鏡像 `ant-design:xxx-outlined`)。
 ```
 
 ```tsx
-<IconButton icon={<MenuFoldOutlined />} label={t.nav.toggleSider} onClick={toggle} />
+<IconButton icon={<MenuFoldOutlined />} label="收合或展開側欄" onClick={toggle} />
 ```
 
 ❌
 
 ```css
 .header {
-  background: #fff; /* 深色模式不會跟著換 */
+  background: #fff; /* 改色時不會跟著換,深色模式也不會 */
 }
 ```
 
@@ -63,10 +63,10 @@ Iconify 上的鏡像 `ant-design:xxx-outlined`)。
 ## 後果
 
 - 每張票的驗收除了功能,也要拿 prototype 核對視覺與圖示;這一半沒有工具能自動驗,靠 PR
-  截圖(淺色 / 深色各一張)與 review。
-- prototype 沒畫的狀態(錯誤卡、空狀態、403、深色模式下的某些表面)由開發者補,補的值仍要
+  截圖(選了 dark-mode 時淺色 / 深色各一張)與 review。
+- prototype 沒畫的狀態(錯誤卡、空狀態、403、選了 dark-mode 時深色下的某些表面)由開發者補,補的值仍要
   進 `tokens.ts`,不在元件裡臨時寫。
-- prototype 若只給淺色,深色值由專案自訂並在 token 的註解寫理由。
+- 選了 dark-mode 而 prototype 只給淺色時,深色值依 ADR-0022 的細項(保留骨架預設或從淺色推導)。
 - **寫死色碼目前沒有 lint 擋**,靠 review 與 PR 範本的自我檢查。
 
 ### 何時重新討論

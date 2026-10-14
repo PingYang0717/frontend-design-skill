@@ -8,7 +8,6 @@
   },
   "scripts": {
     "dev": "vite",
-    "dev:mock": "vite --mode mock",
     "build": "tsc -b tsconfig.app.json && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b",
@@ -19,17 +18,12 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@ag-grid-community/locale": "^36.2.0",
     "@ant-design/icons": "^6.3.4",
     "@tanstack/react-query": "^5.104.2",
-    "ag-grid-community": "^36.2.0",
-    "ag-grid-enterprise": "^36.2.0",
-    "ag-grid-react": "^36.2.0",
     "antd": "^6.6.6",
     "axios": "^1.20.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "react-hook-form": "^7.90.0",
     "react-router": "^8.4.0",
     "zustand": "^5.0.15"
   },
@@ -53,7 +47,6 @@
     "husky": "^9.1.7",
     "jsdom": "^29.1.1",
     "lint-staged": "^16.4.0",
-    "msw": "^3.0.3",
     "oxlint": "^1.88.0",
     "prettier": "^3.9.10",
     "typescript": "~6.0.3",

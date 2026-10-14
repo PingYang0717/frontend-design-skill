@@ -24,7 +24,7 @@
 ([ADR-0013](0013-lint-enforces-layer-boundaries.md)),store 拿不到抓資料的函式。
 
 **2. Zustand 只放跨元件、跨頁的介面狀態。** 需要跨重新整理記住的才加 `persist`,storage
-key 取自 `constants/storage.ts`;`devtools` 放最外層。範本:`stores/useThemeStore.ts`。
+key 取自 `constants/storage.ts`;`devtools` 放最外層。範本:`stores/useLayoutStore.ts`。
 
 **3. 能分享的檢視條件放 URL。** 判準:使用者把網址貼給同事,對方該不該看到同一個畫面?
 該,就放 search params。範本:`ItemsPage` 的 `?q=`。

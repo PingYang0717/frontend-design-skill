@@ -51,7 +51,7 @@ export const createItem = (body: CreateItemRequest): Promise<Item> => apiClient.
 ```ts
 // src/utils/describeError.ts
 if (isNotFound(error)) {
-  return { heading: t.errors.loadFailed(what), detail: t.errors.notFound(what) };
+  return { heading: `${what}載入失敗`, detail: `找不到這筆${what},可能已被刪除。` };
 }
 ```
 

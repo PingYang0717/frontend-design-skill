@@ -1,5 +1,34 @@
 # CHANGELOG
 
+## 3.0.0(2026-10-14)
+
+**破壞性變更:骨架拆成「必選的基底」+「五個可選模組」,收件時一輪問答決定要用哪些。**
+基底不含任何可選功能、自己就全綠;選「是」的模組才讀它的 README、疊上它的檔案、規範與 ADR。
+
+- **骨架拆分**:`assets/skeleton/` 只留必選(登入與 session、權限、`theme/tokens.ts`、`DataBoundary`、錯誤處理、路由、
+  Zustand、TanStack Query、Vitest、husky + commitlint、Azure DevOps CI、Vite 設定)。可選模組在 `assets/modules/<模組>/`,
+  各有 `README.md`(裝套件、疊檔案、逐檔改既有檔案、測試、與其他模組的互動)、`files/`、依前面模組而不同的
+  `files.with-<模組>/`(ag-grid 另有 `files.community/`)、`standard.md`、`adr.md`。固定套用順序 i18n → dark-mode → msw →
+  react-hook-form → ag-grid
+- **選「否」時基底的做法**:i18n → 文案直接寫繁中(系統名稱 `constants/app.ts`、錯誤文案 `utils/describeError.ts`);
+  dark-mode → 只有一組 `TOKENS`;msw → 沒有 `dev:mock`,頁面測試 `vi.mock('@/api/*Api')`,假資料 `test/fixtures.ts`、
+  錯誤回應 `test/responseError.ts`;react-hook-form → antd `Form.useForm` + `Form.Item name`(含公版登入頁);
+  ag-grid → antd `Table`。Item 範例在基底是 antd `Table` + antd `Form` 的最小版,模組提供替換版
+- 基底 `package.json` 只留必選依賴,`package-lock.json` 重新產生;`vite.config.ts` 不含 msw plugin 與 `ag-grid` chunk
+  (模組 README 寫明要加的片段)。AG Grid 可選 Enterprise 或 Community;`DataGrid` 的主題改由 `useAgGridTheme()` 提供
+- **問答流程**:步驟 1 的收件問題與五題模組問題同一輪問完,建議答案全為「是」(AG Grid 建議 Enterprise、prototype 沒給深色時
+  建議保留骨架預設);無人值守時全部採用建議。選擇記在 `docs/adr/0022-selected-modules.md`(新範本
+  `templates/adr-selected-modules.md`),`AGENTS.md` 範本的「本專案特有規則」連過去
+- **ADR 編號**:0022 固定為選用模組,其他專案 ADR 改從 **0023** 起。基線 0001–0019 編號不變,其中 0010、0011、0018、0019
+  搬進模組(i18n、msw、ag-grid、react-hook-form);兩份索引 README 的模組列標「(模組:xxx,選用時才有)」
+- **規範**:`i18n.md`、`mocking.md` → `msw.md`、`data-grid.md` → `ag-grid.md`、`forms.md` → `react-hook-form.md` 搬進模組;
+  新增 `dark-mode.md`(含「從淺色推導」的換算表)。必選規範的範例改成基底寫法,選了模組時的差異寫在同一處;
+  `testing.md` 改以 `vi.mock` 為基底寫法,`styling-theme.md` 只剩單一主題
+- `templates/AGENTS.md`、`README.md`:技術棧與鐵律中跟模組相關的句子改成「依 docs/adr/0022 填」的 FILL
+- `check-placeholders`:解析 0022 的表格(缺 0022 或缺列是 ERROR);0022 與實際疊上的模組、規範檔不一致是 ERROR;
+  沒選 i18n 時改查 `APP_NAME`;範例功能檢查依模組多查 MSW handler、`seedItems`、`testItems`、字典 `items`
+- 修正:對話框的 antd 表單加 `clearOnDestroy`,關閉後重開是空白的
+
 ## 2.1.0(2026-10-14)
 
 公版新增**資料表格(AG Grid Enterprise)**、**表單(React Hook Form)**,並把**沒有權限的畫面**明寫成公版。

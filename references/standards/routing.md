@@ -1,6 +1,6 @@
 # 路由
 
-> 路由模式(history 或 hash)由**每個專案收件時決定並寫 ADR**(`docs/adr/0020` 起的編號)。
+> 路由模式(history 或 hash)由**每個專案收件時決定並寫 ADR**(`docs/adr/0020-router-mode.md`)。
 > 選單、路由、權限守衛共用一份來源:[`navEntries.tsx`](../../src/components/layouts/navEntries.tsx)
 > 加上 [`app/navPages.tsx`](../../src/app/navPages.tsx)。
 
@@ -39,7 +39,7 @@ export type NavKey = 'home' | 'items' | 'reports';
   key: 'reports',
   path: ROUTES.reports,
   icon: <BarChartOutlined />,
-  label: (t) => t.nav.reports,
+  label: '報表', // 選了 i18n 時寫成 (t) => t.nav.reports
   permission: PERMISSIONS.reportsRead,
 },
 ```
@@ -53,7 +53,7 @@ export const NAV_PAGES: Record<NavKey, React.LazyExoticComponent<React.FC>> = {
 };
 ```
 
-同時:`i18n/zhTW.ts`、`en.ts` 加 `nav.reports`;需要權限時 `constants/permissions.ts` 加一列。
+同時:需要權限時 `constants/permissions.ts` 加一列;選了 i18n 模組時 `i18n/zhTW.ts`、`en.ts` 加 `nav.reports`。
 
 **原因**:選單、路由、權限守衛從同一份資料長出來,不會出現「選單有、路由沒有」或「路由有、沒擋權限」。
 

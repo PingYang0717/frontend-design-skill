@@ -9,12 +9,10 @@ import ItemCreateDialog from '@/components/items/ItemCreateDialog';
 import ItemTable from '@/components/items/ItemTable';
 import { PERMISSIONS } from '@/constants/permissions';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
-import { useTranslations } from '@/i18n/useTranslations';
 
 /** 頁面範本:只組裝與放邊界,不寫業務邏輯。搜尋條件放 URL,重新整理與分享連結都保得住。 */
 const ItemsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const t = useTranslations();
 
   const [isCreateOpen, setCreateOpen] = useState(false);
 
@@ -23,11 +21,11 @@ const ItemsPage: React.FC = () => {
 
   return (
     <Card
-      title={t.items.title}
+      title="項目管理"
       extra={
         <Can permission={PERMISSIONS.itemsWrite}>
           <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)}>
-            {t.common.create}
+            新增
           </Button>
         </Can>
       }
@@ -35,12 +33,12 @@ const ItemsPage: React.FC = () => {
       <Flex vertical gap={16}>
         <Input.Search
           allowClear
-          aria-label={t.common.search}
-          placeholder={t.items.searchPlaceholder}
+          aria-label="搜尋"
+          placeholder="依名稱搜尋"
           value={keyword}
           onChange={(event) => setSearchParams(event.target.value ? { q: event.target.value } : {}, { replace: true })}
         />
-        <DataBoundary what={t.items.entity}>
+        <DataBoundary what="項目">
           <ItemTable keyword={debouncedKeyword} />
         </DataBoundary>
       </Flex>

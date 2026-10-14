@@ -1,0 +1,100 @@
+import React from 'react';
+import type { ColDef, ValueFormatterParams } from 'ag-grid-community';
+import type { CustomCellRendererProps } from 'ag-grid-react';
+import { Tag } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
+
+import Can from '@/components/auth/Can';
+import DataGrid from '@/components/common/DataGrid';
+import IconButton from '@/components/common/IconButton';
+import { PERMISSIONS } from '@/constants/permissions';
+import { useConfirmDestructive } from '@/hooks/useConfirmDestructive';
+import { useDeleteItem } from '@/hooks/useItemMutations';
+import { useItems } from '@/hooks/useItems';
+import type { Item, ItemStatus } from '@/types/api/item';
+
+const STATUS_LABELS: Record<ItemStatus, string> = {
+  ACTIVE: '使用中',
+  ARCHIVED: '已封存',
+};
+
+/** 儲存格元件範本:cellRenderer 給一個 React 元件,props.data 是該列的 DTO(過濾中可能是 undefined)。 */
+const StatusCell: React.FC<CustomCellRendererProps<Item>> = ({ data }) => {
+  if (!data) {
+    return null;
+  }
+  return <Tag color={data.status === 'ACTIVE' ? 'success' : 'default'}>{STATUS_LABELS[data.status]}</Tag>;
+};
+
+/** 操作欄範本:寫入動作用 Can 包住,刪除走 useConfirmDestructive。hook 在儲存格元件裡照常可用。 */
+const ActionsCell: React.FC<CustomCellRendererProps<Item>> = ({ data }) => {
+  const deleteItem = useDeleteItem();
+  const confirmDestructive = useConfirmDestructive();
+
+  if (!data) {
+    return null;
+  }
+  return (
+    <Can permission={PERMISSIONS.itemsWrite}>
+      <IconButton
+        danger
+        icon={<DeleteOutlined />}
+        label={`刪除 ${data.name}`}
+        loading={deleteItem.isPending && deleteItem.variables === data.id}
+        onClick={() =>
+          confirmDestructive({
+            title: `確定要刪除「${data.name}」嗎?`,
+            content: '刪除後無法復原。',
+            onConfirm: () => deleteItem.mutateAsync(data.id),
+          })
+        }
+      />
+    </Can>
+  );
+};
+
+interface ItemTableProps {
+  /** 已 debounce 的搜尋字串。 */
+  keyword: string;
+}
+
+/** 表格範本:資料從 hook 來(useSuspenseQuery,不處理 loading/error,交給外層 DataBoundary),表格用 DataGrid。 */
+const ItemTable: React.FC<ItemTableProps> = ({ keyword }) => {
+  const items = useItems();
+
+  const normalizedKeyword = keyword.trim().toLowerCase();
+  const visibleItems = normalizedKeyword
+    ? items.filter((item) => item.name.toLowerCase().includes(normalizedKeyword))
+    : items;
+
+  const columns: ColDef<Item>[] = [
+    { field: 'name', headerName: '名稱' },
+    { field: 'status', headerName: '狀態', cellRenderer: StatusCell, maxWidth: 160 },
+    {
+      field: 'updatedAt',
+      headerName: '更新時間',
+      valueFormatter: ({ value }: ValueFormatterParams<Item, string>) =>
+        value ? new Date(value).toLocaleString() : '',
+    },
+    {
+      colId: 'actions',
+      headerName: '操作',
+      cellRenderer: ActionsCell,
+      width: 96,
+      flex: 0,
+      sortable: false,
+      resizable: false,
+    },
+  ];
+
+  return (
+    <DataGrid<Item>
+      rowData={visibleItems}
+      columnDefs={columns}
+      getRowId={({ data }) => data.id}
+      overlayNoRowsTemplate="目前沒有項目"
+    />
+  );
+};
+
+export default ItemTable;

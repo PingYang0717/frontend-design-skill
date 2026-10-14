@@ -17,8 +17,8 @@
 **2. 只收前端消費的欄位。** `types/api` 描述前端用到什麼,不是後端吐了什麼。沒有消費端的
 欄位不收——它會讓讀型別的人以為有功能。完整的線路形狀以後端的契約文件(或規格裡的 API 一節)為準。
 
-**3. 需要轉換的地方在使用點做。** 例如 enum 轉文案在字典裡查
-(`t.items.status[item.status]`),日期在 render 時格式化;不在 api 層先轉好。
+**3. 需要轉換的地方在使用點做。** 例如 enum 轉文案在元件的對照表裡查
+(`STATUS_LABELS[item.status]`;選了 i18n 時是字典的 `t.items.status[item.status]`),日期在 render 時格式化;不在 api 層先轉好。
 
 **4. 前端自己的概念不上線路、不進 `types/api/`。** UI 內部型別(元件 props、表單值)跟著
 使用它的元件或 hook 走。
@@ -41,7 +41,7 @@ export type ItemStatus = 'ACTIVE' | 'ARCHIVED';
 ```
 
 ```tsx
-<Tag>{t.items.status[item.status]}</Tag>
+<Tag>{STATUS_LABELS[item.status]}</Tag>
 ```
 
 ❌
@@ -59,8 +59,7 @@ const toItem = (dto: ItemDto): ItemViewModel => ({
 
 ## 後果
 
-- 接真後端時沒有形狀落差;mock handler 與 DTO 也就能直接對照契約
-  ([ADR-0011](0011-dev-mocks-removed-when-endpoint-ships.md))。
+- 接真後端時沒有形狀落差;測試假資料(選了 msw 時是 mock handler)與 DTO 也就能直接對照契約。
 - 線路的怪形狀(JSON 字串欄位、巢狀過深)會滲進 UI 的使用點;這是刻意付的代價,不另包一層。
 - 型別只是編譯期的宣稱,不驗 runtime;防線的取捨見
   [ADR-0006](0006-api-errors-judged-in-one-place.md)。

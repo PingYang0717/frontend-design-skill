@@ -41,11 +41,7 @@ const visibleItems = normalizedKeyword
 ```
 
 ```tsx
-<IconButton
-  icon={<MenuFoldOutlined />}
-  label={t.nav.toggleSider}
-  onClick={() => setSiderCollapsed(!isSiderCollapsed)}
-/>
+<IconButton icon={<MenuFoldOutlined />} label="收合或展開側欄" onClick={() => setSiderCollapsed(!isSiderCollapsed)} />
 ```
 
 ❌

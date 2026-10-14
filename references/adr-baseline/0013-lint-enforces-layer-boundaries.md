@@ -42,8 +42,8 @@ review 沒看到就進去了;之後這種寫法會被複製。
 
 - **`NO_PARENT_RELATIVE`:禁止 `../` 相對路徑**(全專案)。跨資料夾一律 `@/`,同資料夾才用
   `./`;否則 `../../api/itemApi` 就能繞過上面的規則。
-- **`NO_MOCKS`:正式程式碼不得 import `@/mocks/*`**。只有 `src/main.tsx`(開發期開關)、
-  `mocks/` 自己與測試不在限制內([ADR-0011](0011-dev-mocks-removed-when-endpoint-ships.md))。
+- **`NO_MOCKS`(選了 msw 模組時):正式程式碼不得 import `@/mocks/*`**。只有 `src/main.tsx`(開發期開關)、
+  `mocks/` 自己與測試不在限制內(ADR-0011)。
 
 每個區塊都要重新帶上這兩條,因為後出現的 `no-restricted-imports` 設定會整條覆蓋前面的。
 
@@ -80,7 +80,7 @@ import { useItems } from '../../hooks/useItems'; // no-restricted-imports(../)
 - 分層違規在編輯器裡就變紅,不必等 review。錯誤訊息直接指向對應的規範文件。
 - `import type` 也受限制:元件需要 DTO 型別時從 `@/types/api/*` 取,不從 endpoint module 取。
 - `app/` 是組裝點,只受兩條共通規則限制;`i18n/` 與 `theme/` 是橫切關注點,只依賴
-  stores、types、constants(`i18n/zhTW.ts` 依賴 `types/api`、`useTranslations` 讀
+  stores、types、constants(選了 i18n 時,`i18n/zhTW.ts` 依賴 `types/api`、`useTranslations` 讀
   `useLanguageStore` 都是允許的)。`test/`、`mocks/` 與 `src/main.tsx` 不在分層規則內。
 - 兩個 linter 意味著兩份設定;新增規則時先查 oxlint 有沒有對等規則,有就放 oxlint。
 - react-hooks 規則目前為 warn,不擋 commit;理由見

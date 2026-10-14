@@ -16,10 +16,10 @@
 採用 **{{AUTH_MODE}}**。
 
 <!-- FILL: 依 docs/conventions/login.md 第 6 節寫明改了哪些檔案:
-     帳密:types/api/auth.ts 與 api/authApi.ts 的路徑、欄位名;mocks/handlers.ts 同步。
+     帳密:types/api/auth.ts 與 api/authApi.ts 的路徑、欄位名;選了 msw 時 mocks/handlers.ts 同步,沒選時 src/test/fixtures.ts 同步。
      SSO:LoginPage 的進入方式、新增的 callback 頁與路由、IdP 的設定值放哪裡(環境變數,不含機密)。
      Cookie:app/session.ts 的 401 改導向 gateway;RequireAuth 的判斷依據;登出的做法。 -->
 
 ## 後果
 
-<!-- FILL: 這個選擇的代價(例如 token 放 localStorage 的風險、SSO 的本機開發方式、cookie 模式下 dev:mock 怎麼登入),以及何時重新討論。 -->
+<!-- FILL: 這個選擇的代價(例如 token 放 localStorage 的風險、SSO 的本機開發方式、cookie 模式下本機開發與測試怎麼登入),以及何時重新討論。 -->

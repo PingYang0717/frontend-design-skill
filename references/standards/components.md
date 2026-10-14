@@ -22,7 +22,7 @@
 - props interface 命名 `<元件名>Props`,宣告在該元件**正上方**。
 - 沒有 props 的元件寫 `React.FC`,不帶泛型、不造空 interface。
 - 需要 `children` 時在 interface 明寫 `children: ReactNode`。
-- **例外:泛型元件**(`DataGrid<TData>`、`FormField<TValues, TName>`)無法寫成 `React.FC<XProps>`,改寫
+- **例外:泛型元件**(模組提供的 `DataGrid<TData>`、`FormField<TValues, TName>`)無法寫成 `React.FC<XProps>`,改寫
   `const X = <T,>(props: XProps<T>) => {}`,props interface 仍放正上方;只有 `components/common/` 的公版零件可以。
 
 **原因**:型別一眼可見;interface 與元件相鄰,改 props 時不用跳檔。
@@ -66,7 +66,7 @@ hook、utils、store、常數檔沒有 default export,一律具名匯出。
 
 **規則**:依序
 
-1. 非 `react` 匯入的 hook(`useItems`、`useTranslations`、`useSearchParams`、`Form.useForm`…)
+1. 非 `react` 匯入的 hook(`useItems`、`useSearchParams`、`Form.useForm`、選了 i18n 時的 `useTranslations`…)
 2. `useId`
 3. `useRef`
 4. `useState`
@@ -83,7 +83,6 @@ hook、utils、store、常數檔沒有 default export,一律具名匯出。
 ```tsx
 // ✅ src/pages/Items/ItemsPage.tsx
 const [searchParams, setSearchParams] = useSearchParams();
-const t = useTranslations();
 
 const [isCreateOpen, setCreateOpen] = useState(false);
 
@@ -141,20 +140,20 @@ useEffect(() => {
 
 ## 8. 共用零件,不手刻
 
-| 需求                                 | 用                                                              |
-| ------------------------------------ | --------------------------------------------------------------- |
-| 純圖示按鈕(帶 Tooltip 與 aria-label) | `components/common/IconButton`                                  |
-| 資料表格                             | `components/common/DataGrid`([data-grid.md](./data-grid.md))    |
-| 表單欄位(React Hook Form ↔ antd)     | `components/common/FormField`([forms.md](./forms.md))           |
-| 讀取中 / 讀取失敗的邊界              | `components/common/DataBoundary`                                |
-| 讀取失敗的錯誤卡                     | `components/common/LoadErrorPanel`(由 `ErrorBoundary` 使用)     |
-| 刪除等不可復原動作的確認             | `hooks/useConfirmDestructive`                                   |
-| 依權限顯示                           | `components/auth/Can`                                           |
-| 需要登入的路由區域                   | `components/auth/RequireAuth`(`routes.tsx` 已包住 `RootLayout`) |
-| 搜尋輸入 debounce(300–500ms)         | `hooks/useDebouncedValue`                                       |
+| 需求                                 | 用                                                                          |
+| ------------------------------------ | --------------------------------------------------------------------------- |
+| 純圖示按鈕(帶 Tooltip 與 aria-label) | `components/common/IconButton`                                              |
+| 資料表格                             | antd `Table`;選了 ag-grid 用 `components/common/DataGrid`                   |
+| 表單欄位                             | antd `Form.Item name`;選了 react-hook-form 用 `components/common/FormField` |
+| 讀取中 / 讀取失敗的邊界              | `components/common/DataBoundary`                                            |
+| 讀取失敗的錯誤卡                     | `components/common/LoadErrorPanel`(由 `ErrorBoundary` 使用)                 |
+| 刪除等不可復原動作的確認             | `hooks/useConfirmDestructive`                                               |
+| 依權限顯示                           | `components/auth/Can`                                                       |
+| 需要登入的路由區域                   | `components/auth/RequireAuth`(`routes.tsx` 已包住 `RootLayout`)             |
+| 搜尋輸入 debounce(300–500ms)         | `hooks/useDebouncedValue`                                                   |
 
-- ✅ `<IconButton icon={<DeleteOutlined />} label={t.items.delete.label(item.name)} onClick={...} />`
-- ❌ `<Tooltip title="刪除"><Button icon={<DeleteOutlined />} /></Tooltip>`(沒有 aria-label、文案寫死)
+- ✅ ``<IconButton icon={<DeleteOutlined />} label={`刪除 ${item.name}`} onClick={...} />``
+- ❌ `<Tooltip title="刪除"><Button icon={<DeleteOutlined />} /></Tooltip>`(沒有 aria-label、每列名稱都一樣)
 - ❌ `Modal.confirm({ title: '確定刪除?' })`(直接開,按鈕文案與危險樣式不一致)
 
 新增共用零件時放 `components/common/`,並補進本表。
@@ -163,14 +162,23 @@ useEffect(() => {
 
 **規則**:`pages/` 只做三件事:組裝元件、放 `DataBoundary`、讀寫 URL state。資料抓取與業務邏輯在 hook 與元件。
 
-- ✅ `ItemsPage` 讀 `?q=`、包 `<DataBoundary what={t.items.entity}>`、放 `<ItemTable keyword={...} />`
+- ✅ `ItemsPage` 讀 `?q=`、包 `<DataBoundary what="項目">`、放 `<ItemTable keyword={...} />`
 - ❌ 在頁面裡 `useSuspenseQuery`、過濾資料、組 columns
 
 ## 10. 表單與表格
 
-**規則**:表單狀態與驗證用 React Hook Form,一個欄位一個 `FormField`,antd 只管版面與輸入元件
-([forms.md](./forms.md));資料表格用 `DataGrid`,不用 antd `Table`([data-grid.md](./data-grid.md))。
-範本:`src/components/items/ItemCreateDialog.tsx`、`src/components/items/ItemTable.tsx`(骨架的範例功能)。
+**規則**:依 `docs/adr/0022-selected-modules.md`,一個專案只用一套,不混用。
+
+| 需求 | 沒選模組(基底)                                                                                           | 選了模組                                                                   |
+| ---- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| 表單 | antd `Form.useForm<Request 型別>()` + 一個欄位一個 `Form.Item name`,驗證寫 `rules`;送出用 `onFinish`     | react-hook-form:`useForm` + 一個欄位一個 `FormField`(`react-hook-form.md`) |
+| 表格 | antd `Table<DTO>`,欄位定義 `TableColumnsType<DTO>`,`rowKey` 用 id;操作欄的 `render` 回傳元件並包 `<Can>` | ag-grid:`DataGrid` + `ColDef<DTO>[]`(`ag-grid.md`)                         |
+
+- 表單型別用 `types/api/` 的 request 型別;送出用 mutation 的 `mutateAsync`,失敗時對話框保持開啟、輸入不消失
+- 對話框裡的 antd 表單加 `clearOnDestroy`,關閉後下次打開是空白的
+- 表格的操作欄抽成小元件(例如 `ItemActions`),在裡面呼叫 mutation hook,不在 `columns` 的 `render` 裡直接呼叫 hook
+
+範本:`src/components/items/ItemCreateDialog.tsx`、`src/components/items/ItemTable.tsx`(骨架的範例功能,已是所選模組的版本)。
 
 ## 11. Lazy 載入
 

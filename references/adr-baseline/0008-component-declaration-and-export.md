@@ -26,7 +26,7 @@ helper 全部適用。唯一例外是 `ErrorBoundary` class(React 沒有 `compon
 
 ### 元件內部的宣告順序
 
-1. 不是從 `react` 匯入的 hook(`useTranslations`、`useItems`、`useSearchParams`…)。
+1. 不是從 `react` 匯入的 hook(`useItems`、`useSearchParams`、選了 i18n 時的 `useTranslations`…)。
    判準是語法:看 import 行,不看它「有沒有去拿資料」。
 2. `useId` → `useRef` → `useState` → `useMemo` → `useEffect`(React 內建,依此分組)。
 3. render 用的衍生值,緊鄰 `return`。
@@ -49,7 +49,6 @@ interface ItemTableProps {
 
 const ItemTable: React.FC<ItemTableProps> = ({ keyword }) => {
   const items = useItems();
-  const t = useTranslations();
 
   const visibleItems = items.filter((item) => item.name.includes(keyword));
 

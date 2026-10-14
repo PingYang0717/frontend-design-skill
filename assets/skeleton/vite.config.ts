@@ -1,4 +1,3 @@
-import { msw } from 'msw/vite';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEnv } from 'vite';
@@ -13,10 +12,9 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 const VENDOR_PATTERN =
   /node_modules[\\/](react|react-dom|scheduler|react-router|axios|@tanstack[\\/][^\\/]+|zustand|@ant-design[\\/]icons(-svg)?)[\\/]/;
 const RC_PATTERN = /node_modules[\\/]@rc-component[\\/]/;
-const AG_GRID_PATTERN = /node_modules[\\/](ag-[^\\/]+|@ag-grid-[^\\/]+[\\/][^\\/]+)[\\/]/;
 const ANTD_PATTERN = /node_modules[\\/](antd|@ant-design[\\/](?!icons)[^\\/]+)[\\/]/;
 
-export default defineConfig(({ command, mode }) => {
+export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, dirname, 'VITE_');
   // 開發伺服器把 /api 轉給本機後端;部署由反向代理處理,與這裡無關。
   const serverOptions = {
@@ -30,8 +28,6 @@ export default defineConfig(({ command, mode }) => {
       react(),
       // React Compiler 自動處理 memoization,元件不再手寫 useCallback / useMemo(見 docs/conventions/components.md)。
       babel({ presets: [reactCompilerPreset()] }),
-      // 只在開發伺服器提供 MSW 的 worker 腳本;build 不載入這個 plugin,正式產物因此不含 mock(ADR-0011)。
-      command === 'serve' ? msw({ mode: 'worker-only' }) : null,
     ],
     resolve: {
       alias: { '@': path.resolve(dirname, 'src') },
@@ -43,7 +39,6 @@ export default defineConfig(({ command, mode }) => {
         output: {
           codeSplitting: {
             groups: [
-              { name: 'ag-grid', test: AG_GRID_PATTERN, priority: 40 },
               { name: 'vendor', test: VENDOR_PATTERN, priority: 30 },
               { name: 'rc', test: RC_PATTERN, priority: 20 },
               { name: 'antd', test: ANTD_PATTERN, priority: 10 },

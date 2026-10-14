@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button, Result, Typography } from 'antd';
 
-import { useTranslations } from '@/i18n/useTranslations';
 import { describeLoadError } from '@/utils/describeError';
 
 import styles from './LoadErrorPanel.module.css';
@@ -13,11 +12,9 @@ interface LoadErrorPanelProps {
   onRetry?: () => void;
 }
 
-/** 讀取失敗的錯誤卡。主句與說明來自字典,後端原話只放在可展開的技術細節。 */
+/** 讀取失敗的錯誤卡。主句與說明由 describeLoadError 決定,後端原話只放在可展開的技術細節。 */
 const LoadErrorPanel: React.FC<LoadErrorPanelProps> = ({ error, what, onRetry }) => {
-  const t = useTranslations();
-
-  const copy = describeLoadError(error, what, t);
+  const copy = describeLoadError(error, what);
 
   return (
     <Result
@@ -27,14 +24,14 @@ const LoadErrorPanel: React.FC<LoadErrorPanelProps> = ({ error, what, onRetry })
       extra={
         onRetry ? (
           <Button type="primary" onClick={onRetry}>
-            {t.common.retry}
+            重試
           </Button>
         ) : null
       }
     >
       {copy.technical ? (
         <details className={styles.technical}>
-          <summary>{t.errors.technicalDetail}</summary>
+          <summary>技術細節</summary>
           <Typography.Text type="secondary" code>
             {copy.technical}
           </Typography.Text>

@@ -1,50 +1,37 @@
 import React from 'react';
-import type { ColDef, ValueFormatterParams } from 'ag-grid-community';
-import type { CustomCellRendererProps } from 'ag-grid-react';
-import { Tag } from 'antd';
+import { Table, type TableColumnsType, Tag } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 
 import Can from '@/components/auth/Can';
-import DataGrid from '@/components/common/DataGrid';
 import IconButton from '@/components/common/IconButton';
 import { PERMISSIONS } from '@/constants/permissions';
 import { useConfirmDestructive } from '@/hooks/useConfirmDestructive';
 import { useDeleteItem } from '@/hooks/useItemMutations';
 import { useItems } from '@/hooks/useItems';
-import { useTranslations } from '@/i18n/useTranslations';
-import type { Item } from '@/types/api/item';
+import type { Item, ItemStatus } from '@/types/api/item';
 
-/** 儲存格元件範本:cellRenderer 給一個 React 元件,props.data 是該列的 DTO(過濾中可能是 undefined)。 */
-const StatusCell: React.FC<CustomCellRendererProps<Item>> = ({ data }) => {
-  const t = useTranslations();
-
-  if (!data) {
-    return null;
-  }
-  return <Tag color={data.status === 'ACTIVE' ? 'success' : 'default'}>{t.items.status[data.status]}</Tag>;
+const STATUS_LABELS: Record<ItemStatus, string> = {
+  ACTIVE: '使用中',
+  ARCHIVED: '已封存',
 };
 
-/** 操作欄範本:寫入動作用 Can 包住,刪除走 useConfirmDestructive。hook 在儲存格元件裡照常可用。 */
-const ActionsCell: React.FC<CustomCellRendererProps<Item>> = ({ data }) => {
+/** 操作欄範本:寫入動作用 Can 包住,刪除走 useConfirmDestructive。 */
+const ItemActions: React.FC<{ item: Item }> = ({ item }) => {
   const deleteItem = useDeleteItem();
   const confirmDestructive = useConfirmDestructive();
-  const t = useTranslations();
 
-  if (!data) {
-    return null;
-  }
   return (
     <Can permission={PERMISSIONS.itemsWrite}>
       <IconButton
         danger
         icon={<DeleteOutlined />}
-        label={t.items.delete.label(data.name)}
-        loading={deleteItem.isPending && deleteItem.variables === data.id}
+        label={`刪除 ${item.name}`}
+        loading={deleteItem.isPending && deleteItem.variables === item.id}
         onClick={() =>
           confirmDestructive({
-            title: t.items.delete.confirmTitle(data.name),
-            content: t.items.delete.confirmContent,
-            onConfirm: () => deleteItem.mutateAsync(data.id),
+            title: `確定要刪除「${item.name}」嗎?`,
+            content: '刪除後無法復原。',
+            onConfirm: () => deleteItem.mutateAsync(item.id),
           })
         }
       />
@@ -57,42 +44,41 @@ interface ItemTableProps {
   keyword: string;
 }
 
-/** 表格範本:資料從 hook 來(useSuspenseQuery,不處理 loading/error,交給外層 DataBoundary),表格用 DataGrid。 */
+/** 表格範本:資料從 hook 來(useSuspenseQuery,不處理 loading/error,交給外層 DataBoundary),表格用 antd Table。 */
 const ItemTable: React.FC<ItemTableProps> = ({ keyword }) => {
   const items = useItems();
-  const t = useTranslations();
 
   const normalizedKeyword = keyword.trim().toLowerCase();
   const visibleItems = normalizedKeyword
     ? items.filter((item) => item.name.toLowerCase().includes(normalizedKeyword))
     : items;
 
-  const columns: ColDef<Item>[] = [
-    { field: 'name', headerName: t.items.columns.name },
-    { field: 'status', headerName: t.items.columns.status, cellRenderer: StatusCell, maxWidth: 160 },
+  const columns: TableColumnsType<Item> = [
+    { title: '名稱', dataIndex: 'name', sorter: (a, b) => a.name.localeCompare(b.name) },
     {
-      field: 'updatedAt',
-      headerName: t.items.columns.updatedAt,
-      valueFormatter: ({ value }: ValueFormatterParams<Item, string>) =>
-        value ? new Date(value).toLocaleString() : '',
+      title: '狀態',
+      dataIndex: 'status',
+      width: 160,
+      render: (status: ItemStatus) => (
+        <Tag color={status === 'ACTIVE' ? 'success' : 'default'}>{STATUS_LABELS[status]}</Tag>
+      ),
     },
     {
-      colId: 'actions',
-      headerName: t.common.actions,
-      cellRenderer: ActionsCell,
-      width: 96,
-      flex: 0,
-      sortable: false,
-      resizable: false,
+      title: '更新時間',
+      dataIndex: 'updatedAt',
+      sorter: (a, b) => a.updatedAt.localeCompare(b.updatedAt),
+      render: (value: string) => new Date(value).toLocaleString(),
     },
+    { title: '操作', key: 'actions', width: 96, render: (_, item) => <ItemActions item={item} /> },
   ];
 
   return (
-    <DataGrid<Item>
-      rowData={visibleItems}
-      columnDefs={columns}
-      getRowId={({ data }) => data.id}
-      overlayNoRowsTemplate={t.items.empty}
+    <Table<Item>
+      rowKey="id"
+      dataSource={visibleItems}
+      columns={columns}
+      pagination={false}
+      locale={{ emptyText: '目前沒有項目' }}
     />
   );
 };

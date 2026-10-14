@@ -16,7 +16,7 @@ Tooltip 與 `aria-label`。不要自己組 `Button` + `Tooltip`。
 ```tsx
 <IconButton
   icon={isSiderCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-  label={t.nav.toggleSider}
+  label="收合或展開側欄"
   onClick={() => setSiderCollapsed(!isSiderCollapsed)}
 />
 ```
@@ -29,9 +29,9 @@ Tooltip 與 `aria-label`。不要自己組 `Button` + `Tooltip`。
 </Tooltip>
 ```
 
-- 同類按鈕在清單裡重複出現時,名稱要能區分:`t.items.delete.label(item.name)` →「刪除 範例項目 A」,
+- 同類按鈕在清單裡重複出現時,名稱要能區分:``label={`刪除 ${item.name}`}`` →「刪除 範例項目 A」,
   而不是每列都叫「刪除」。
-- `label` 的文字進字典(見 [i18n.md](./i18n.md))。
+- 選了 i18n 模組時,`label` 的文字進字典(見 `i18n.md`)。
 
 ## 2. antd 按鈕的 `autoInsertSpace` 關閉
 
@@ -44,15 +44,16 @@ Tooltip 與 `aria-label`。不要自己組 `Button` + `Tooltip`。
 
 **規則:** 每個輸入元件都要有可存取的名稱:
 
-- 表單欄位用 `FormField`:它以 `htmlFor` / `id` 把 `label` 關聯到輸入元件,`getByLabelText` 找得到([forms.md](./forms.md))。
+- 表單欄位用 antd `Form.Item name`(選了 react-hook-form 模組時用 `FormField`):兩者都以 `htmlFor` / `id` 把 `label`
+  關聯到輸入元件,`getByLabelText` 找得到。
 - 沒有可見標籤的輸入(搜尋框、header 的選擇器)加 `aria-label`。
 - `placeholder` 不能取代標籤(輸入後就消失)。
 
 ✅ 正確
 
 ```tsx
-<Input.Search aria-label={t.common.search} placeholder={t.items.searchPlaceholder} … />
-<Select aria-label={t.header.language} … />
+<Input.Search aria-label="搜尋" placeholder="依名稱搜尋" … />
+<Segmented aria-label="主題" … />
 ```
 
 ❌ 錯誤
@@ -61,7 +62,7 @@ Tooltip 與 `aria-label`。不要自己組 `Button` + `Tooltip`。
 <Input placeholder="依名稱搜尋" />
 ```
 
-- 驗證錯誤訊息由 `FormField` 顯示在 `Form.Item` 的 `help`(antd 會關聯到欄位),文字來自 `rules` 並進字典。
+- 驗證錯誤訊息顯示在 `Form.Item` 的 `help`(antd 會關聯到欄位),文字來自 `rules`(選了 i18n 時引用字典)。
 
 ## 4. 鍵盤可達
 
@@ -96,7 +97,7 @@ Tooltip 與 `aria-label`。不要自己組 `Button` + `Tooltip`。
 
 **規則:**
 
-- 載入中的區塊有 `role="status"`(`SuspenseLoader` 已處理),文字來自 `t.common.loading(what)`。
+- 載入中的區塊有 `role="status"`(`SuspenseLoader` 已處理),文字是「`${what}載入中…`」。
 - 操作結果(成功、失敗)走 antd `message`(`App.useApp()`),它會被螢幕閱讀器播報。
 - 自己加 live region 時:
   - 一般狀態用 `role="status"`(polite);只有需要立刻打斷的錯誤才用 `role="alert"`。
@@ -119,7 +120,7 @@ Tooltip 與 `aria-label`。不要自己組 `Button` + `Tooltip`。
 
 - 文字與背景的對比依 WCAG AA(一般文字 4.5:1、大字 3:1)。prototype 的色票若不足,在 PR 的
   「偏離設計稿」欄提出,不要自己偷改 token。
-- **不只用顏色傳達資訊**:狀態除了顏色還要有文字(`<Tag color="success">` 內顯示 `t.items.status[…]`),錯誤除了
+- **不只用顏色傳達資訊**:狀態除了顏色還要有文字(`<Tag color="success">` 內顯示「使用中」這類文字),錯誤除了
   紅框還要有訊息。
 - 深淺兩個主題都要檢查。
 

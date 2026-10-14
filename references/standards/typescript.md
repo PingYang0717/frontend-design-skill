@@ -147,13 +147,13 @@ status: { ACTIVE: '使用中', ARCHIVED: '已封存' } satisfies Record<ItemStat
 
 `tsconfig.json` 只有 `references`,`tsc -b` 依序檢查下面三份:
 
-| 檔案                 | 涵蓋                                                    | 環境型別              | 用途                                  |
-| -------------------- | ------------------------------------------------------- | --------------------- | ------------------------------------- |
-| `tsconfig.app.json`  | `src/`,**排除** `src/test`、`src/mocks`、`*.test.ts(x)` | `vite/client`         | 正式程式碼;`npm run build` 只檢查這份 |
-| `tsconfig.test.json` | 整個 `src/`(含測試與 mocks)                             | `vite/client`、`node` | 測試與 MSW;`npm run typecheck` 才檢查 |
-| `tsconfig.node.json` | `vite.config.ts`                                        | `node`                | 建置設定本身                          |
+| 檔案                 | 涵蓋                                                                    | 環境型別              | 用途                                  |
+| -------------------- | ----------------------------------------------------------------------- | --------------------- | ------------------------------------- |
+| `tsconfig.app.json`  | `src/`,**排除** `src/test`、`*.test.ts(x)`(選了 msw 再排除 `src/mocks`) | `vite/client`         | 正式程式碼;`npm run build` 只檢查這份 |
+| `tsconfig.test.json` | 整個 `src/`(含測試)                                                     | `vite/client`、`node` | 測試;`npm run typecheck` 才檢查       |
+| `tsconfig.node.json` | `vite.config.ts`                                                        | `node`                | 建置設定本身                          |
 
-**原因:** 正式程式碼不該能用到 `node:fs` 或 `msw`;把測試與 mocks 排除在 app 設定之外,
+**原因:** 正式程式碼不該能用到 `node:fs` 或測試工具;把測試(與 mocks)排除在 app 設定之外,
 不小心 import 會直接型別錯誤,正式建置也不需要安裝測試工具。
 
 - 新增設定檔(例如另一個 `*.config.ts`)要加進 `tsconfig.node.json` 的 `include`。

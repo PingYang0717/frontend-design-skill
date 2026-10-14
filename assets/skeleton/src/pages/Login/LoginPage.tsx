@@ -1,13 +1,11 @@
 import React from 'react';
 import { Alert, Button, Card, Form, Input, Typography } from 'antd';
-import { useForm } from 'react-hook-form';
 import { Navigate, useLocation } from 'react-router';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 
-import FormField from '@/components/common/FormField';
+import { APP_NAME } from '@/constants/app';
 import { ROUTES } from '@/constants/routes';
 import { useLogin } from '@/hooks/useSessionMutations';
-import { useTranslations } from '@/i18n/useTranslations';
 import { selectIsAuthenticated, useSessionStore } from '@/stores/useSessionStore';
 import type { LoginRequest } from '@/types/api/auth';
 import { describeActionError } from '@/utils/describeError';
@@ -20,15 +18,12 @@ const readReturnTo = (state: unknown): string | undefined =>
     ? state.from
     : undefined;
 
-/** 登入頁:全公司一致的畫面。認證方式不同時只換 authApi 與 DTO,這個頁面不動(docs/conventions/login.md)。 */
+/** 登入頁:全公司一致的畫面。認證方式不同時只換 authApi 與 DTO,這個頁面不動(docs/conventions/login.md)。
+ *  表單用 antd Form:`Form.Item name` 管值與驗證,label 自動以 htmlFor 對到輸入元件(docs/conventions/components.md)。 */
 const LoginPage: React.FC = () => {
   const location = useLocation();
   const isAuthenticated = useSessionStore(selectIsAuthenticated);
   const login = useLogin();
-  const { control, handleSubmit } = useForm<LoginRequest>({ defaultValues: { username: '', password: '' } });
-  const t = useTranslations();
-
-  const submit = handleSubmit((values) => login.mutate(values));
 
   if (isAuthenticated) {
     // 已登入(含剛登入成功):回到原本要去的頁面,沒有就回首頁。
@@ -39,34 +34,21 @@ const LoginPage: React.FC = () => {
     <div className={styles.page}>
       <Card className={styles.card}>
         <div className={styles.heading}>
-          <Typography.Title level={3}>{t.app.name}</Typography.Title>
-          <Typography.Paragraph type="secondary">{t.pages.login.subtitle}</Typography.Paragraph>
+          <Typography.Title level={3}>{APP_NAME}</Typography.Title>
+          <Typography.Paragraph type="secondary">請以公司帳號登入</Typography.Paragraph>
         </div>
         {login.isError ? (
-          <Alert type="error" showIcon className={styles.alert} message={describeActionError(login.error, t)} />
+          <Alert type="error" showIcon className={styles.alert} message={describeActionError(login.error)} />
         ) : null}
-        <Form layout="vertical" requiredMark={false} onFinish={() => void submit()}>
-          <FormField
-            control={control}
-            name="username"
-            label={t.pages.login.username}
-            rules={{
-              required: t.pages.login.usernameRequired,
-              validate: (value) => value.trim() !== '' || t.pages.login.usernameRequired,
-            }}
-          >
-            {(field) => <Input {...field} prefix={<UserOutlined />} autoComplete="username" autoFocus />}
-          </FormField>
-          <FormField
-            control={control}
-            name="password"
-            label={t.pages.login.password}
-            rules={{ required: t.pages.login.passwordRequired }}
-          >
-            {(field) => <Input.Password {...field} prefix={<LockOutlined />} autoComplete="current-password" />}
-          </FormField>
+        <Form<LoginRequest> layout="vertical" requiredMark={false} onFinish={(values) => login.mutate(values)}>
+          <Form.Item name="username" label="帳號" rules={[{ required: true, whitespace: true, message: '請輸入帳號' }]}>
+            <Input prefix={<UserOutlined />} autoComplete="username" autoFocus />
+          </Form.Item>
+          <Form.Item name="password" label="密碼" rules={[{ required: true, message: '請輸入密碼' }]}>
+            <Input.Password prefix={<LockOutlined />} autoComplete="current-password" />
+          </Form.Item>
           <Button type="primary" htmlType="submit" block loading={login.isPending}>
-            {t.pages.login.submit}
+            登入
           </Button>
         </Form>
       </Card>

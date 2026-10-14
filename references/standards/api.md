@@ -149,7 +149,7 @@ const text = error.response?.data?.message; // 後端原話當主文案
 1. 在規格或後端契約確認端點;沒有契約時依規格提草案,在 DTO 註解標「草案」並列入待確認。
 2. `types/api/<資源>.ts` 加 DTO / request 型別。
 3. `api/<資源>Api.ts` 加函式(`apiPath`、清單用 `expectArray`)。
-4. 新的錯誤 code 加進 `KNOWN_ERROR_CODES` 並補字典(`errorCodeCoverage` 測試會檢查)。
+4. 新的錯誤 code 加進 `KNOWN_ERROR_CODES` 並補文案(見 [error-handling.md](./error-handling.md) 第 6 節)。
 5. `hooks/` 加 `queryOptions` / mutation([data-fetching.md](./data-fetching.md))。
-6. 在 `mocks/handlers.ts` 的 `pendingHandlers` 補 handler;真後端上線後搬到 `shippedHandlers`
-   ([mocking.md](./mocking.md))。
+6. 假後端:選了 msw 模組 → `mocks/handlers.ts` 的 `pendingHandlers` 補 handler,真後端上線後搬到 `shippedHandlers`
+   (`msw.md`);沒選 → `test/fixtures.ts` 補假資料,頁面測試 `vi.mock` 這支 endpoint module([testing.md](./testing.md))。

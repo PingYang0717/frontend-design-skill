@@ -1,16 +1,8 @@
-import { AxiosError, AxiosHeaders } from 'axios';
+import { AxiosError } from 'axios';
 import { describe, expect, it } from 'vitest';
 
+import { responseError } from '@/test/responseError';
 import { errorCode, errorMessage, isCanceled, isNotFound, isOffline } from './apiError';
-
-const responseError = (status: number, data: unknown) =>
-  new AxiosError('Request failed', 'ERR_BAD_RESPONSE', undefined, undefined, {
-    status,
-    statusText: '',
-    data,
-    headers: {},
-    config: { headers: new AxiosHeaders() },
-  });
 
 describe('apiError', () => {
   it('reads the backend code and message from the body', () => {

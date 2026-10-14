@@ -8,9 +8,13 @@
 
 ## 技術棧
 
-React 19 + React Compiler、Vite 8、TypeScript(strict)、Ant Design 6、AG Grid Enterprise(表格)、
-React Hook Form(表單)、React Router 8、TanStack Query 5、Zustand 5、Axios。測試是 Vitest + Testing Library,MSW 當假後端。
-選用理由見 [`docs/conventions/tech-stack.md`](./docs/conventions/tech-stack.md)。
+React 19 + React Compiler、Vite 8、TypeScript(strict)、Ant Design 6、React Router 8、
+TanStack Query 5、Zustand 5、Axios。測試是 Vitest + Testing Library。
+<!-- FILL: 依 docs/adr/0022 補一句選用模組,例如「另採用 AG Grid Enterprise(表格)、React Hook Form(表單)、MSW(假後端)、
+     typed 字典(繁中 / 英文)與深色模式」;沒選的不寫,五個都沒選就刪除這段註解。 -->
+
+選用理由見 [`docs/conventions/tech-stack.md`](./docs/conventions/tech-stack.md),選了哪些模組見
+[ADR-0022](./docs/adr/0022-selected-modules.md)。
 
 ## 快速開始
 
@@ -20,21 +24,23 @@ React Hook Form(表單)、React Router 8、TanStack Query 5、Zustand 5、Axios�
 npm install
 cp .env.example .env.local   # 依註解填入
 npm run dev                  # 打真後端,/api 由開發伺服器轉到 VITE_PROXY_TARGET
-npm run dev:mock             # 後端未就緒時:以 MSW 假後端開發,帳密見 src/mocks/db.ts 的 MOCK_LOGIN
 ```
+
+<!-- FILL: 選了 msw 時在上面的指令區塊加一行
+     「npm run dev:mock             # 後端未就緒時:以 MSW 假後端開發,帳密見 src/mocks/db.ts 的 MOCK_LOGIN」,
+     並在下表 `npm run dev` 下面加一列「`npm run dev:mock` | 開發伺服器 + MSW 假後端(只攔截後端尚未上線的端點)」;沒選就刪除這段。 -->
 
 開啟 http://localhost:5173
 
-| 指令                        | 用途                                              |
-| --------------------------- | ------------------------------------------------- |
-| `npm install`               | 安裝依賴(本機;CI 用 `npm ci`)                     |
-| `npm run dev`               | 開發伺服器                                        |
-| `npm run dev:mock`          | 開發伺服器 + MSW 假後端(只攔截後端尚未上線的端點) |
-| `npm run build`             | 型別檢查 + 正式建置                               |
-| `npm run preview`           | 預覽建置結果                                      |
-| `npm run lint` / `lint:fix` | oxlint + ESLint                                   |
-| `npm run typecheck`         | 型別檢查                                          |
-| `npm test` / `test:watch`   | Vitest                                            |
+| 指令                        | 用途                          |
+| --------------------------- | ----------------------------- |
+| `npm install`               | 安裝依賴(本機;CI 用 `npm ci`) |
+| `npm run dev`               | 開發伺服器                    |
+| `npm run build`             | 型別檢查 + 正式建置           |
+| `npm run preview`           | 預覽建置結果                  |
+| `npm run lint` / `lint:fix` | oxlint + ESLint               |
+| `npm run typecheck`         | 型別檢查                      |
+| `npm test` / `test:watch`   | Vitest                        |
 
 Commit 前 husky 會自動跑 lint-staged(lint + Prettier)與 commitlint,不需要手動格式化。
 
@@ -55,8 +61,9 @@ Commit 前 husky 會自動跑 lint-staged(lint + Prettier)與 commitlint,不需�
 
 ## 後端
 
-API 契約以 [`docs/spec/`](./docs/spec/) 的 API 一節或後端文件為準;DTO(`src/types/api/`)與 mock
-(`src/mocks/handlers.ts`)與契約逐字一致。後端尚未上線的端點在 `pendingHandlers`,上線後搬到 `shippedHandlers`。
+API 契約以 [`docs/spec/`](./docs/spec/) 的 API 一節或後端文件為準;DTO(`src/types/api/`)與契約逐字一致。
+<!-- FILL: 選了 msw 時寫「mock(`src/mocks/handlers.ts`)也與契約逐字一致;後端尚未上線的端點在 `pendingHandlers`,
+     上線後搬到 `shippedHandlers`。」;沒選就刪除這段。 -->
 
 <!-- FILL: 後端的負責團隊或聯絡窗口、各環境的 API 位址(不含機密)、登入服務。不知道就寫「待確認」。 -->
 
@@ -64,6 +71,7 @@ API 契約以 [`docs/spec/`](./docs/spec/) 的 API 一節或後端文件為準;D
 
 視覺以 prototype 為準([ADR-0001](./docs/adr/0001-visual-authority-is-the-prototype.md));原檔在
 [`docs/prototype/`](./docs/prototype/)。色票唯一來源是 `src/theme/tokens.ts`,逐值取自 prototype。
+<!-- FILL: 選了 dark-mode 時寫一句深色色票的來源(prototype 有深色 / 保留骨架預設 / 從淺色推導,見 ADR-0022);沒選就刪除這段。 -->
 
 ## 部署
 
