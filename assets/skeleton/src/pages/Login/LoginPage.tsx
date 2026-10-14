@@ -1,8 +1,10 @@
 import React from 'react';
 import { Alert, Button, Card, Form, Input, Typography } from 'antd';
+import { useForm } from 'react-hook-form';
 import { Navigate, useLocation } from 'react-router';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 
+import FormField from '@/components/common/FormField';
 import { ROUTES } from '@/constants/routes';
 import { useLogin } from '@/hooks/useSessionMutations';
 import { useTranslations } from '@/i18n/useTranslations';
@@ -23,7 +25,10 @@ const LoginPage: React.FC = () => {
   const location = useLocation();
   const isAuthenticated = useSessionStore(selectIsAuthenticated);
   const login = useLogin();
+  const { control, handleSubmit } = useForm<LoginRequest>({ defaultValues: { username: '', password: '' } });
   const t = useTranslations();
+
+  const submit = handleSubmit((values) => login.mutate(values));
 
   if (isAuthenticated) {
     // 已登入(含剛登入成功):回到原本要去的頁面,沒有就回首頁。
@@ -40,21 +45,26 @@ const LoginPage: React.FC = () => {
         {login.isError ? (
           <Alert type="error" showIcon className={styles.alert} message={describeActionError(login.error, t)} />
         ) : null}
-        <Form<LoginRequest> layout="vertical" requiredMark={false} onFinish={(values) => login.mutate(values)}>
-          <Form.Item
+        <Form layout="vertical" requiredMark={false} onFinish={() => void submit()}>
+          <FormField
+            control={control}
             name="username"
             label={t.pages.login.username}
-            rules={[{ required: true, whitespace: true, message: t.pages.login.usernameRequired }]}
+            rules={{
+              required: t.pages.login.usernameRequired,
+              validate: (value) => value.trim() !== '' || t.pages.login.usernameRequired,
+            }}
           >
-            <Input prefix={<UserOutlined />} autoComplete="username" autoFocus />
-          </Form.Item>
-          <Form.Item
+            {(field) => <Input {...field} prefix={<UserOutlined />} autoComplete="username" autoFocus />}
+          </FormField>
+          <FormField
+            control={control}
             name="password"
             label={t.pages.login.password}
-            rules={[{ required: true, message: t.pages.login.passwordRequired }]}
+            rules={{ required: t.pages.login.passwordRequired }}
           >
-            <Input.Password prefix={<LockOutlined />} autoComplete="current-password" />
-          </Form.Item>
+            {(field) => <Input.Password {...field} prefix={<LockOutlined />} autoComplete="current-password" />}
+          </FormField>
           <Button type="primary" htmlType="submit" block loading={login.isPending}>
             {t.pages.login.submit}
           </Button>

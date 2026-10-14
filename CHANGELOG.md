@@ -1,5 +1,30 @@
 # CHANGELOG
 
+## 2.1.0(2026-10-14)
+
+公版新增**資料表格(AG Grid Enterprise)**、**表單(React Hook Form)**,並把**沒有權限的畫面**明寫成公版。
+三者目前是**初版**:固定「用什麼、從哪裡用」,團隊的實際用法待既有專案審查後補進各規範的「待補」節。
+
+- 骨架新增 `components/common/DataGrid.tsx`(AG Grid 公版包裝:主題跟 `tokens.ts`、文案跟語言、`autoHeight`、欄位預設)、
+  `theme/agGridTheme.ts`(Theming API,由 tokens 推導)、`app/agGrid.ts`(`AllEnterpriseModule` 註冊與 `VITE_AG_GRID_LICENSE_KEY`,
+  由 `providers.tsx` 呼叫一次);`vite.config.ts` 多一個 `ag-grid` chunk;測試環境關閉欄位虛擬化
+- 骨架新增 `components/common/FormField.tsx`(React Hook Form `Controller` ↔ antd `Form.Item`,負責 label 關聯、必填星號、錯誤訊息);
+  `ItemCreateDialog` 與公版 `LoginPage` 改用 `useForm` + `FormField`,不再用 `Form.useForm`
+- `ItemTable` 改為 `DataGrid` + `ColDef<Item>[]`,狀態與操作欄用儲存格元件(`CustomCellRendererProps`)示範 hook、`<Can>`、`IconButton`
+- 新增套件:`ag-grid-community`、`ag-grid-enterprise`、`ag-grid-react`、`@ag-grid-community/locale`、`react-hook-form`
+- 新增規範 `standards/data-grid.md`、`standards/forms.md`(規範索引 21 份);`tech-stack.md` 核准清單同步,「不採用」改列
+  antd `Table` 與 antd Form 狀態;`components.md` 第 2 節允許泛型公版零件的宣告例外、第 8 / 10 節改寫;
+  `auth.md` 新增 4.1「沒有權限的畫面是公版,有三種」;testing、styling-theme、project-structure、i18n 同步
+- 新增 ADR-0018(資料表格用 AG Grid)、ADR-0019(表單用 React Hook Form);團隊基線改為 0001–0019,
+  **專案 ADR 改從 0020 起**(0020 路由模式、0021 認證方式、其他 0022 起),範本、`check-placeholders`、AGENTS、README 同步
+- `test/setup.ts` 的 `asyncUtilTimeout` 3 秒 → 5 秒(AG Grid 冷啟動)
+
+### 待補(既有專案審查後)
+
+- `data-grid.md` 第 8 節:常用 Enterprise 功能的團隊預設、Server-Side Row Model 寫法、列選取與批次操作、可編輯儲存格、欄位狀態保存、授權金鑰流程
+- `forms.md` 第 7 節:是否改用 zod + `@hookform/resolvers`、動態列 / 巢狀 / `Select` 選項來自 API / `Upload` 範本、多步驟表單、唯讀模式、欄位版面規則
+- 沒有權限的畫面:若既有專案的 403 頁或「停用並說明原因」的做法與骨架不同,改骨架的 `ForbiddenPage` 與 `auth.md` 第 4.1 / 5 節
+
 ## 2.0.0(2026-10-14)
 
 範圍改變:規格由 PM 與 UI/UX 提供(SPEC.md + HTML prototype),這個 Skill **只產生前端程式碼**,不再產生規格、任務單、

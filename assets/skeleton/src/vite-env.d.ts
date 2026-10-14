@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_ENABLE_MOCKS?: string;
   /** 開發伺服器 proxy 的後端位址。 */
   readonly VITE_PROXY_TARGET?: string;
+  /** AG Grid Enterprise 授權金鑰;沒有時表格帶試用水印。 */
+  readonly VITE_AG_GRID_LICENSE_KEY?: string;
 }
 
 interface ImportMeta {

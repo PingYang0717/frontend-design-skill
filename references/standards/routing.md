@@ -1,6 +1,6 @@
 # 路由
 
-> 路由模式(history 或 hash)由**每個專案收件時決定並寫 ADR**(`docs/adr/0018` 起的編號)。
+> 路由模式(history 或 hash)由**每個專案收件時決定並寫 ADR**(`docs/adr/0020` 起的編號)。
 > 選單、路由、權限守衛共用一份來源:[`navEntries.tsx`](../../src/components/layouts/navEntries.tsx)
 > 加上 [`app/navPages.tsx`](../../src/app/navPages.tsx)。
 

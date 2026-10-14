@@ -3,9 +3,9 @@
 這個目錄記錄專案「為什麼這樣做」。規則本身寫在 [`../conventions/`](../conventions/);ADR 記的是
 規則背後的取捨,以及什麼情況下該重新討論。
 
-## 團隊基線(0001–0017)
+## 團隊基線(0001–0019)
 
-以下 17 份隨專案骨架一起產生,是團隊標準。
+以下 19 份隨專案骨架一起產生,是團隊標準。
 
 | 編號                                                   | 標題                                             | 摘要                                                                                                       |
 | ------------------------------------------------------ | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
@@ -26,10 +26,12 @@
 | [0015](0015-optimistic-updates-and-races.md)           | 樂觀更新與競態的正確性原則                       | 預設 invalidate;樂觀更新要能回滾、結果只寫回所屬對象、失敗保留使用者輸入。                                 |
 | [0016](0016-dependency-versioning-and-lockfile.md)     | 依賴版本與 lockfile                              | `^` 範圍 + `package-lock.json` 進版控;本機 `npm install`、CI `npm ci`。                                    |
 | [0017](0017-login-and-session-skeleton.md)             | 登入與 session 骨架                              | 登入頁、`useSessionStore`、`RequireAuth`、401 處理全公司一致;認證方式由專案 ADR 選定。                     |
+| [0018](0018-ag-grid-for-data-tables.md)                | 資料表格一律用 AG Grid Enterprise                | 透過公版 `DataGrid`;主題由 `tokens.ts` 推導、模組與授權只在 `app/agGrid.ts`;antd `Table` 不用。            |
+| [0019](0019-react-hook-form-for-forms.md)              | 表單用 React Hook Form                           | 狀態與驗證歸 React Hook Form,antd 只管版面與輸入元件,由公版 `FormField` 接起來。                           |
 
-## 專案自己的 ADR(0018 起)
+## 專案自己的 ADR(0020 起)
 
-**0018 起由專案自行新增。** 前兩份是收件時決定的路由模式(history 或 hash,範本
+**0020 起由專案自行新增。** 前兩份是收件時決定的路由模式(history 或 hash,範本
 `adr-router-mode.md`)與認證方式(範本 `adr-auth-mode.md`)。其他常見題目:部署環境、某個區域的視覺例外。
 
 **偏離團隊標準必須寫 ADR。** 不採用某條規範、或改變上面任何一份的決策時,新增一份 ADR 說明

@@ -14,14 +14,18 @@ Vitest + Testing Library + MSW。不做 E2E;頁面測試從網址進入、經過
 | 斷言     | `@testing-library/jest-dom`                   | `toBeInTheDocument()` 等                                                                          |
 | 互動     | `@testing-library/user-event`                 | 點擊、輸入一律用它                                                                                |
 
+表格(`DataGrid`)在測試環境關閉欄位虛擬化,儲存格內容照常以 `findByText` 斷言;AG Grid 自己的排序、篩選不測
+(見 [data-grid.md](./data-grid.md) 第 7 節)。表單欄位以 `getByLabelText` 取得(`FormField` 負責 label 關聯,見
+[forms.md](./forms.md) 第 6 節)。
+
 `setup.ts` 在每個測試後:`cleanup()` → `server.resetHandlers()` → `resetDb()` →
 `localStorage.clear()` → 語言重設為 `zh-TW`;每個測試前把 session 設為已登入(`MOCK_ACCESS_TOKEN`)。
 所以測試裡改 `db`、`server.use` 或登出都不會洩漏到下一個測試;要測未登入,在測試裡
 `useSessionStore.setState({ accessToken: null })`。
 
-`setup.ts` 以 `configure({ asyncUtilTimeout: 3000 })` 把 `findBy…` / `waitFor` 的預設等待從 1 秒
-拉長到 3 秒:頁面是 lazy 載入且先 suspend,在慢機器上平行跑時,第一次渲染可能超過 1 秒。
-不要在個別測試再傳 `timeout` 蓋掉它;真的超過 3 秒,先找原因。
+`setup.ts` 以 `configure({ asyncUtilTimeout: 5000 })` 把 `findBy…` / `waitFor` 的預設等待從 1 秒
+拉長到 5 秒:頁面是 lazy 載入且先 suspend,AG Grid 又是最大的模組,在慢機器上平行跑時,第一次渲染可能超過 1 秒。
+不要在個別測試再傳 `timeout` 蓋掉它;真的超過 5 秒,先找原因。
 
 MSW 以 `onUnhandledFrame: 'error'` 啟動:測試打到沒有 handler 的端點會直接失敗,不會靜靜地發出真的請求。
 

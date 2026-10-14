@@ -1,8 +1,11 @@
 import React from 'react';
-import { Table, type TableColumnsType, Tag } from 'antd';
+import type { ColDef, ValueFormatterParams } from 'ag-grid-community';
+import type { CustomCellRendererProps } from 'ag-grid-react';
+import { Tag } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 
 import Can from '@/components/auth/Can';
+import DataGrid from '@/components/common/DataGrid';
 import IconButton from '@/components/common/IconButton';
 import { PERMISSIONS } from '@/constants/permissions';
 import { useConfirmDestructive } from '@/hooks/useConfirmDestructive';
@@ -11,16 +14,52 @@ import { useItems } from '@/hooks/useItems';
 import { useTranslations } from '@/i18n/useTranslations';
 import type { Item } from '@/types/api/item';
 
+/** 儲存格元件範本:cellRenderer 給一個 React 元件,props.data 是該列的 DTO(過濾中可能是 undefined)。 */
+const StatusCell: React.FC<CustomCellRendererProps<Item>> = ({ data }) => {
+  const t = useTranslations();
+
+  if (!data) {
+    return null;
+  }
+  return <Tag color={data.status === 'ACTIVE' ? 'success' : 'default'}>{t.items.status[data.status]}</Tag>;
+};
+
+/** 操作欄範本:寫入動作用 Can 包住,刪除走 useConfirmDestructive。hook 在儲存格元件裡照常可用。 */
+const ActionsCell: React.FC<CustomCellRendererProps<Item>> = ({ data }) => {
+  const deleteItem = useDeleteItem();
+  const confirmDestructive = useConfirmDestructive();
+  const t = useTranslations();
+
+  if (!data) {
+    return null;
+  }
+  return (
+    <Can permission={PERMISSIONS.itemsWrite}>
+      <IconButton
+        danger
+        icon={<DeleteOutlined />}
+        label={t.items.delete.label(data.name)}
+        loading={deleteItem.isPending && deleteItem.variables === data.id}
+        onClick={() =>
+          confirmDestructive({
+            title: t.items.delete.confirmTitle(data.name),
+            content: t.items.delete.confirmContent,
+            onConfirm: () => deleteItem.mutateAsync(data.id),
+          })
+        }
+      />
+    </Can>
+  );
+};
+
 interface ItemTableProps {
   /** 已 debounce 的搜尋字串。 */
   keyword: string;
 }
 
-/** 元件範本:資料從 hook 來(useSuspenseQuery,不處理 loading/error,交給外層 DataBoundary)。 */
+/** 表格範本:資料從 hook 來(useSuspenseQuery,不處理 loading/error,交給外層 DataBoundary),表格用 DataGrid。 */
 const ItemTable: React.FC<ItemTableProps> = ({ keyword }) => {
   const items = useItems();
-  const deleteItem = useDeleteItem();
-  const confirmDestructive = useConfirmDestructive();
   const t = useTranslations();
 
   const normalizedKeyword = keyword.trim().toLowerCase();
@@ -28,53 +67,32 @@ const ItemTable: React.FC<ItemTableProps> = ({ keyword }) => {
     ? items.filter((item) => item.name.toLowerCase().includes(normalizedKeyword))
     : items;
 
-  const columns: TableColumnsType<Item> = [
-    { title: t.items.columns.name, dataIndex: 'name', key: 'name' },
+  const columns: ColDef<Item>[] = [
+    { field: 'name', headerName: t.items.columns.name },
+    { field: 'status', headerName: t.items.columns.status, cellRenderer: StatusCell, maxWidth: 160 },
     {
-      title: t.items.columns.status,
-      dataIndex: 'status',
-      key: 'status',
-      render: (_, item) => (
-        <Tag color={item.status === 'ACTIVE' ? 'success' : 'default'}>{t.items.status[item.status]}</Tag>
-      ),
+      field: 'updatedAt',
+      headerName: t.items.columns.updatedAt,
+      valueFormatter: ({ value }: ValueFormatterParams<Item, string>) =>
+        value ? new Date(value).toLocaleString() : '',
     },
     {
-      title: t.items.columns.updatedAt,
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      render: (_, item) => new Date(item.updatedAt).toLocaleString(),
-    },
-    {
-      title: t.common.actions,
-      key: 'actions',
-      width: 80,
-      render: (_, item) => (
-        <Can permission={PERMISSIONS.itemsWrite}>
-          <IconButton
-            danger
-            icon={<DeleteOutlined />}
-            label={t.items.delete.label(item.name)}
-            loading={deleteItem.isPending && deleteItem.variables === item.id}
-            onClick={() =>
-              confirmDestructive({
-                title: t.items.delete.confirmTitle(item.name),
-                content: t.items.delete.confirmContent,
-                onConfirm: () => deleteItem.mutateAsync(item.id),
-              })
-            }
-          />
-        </Can>
-      ),
+      colId: 'actions',
+      headerName: t.common.actions,
+      cellRenderer: ActionsCell,
+      width: 96,
+      flex: 0,
+      sortable: false,
+      resizable: false,
     },
   ];
 
   return (
-    <Table<Item>
-      rowKey="id"
-      columns={columns}
-      dataSource={visibleItems}
-      locale={{ emptyText: t.items.empty }}
-      pagination={false}
+    <DataGrid<Item>
+      rowData={visibleItems}
+      columnDefs={columns}
+      getRowId={({ data }) => data.id}
+      overlayNoRowsTemplate={t.items.empty}
     />
   );
 };

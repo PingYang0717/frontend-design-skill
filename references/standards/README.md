@@ -1,6 +1,6 @@
 # 團隊開發規範
 
-這個資料夾來自團隊公版,**在專案內不修改**。專案要偏離其中任何一條,寫一份新的 ADR(`docs/adr/` 0018 起)
+這個資料夾來自團隊公版,**在專案內不修改**。專案要偏離其中任何一條,寫一份新的 ADR(`docs/adr/` 0020 起)
 說明原因;團隊要調整規範,改公版 Skill 並升版,再同步到各專案。
 
 | 文件                                           | 內容                                                  |
@@ -9,6 +9,8 @@
 | [project-structure.md](./project-structure.md) | 各資料夾放什麼、依賴方向、加一個新功能的步驟          |
 | [naming.md](./naming.md)                       | 檔案、元件、hook、store、型別、常數、queryKey 命名    |
 | [components.md](./components.md)               | 元件寫法、宣告順序、共用元件、何時自製                |
+| [data-grid.md](./data-grid.md)                 | 資料表格:AG Grid Enterprise 與公版 `DataGrid`         |
+| [forms.md](./forms.md)                         | 表單:React Hook Form 與公版 `FormField`               |
 | [state-management.md](./state-management.md)   | 狀態放哪裡的決策樹、Zustand 範本                      |
 | [data-fetching.md](./data-fetching.md)         | queryOptions、useSuspenseQuery、mutation 與快取失效   |
 | [api.md](./api.md)                             | apiClient、endpoint module、DTO、新增端點             |

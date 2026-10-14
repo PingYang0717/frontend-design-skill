@@ -44,7 +44,7 @@ Tooltip 與 `aria-label`。不要自己組 `Button` + `Tooltip`。
 
 **規則:** 每個輸入元件都要有可存取的名稱:
 
-- antd `Form.Item` 有 `label` 時自動關聯,`getByLabelText` 找得到。
+- 表單欄位用 `FormField`:它以 `htmlFor` / `id` 把 `label` 關聯到輸入元件,`getByLabelText` 找得到([forms.md](./forms.md))。
 - 沒有可見標籤的輸入(搜尋框、header 的選擇器)加 `aria-label`。
 - `placeholder` 不能取代標籤(輸入後就消失)。
 
@@ -61,7 +61,7 @@ Tooltip 與 `aria-label`。不要自己組 `Button` + `Tooltip`。
 <Input placeholder="依名稱搜尋" />
 ```
 
-- 驗證錯誤訊息用 `Form.Item` 的 `rules[].message`(會以 antd 的方式關聯到欄位),文字進字典。
+- 驗證錯誤訊息由 `FormField` 顯示在 `Form.Item` 的 `help`(antd 會關聯到欄位),文字來自 `rules` 並進字典。
 
 ## 4. 鍵盤可達
 

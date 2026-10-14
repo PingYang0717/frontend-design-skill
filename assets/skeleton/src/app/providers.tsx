@@ -8,7 +8,11 @@ import { useLanguageStore } from '@/stores/useLanguageStore';
 import { useThemeStore } from '@/stores/useThemeStore';
 import { buildAntdTheme } from '@/theme/antdTheme';
 import { themeCssText } from '@/theme/cssVars';
+import { registerAgGrid } from './agGrid';
 import { createQueryClient } from './queryClient';
+
+// AG Grid 的模組與授權只註冊一次;放在這裡,正式畫面與測試(renderApp 也用 AppProviders)走同一條路。
+registerAgGrid();
 
 interface AppProvidersProps {
   children: ReactNode;

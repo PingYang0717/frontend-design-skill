@@ -13,6 +13,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 const VENDOR_PATTERN =
   /node_modules[\\/](react|react-dom|scheduler|react-router|axios|@tanstack[\\/][^\\/]+|zustand|@ant-design[\\/]icons(-svg)?)[\\/]/;
 const RC_PATTERN = /node_modules[\\/]@rc-component[\\/]/;
+const AG_GRID_PATTERN = /node_modules[\\/](ag-[^\\/]+|@ag-grid-[^\\/]+[\\/][^\\/]+)[\\/]/;
 const ANTD_PATTERN = /node_modules[\\/](antd|@ant-design[\\/](?!icons)[^\\/]+)[\\/]/;
 
 export default defineConfig(({ command, mode }) => {
@@ -42,6 +43,7 @@ export default defineConfig(({ command, mode }) => {
         output: {
           codeSplitting: {
             groups: [
+              { name: 'ag-grid', test: AG_GRID_PATTERN, priority: 40 },
               { name: 'vendor', test: VENDOR_PATTERN, priority: 30 },
               { name: 'rc', test: RC_PATTERN, priority: 20 },
               { name: 'antd', test: ANTD_PATTERN, priority: 10 },

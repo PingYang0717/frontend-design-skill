@@ -67,7 +67,7 @@ for (const [dir, what] of [
   const files = existsSync(full) ? readdirSync(full).filter((f) => !f.startsWith('.')) : [];
   if (files.length === 0) errors.push(`${dir}/ 沒有任何檔案;${what}原檔要放進 repo`);
 }
-for (const rel of ['docs/adr/0018-router-mode.md', 'docs/adr/0019-auth-mode.md']) {
+for (const rel of ['docs/adr/0020-router-mode.md', 'docs/adr/0021-auth-mode.md']) {
   if (!existsSync(join(root, rel))) errors.push(`缺少 ${rel}`);
 }
 

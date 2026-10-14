@@ -9,8 +9,8 @@ import { useSessionStore } from '@/stores/useSessionStore';
 
 import '@testing-library/jest-dom/vitest';
 
-// 頁面是 lazy 載入且先 suspend;平行跑測試、機器又慢時,第一次渲染可能超過預設的 1 秒。
-configure({ asyncUtilTimeout: 3000 });
+// 頁面是 lazy 載入且先 suspend,AG Grid 又是最大的一個模組;平行跑測試、機器又慢時,第一次渲染可能超過預設的 1 秒。
+configure({ asyncUtilTimeout: 5000 });
 
 // antd 依賴 jsdom 沒有的 matchMedia。
 Object.defineProperty(window, 'matchMedia', {

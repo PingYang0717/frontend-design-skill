@@ -22,6 +22,8 @@
 - props interface 命名 `<元件名>Props`,宣告在該元件**正上方**。
 - 沒有 props 的元件寫 `React.FC`,不帶泛型、不造空 interface。
 - 需要 `children` 時在 interface 明寫 `children: ReactNode`。
+- **例外:泛型元件**(`DataGrid<TData>`、`FormField<TValues, TName>`)無法寫成 `React.FC<XProps>`,改寫
+  `const X = <T,>(props: XProps<T>) => {}`,props interface 仍放正上方;只有 `components/common/` 的公版零件可以。
 
 **原因**:型別一眼可見;interface 與元件相鄰,改 props 時不用跳檔。
 
@@ -142,6 +144,8 @@ useEffect(() => {
 | 需求                                 | 用                                                              |
 | ------------------------------------ | --------------------------------------------------------------- |
 | 純圖示按鈕(帶 Tooltip 與 aria-label) | `components/common/IconButton`                                  |
+| 資料表格                             | `components/common/DataGrid`([data-grid.md](./data-grid.md))    |
+| 表單欄位(React Hook Form ↔ antd)     | `components/common/FormField`([forms.md](./forms.md))           |
 | 讀取中 / 讀取失敗的邊界              | `components/common/DataBoundary`                                |
 | 讀取失敗的錯誤卡                     | `components/common/LoadErrorPanel`(由 `ErrorBoundary` 使用)     |
 | 刪除等不可復原動作的確認             | `hooks/useConfirmDestructive`                                   |
@@ -162,11 +166,11 @@ useEffect(() => {
 - ✅ `ItemsPage` 讀 `?q=`、包 `<DataBoundary what={t.items.entity}>`、放 `<ItemTable keyword={...} />`
 - ❌ 在頁面裡 `useSuspenseQuery`、過濾資料、組 columns
 
-## 10. 表單
+## 10. 表單與表格
 
-**規則**:用 antd `Form` + `Form.useForm<T>()`,`T` 用 `types/api/` 的 request 型別;驗證訊息進字典。
-送出用 mutation 的 `mutateAsync`,失敗由 `useActionMutation` 的預設 toast 處理。
-範本:`src/components/items/ItemCreateDialog.tsx`(骨架的範例功能)。
+**規則**:表單狀態與驗證用 React Hook Form,一個欄位一個 `FormField`,antd 只管版面與輸入元件
+([forms.md](./forms.md));資料表格用 `DataGrid`,不用 antd `Table`([data-grid.md](./data-grid.md))。
+範本:`src/components/items/ItemCreateDialog.tsx`、`src/components/items/ItemTable.tsx`(骨架的範例功能)。
 
 ## 11. Lazy 載入
 

@@ -15,7 +15,7 @@ PM 的 SPEC 格式不限,但下面幾項是寫程式的前提。缺的列入停�
 | 每個動作的結果     | mutation、成功提示、失敗情境               | 問;失敗一律走骨架的 toast / 錯誤卡                         |
 | 角色與權限矩陣     | `permissions.ts`、`permission`、`<Can>`    | 問;沒有答案先單一角色,全部不設 `permission`                |
 | API 契約           | `types/api/`、`api/`、mock                 | 依欄位提草案,DTO 註解標「草案」,回報列待確認               |
-| 認證方式           | `docs/adr/0019`、`authApi.ts`              | 問;沒有答案用骨架預設(帳密 + Bearer token)                 |
+| 認證方式           | `docs/adr/0021`、`authApi.ts`              | 問;沒有答案用骨架預設(帳密 + Bearer token)                 |
 | 缺漏狀態(空、錯誤) | 測試案例                                   | 用骨架預設:空 → `Empty`,讀取失敗 → 錯誤卡,寫入失敗 → toast |
 
 **事實自己查,決策才問。** 色碼、圖示、欄位名稱這些從 SPEC 或 prototype 讀得到的不問;問的是兩者都沒說、
@@ -39,6 +39,8 @@ prototype 與 SPEC 不一致時以 SPEC 的行為、prototype 的視覺為準,�
 | 對話框、抽屜、分頁籤          | 所屬畫面的元件(`components/<domain>/`),不給路由                                                                                                  | `components.md`                         |
 | 角色能做的事                  | `constants/permissions.ts` 一條(`<資源>:<動作>`);頁面設 `permission`,按鈕包 `<Can>`;`mocks/db.ts` 的使用者給齊                                   | `auth.md`                               |
 | 表格、表單、詳細頁的欄位      | `types/api/<資源>.ts`(與契約逐字一致);request 型別另宣告                                                                                         | `api.md`、`typescript.md`               |
+| 資料清單(排序、篩選、選取)    | `components/<domain>/<資源>Table.tsx`:`DataGrid` + `ColDef<DTO>[]`,儲存格元件、操作欄包 `<Can>`                                                  | `data-grid.md`                          |
+| 表單(新增、編輯、登入)        | `useForm<Request 型別>` + 每個欄位一個 `FormField`,antd 只管版面與輸入元件                                                                       | `forms.md`                              |
 | 讀取資料                      | `api/<資源>Api.ts` 的 `list` / `get` + `hooks/use<資源>.ts`(`queryOptions` + `useSuspenseQuery`)+ 窗格外 `DataBoundary`                          | `data-fetching.md`                      |
 | 新增 / 修改 / 刪除 / 送出     | `api/<資源>Api.ts` 的 `create` / `update` / `delete` + `hooks/use<資源>Mutations.ts`(`useActionMutation` + invalidate)                           | `data-fetching.md`、`error-handling.md` |
 | 篩選、搜尋、分頁、tab         | URL query string(`useSearchParams`),不放 state                                                                                                   | `state-management.md`                   |

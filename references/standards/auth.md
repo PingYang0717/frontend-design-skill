@@ -105,6 +105,17 @@ const ItemsPage: React.FC = () => {
 
 不在選單裡的頁面(例如詳細頁)直接在 `routes.tsx` 用 `RequirePermission` 包住。
 
+### 4.1 沒有權限的畫面是公版,有三種
+
+| 情況                               | 畫面                                                                            | 來源                                                         |
+| ---------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| 整頁沒有權限(直接打網址、選單已藏) | 403 頁:`pages/Forbidden/ForbiddenPage.tsx`(antd `Result status="403"` + 回首頁) | `RequirePermission` 導向 `ROUTES.forbidden`                  |
+| 頁面裡某個區塊 / 按鈕沒有權限      | 不顯示;需要替代內容時給 `<Can fallback>`                                        | `<Can>`                                                      |
+| 前端以為有權限、後端回 403         | 該窗格的錯誤卡顯示 `errors.forbidden`,其餘窗格不受影響                          | `DataBoundary` → `LoadErrorPanel`,文案由 `describeLoadError` |
+
+這三個畫面都是公版,**不另寫**:專案只調整 `pages.forbidden` 與 `errors.forbidden` 的文案;prototype 畫了不同的
+403 頁時,只改 `ForbiddenPage.tsx` 的版面與 token,路由與導向行為不變。需要「停用並說明原因」而不是隱藏,見第 5 節。
+
 ## 5. 元件層級:`<Can>`
 
 **規則:** 按鈕、欄位、區塊這類「頁面裡的一部分」用 `<Can permission={...}>` 包住。沒權限時預設

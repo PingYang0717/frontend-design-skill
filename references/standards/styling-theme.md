@@ -7,14 +7,15 @@
 
 **規則:** 所有顏色、圓角、字級、字型都定義在
 [`src/theme/tokens.ts`](../../src/theme/tokens.ts) 的 `LIGHT_TOKENS` / `DARK_TOKENS`。
-這張表餵兩個消費端,兩者都是由它**推導**,不另外維護:
+這張表餵三個消費端,全部由它**推導**,不另外維護:
 
-| 消費端                | 檔案                                                     | 產物                   |
-| --------------------- | -------------------------------------------------------- | ---------------------- |
-| antd `ConfigProvider` | `src/theme/antdTheme.ts` 的 `buildAntdTheme(isDarkMode)` | antd 元件的 token      |
-| CSS Modules           | `src/theme/cssVars.ts` 的 `themeCssText(isDarkMode)`     | `:root { --app-*: … }` |
+| 消費端                | 檔案                                                         | 產物                      |
+| --------------------- | ------------------------------------------------------------ | ------------------------- |
+| antd `ConfigProvider` | `src/theme/antdTheme.ts` 的 `buildAntdTheme(isDarkMode)`     | antd 元件的 token         |
+| CSS Modules           | `src/theme/cssVars.ts` 的 `themeCssText(isDarkMode)`         | `:root { --app-*: … }`    |
+| AG Grid(`DataGrid`)   | `src/theme/agGridTheme.ts` 的 `buildAgGridTheme(isDarkMode)` | Theming API 的 theme 物件 |
 
-**原因:** 兩個消費端各抄一份,改色時一定漏一邊;只有一張表,深淺兩主題與 antd/自寫元件才會一致。
+**原因:** 每個消費端各抄一份,改色時一定漏一邊;只有一張表,深淺兩主題與 antd / AG Grid / 自寫元件才會一致。
 
 ❌ 錯誤:在元件、CSS Module、`index.css` 寫 `#1677ff`、`rgba(0,0,0,.45)`、`white`。
 工具管不到這條,靠 review 與 PR 範本的自我檢查。

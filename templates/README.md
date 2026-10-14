@@ -50,8 +50,8 @@ Commit 前 husky 會自動跑 lint-staged(lint + Prettier)與 commitlint,不需�
 | -------- | ---- | ---- |
 | `/login` | 登入 | 無   |
 
-路由模式:<!-- FILL: history 或 hash,連到 docs/adr/0018-router-mode.md。 -->
-認證方式:<!-- FILL: 一句話,連到 docs/adr/0019-auth-mode.md。 -->
+路由模式:<!-- FILL: history 或 hash,連到 docs/adr/0020-router-mode.md。 -->
+認證方式:<!-- FILL: 一句話,連到 docs/adr/0021-auth-mode.md。 -->
 
 ## 後端
 

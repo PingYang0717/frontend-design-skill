@@ -15,8 +15,8 @@
 | 問題                                                                       | 用途                                                                                                                | 沒有答案時的預設                       |
 | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
 | 專案名稱:中文顯示名、英文顯示名、slug(英文小寫 kebab-case)                 | `package.json` name、`<title>`、字典 `app.name`。沒有英文名時用 slug 轉 Title Case(`room-booking` → `Room Booking`) | 問,不預設                              |
-| 認證方式:帳密登入回 token / SSO 跳轉 / gateway cookie;登入服務的端點與欄位 | `docs/adr/0019-auth-mode.md`、`types/api/auth.ts`、`api/authApi.ts`                                                 | 骨架預設(帳密 + Bearer token)          |
-| 部署環境:能否設定伺服器 fallback、是否部署在子路徑                         | `docs/adr/0018-router-mode.md`                                                                                      | history                                |
+| 認證方式:帳密登入回 token / SSO 跳轉 / gateway cookie;登入服務的端點與欄位 | `docs/adr/0021-auth-mode.md`、`types/api/auth.ts`、`api/authApi.ts`                                                 | 骨架預設(帳密 + Bearer token)          |
+| 部署環境:能否設定伺服器 fallback、是否部署在子路徑                         | `docs/adr/0020-router-mode.md`                                                                                      | history                                |
 | 後端現況:已有 / 開發中 / 未開始;有無 API 文件                              | DTO 是否標草案、mock 範圍(`pendingHandlers` / `shippedHandlers`)                                                    | 未開始:全部走 `pendingHandlers`        |
 | 是否需要多語系                                                             | 英文字典是否要認真翻譯(型別仍要求填滿)                                                                              | 只做繁中,英文字典照填                  |
 | 是否需要深色模式                                                           | `DARK_TOKENS` 是否逐值填                                                                                            | prototype 沒給就保留骨架預設並列待確認 |
@@ -48,10 +48,10 @@ mv adr.md docs/templates/adr.md
 2. **色票**:`src/theme/tokens.ts` 的 `LIGHT_TOKENS` / `DARK_TOKENS` 依 prototype 逐值替換。prototype 沒提供深色時
    保留骨架預設;只提供部分深色值時,有給的照抄,沒給的維持 `...LIGHT_TOKENS` 繼承(seed token 兩主題同值,由 antd 推導)
 3. **路由模式**:history 維持 `createBrowserRouter`;hash 改 `createHashRouter` 並新增 `src/utils/appHref.ts`
-   (寫法見 `docs/conventions/routing.md`)。填 `templates/adr-router-mode.md` → `docs/adr/0018-router-mode.md`
+   (寫法見 `docs/conventions/routing.md`)。填 `templates/adr-router-mode.md` → `docs/adr/0020-router-mode.md`
 4. **認證方式**:依 `docs/conventions/login.md` 第 6 節。骨架預設只需把 `src/types/api/auth.ts`、`src/api/authApi.ts`、
    `src/mocks/handlers.ts` 的端點路徑與欄位名對齊公司登入服務;SSO 或 cookie 依表格替換。
-   填 `templates/adr-auth-mode.md` → `docs/adr/0019-auth-mode.md`。**登入頁、`useSessionStore`、`app/session.ts`、
+   填 `templates/adr-auth-mode.md` → `docs/adr/0021-auth-mode.md`。**登入頁、`useSessionStore`、`app/session.ts`、
    `RequireAuth`、`UserMenu` 不改**
 5. **權限代碼**:`src/constants/permissions.ts` 依權限矩陣建立全部代碼;`src/mocks/db.ts` 的 `seedUser()` 給齊所有權限
 6. **首頁**:prototype 有首頁 → 把 `pages/Home/HomePage.tsx` 改成該畫面(步驟 4 實作);沒有首頁 → 先完成步驟 4 的
@@ -71,7 +71,8 @@ mv adr.md docs/templates/adr.md
 2. `api/<資源>Api.ts`:每個端點一個函式,`apiPath()` 組路徑,清單用 `expectArray()`
 3. `mocks/handlers.ts` 的 `pendingHandlers` + `mocks/db.ts` 的 `seedXxx()`:後端已上線的端點放 `shippedHandlers`
 4. `hooks/use<資源>.ts`(`queryOptions` + `useSuspenseQuery`)、`hooks/use<資源>Mutations.ts`(`useActionMutation` + invalidate)
-5. `components/<domain>/`:元件從 hook 拿資料;寫入按鈕包 `<Can>`;刪除走 `useConfirmDestructive`;純圖示按鈕用 `IconButton`
+5. `components/<domain>/`:元件從 hook 拿資料;表格用 `DataGrid`、表單欄位用 `FormField`;寫入按鈕包 `<Can>`;刪除走 `useConfirmDestructive`;
+   純圖示按鈕用 `IconButton`
 6. `pages/<Name>/<Name>Page.tsx`:只組裝、放 `DataBoundary`、讀寫 URL state
 7. `constants/routes.ts` → `navEntries.tsx`(設 `permission`)→ `navPages.tsx`;不在選單的頁面 → `subPages.tsx` + `routes.tsx`
 8. `i18n/zhTW.ts`、`en.ts`:所有文案、aria-label;新錯誤 code 進 `types/api/error.ts` 與 `errors.byCode`
@@ -83,7 +84,7 @@ mv adr.md docs/templates/adr.md
 
 規則提醒:
 
-- 登入、登出、401、權限守衛、錯誤卡、toast、字典、主題一律用骨架既有機制;**不要**為某個畫面另寫一套
+- 登入、登出、401、權限守衛、錯誤卡、toast、字典、主題、表格(`DataGrid`)、表單(`FormField`)一律用骨架既有機制;**不要**為某個畫面另寫一套
 - 顏色只用 `theme/tokens.ts` 的 token;圖示只用 `@ant-design/icons`;文案全部進字典
 - 不新增套件;真的需要時停下來問,並在 `docs/conventions/tech-stack.md` 的流程下記錄
 - 外殼(header、側欄)與 prototype 不同時最後處理;登入頁只調 token 與文案,不改結構

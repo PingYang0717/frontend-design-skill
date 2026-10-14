@@ -15,8 +15,8 @@
 
 ## 技術棧
 
-React 19 + React Compiler、Vite 8、TypeScript(strict)、Ant Design 6、React Router 8、
-TanStack Query 5、Zustand 5、Axios;測試 Vitest + Testing Library + MSW。
+React 19 + React Compiler、Vite 8、TypeScript(strict)、Ant Design 6、AG Grid Enterprise(表格)、React Hook Form(表單)、
+React Router 8、TanStack Query 5、Zustand 5、Axios;測試 Vitest + Testing Library + MSW。
 新增套件前先讀 [`docs/conventions/tech-stack.md`](./docs/conventions/tech-stack.md)。
 
 ## 鐵律
@@ -41,13 +41,15 @@ TanStack Query 5、Zustand 5、Axios;測試 Vitest + Testing Library + MSW。
   (依賴優先;規則見 [`docs/conventions/components.md`](./docs/conventions/components.md))
 - React Compiler 負責 memoization:**不要手寫 `useCallback` / `useMemo` / `React.memo`**,除非 Compiler 處理不了且註解寫明
 - 共用零件在 `components/common/`,不手刻:`DataBoundary`、`LoadErrorPanel`、`IconButton`;確認框用 `useConfirmDestructive`
+- **資料表格一律 `DataGrid`(AG Grid),不用 antd `Table`;表單狀態一律 React Hook Form,一個欄位一個 `FormField`,
+  不用 `Form.useForm` / `Form.Item name`**([`data-grid.md`](./docs/conventions/data-grid.md)、[`forms.md`](./docs/conventions/forms.md))
 
 ## 資料夾速查
 
 ```
 src/
   api/          apiClient、apiError、authApi、各資源的 endpoint module
-  app/          Providers、路由表、QueryClient、session(token 與 401)、選單入口 → 頁面對照(navPages、subPages)
+  app/          Providers、路由表、QueryClient、session(token 與 401)、agGrid(模組與授權)、選單入口 → 頁面對照(navPages、subPages)
   components/   common/(共用零件)、layouts/(外殼、選單 navEntries、UserMenu)、auth/(RequireAuth、RequirePermission、Can)、<domain>/
   constants/    routes、permissions、storage key
   hooks/        資料 hook(queryOptions + useSuspenseQuery)、mutation hook、跨元件 UI hook
@@ -56,7 +58,7 @@ src/
   pages/        路由頁面(只組裝);Login/ 是公版登入頁
   stores/       Zustand(UI 狀態與 useSessionStore)
   test/         測試 setup(預設已登入)與 renderApp
-  theme/        tokens(唯一色票來源)、antdTheme、cssVars
+  theme/        tokens(唯一色票來源)、antdTheme、cssVars、agGridTheme
   types/api/    與後端逐字一致的 DTO
   utils/        純函式
 ```
@@ -73,10 +75,10 @@ src/
 
 ## 本專案特有規則
 
-- 路由模式:<!-- FILL: history 或 hash,連到 docs/adr/0018-router-mode.md -->
-- 認證方式:<!-- FILL: 帳密 + Bearer token / SSO / gateway cookie,連到 docs/adr/0019-auth-mode.md -->
+- 路由模式:<!-- FILL: history 或 hash,連到 docs/adr/0020-router-mode.md -->
+- 認證方式:<!-- FILL: 帳密 + Bearer token / SSO / gateway cookie,連到 docs/adr/0021-auth-mode.md -->
 
-<!-- FILL: 其他偏離或補充團隊標準的規則,每條連到對應 ADR(docs/adr/0020 起)。沒有就刪除這行。 -->
+<!-- FILL: 其他偏離或補充團隊標準的規則,每條連到對應 ADR(docs/adr/0022 起)。沒有就刪除這行。 -->
 
 ## 常用指令
 
@@ -102,5 +104,5 @@ src/
 ## 文件規則
 
 文件(`AGENTS.md`、`README.md`、`docs/`)只寫現行規則,不留歷史與日期;每檔 200 行以內。
-團隊規範(`docs/conventions/`、`docs/adr/0001–0017`)來自團隊公版,**不在專案內修改**;要偏離就寫新的 ADR。
+團隊規範(`docs/conventions/`、`docs/adr/0001–0019`)來自團隊公版,**不在專案內修改**;要偏離就寫新的 ADR。
 規格(`docs/spec/`)與 prototype(`docs/prototype/`)由 PM 與 UI/UX 維護,改版時換檔並帶版本。
