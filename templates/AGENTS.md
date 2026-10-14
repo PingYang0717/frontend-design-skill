@@ -113,8 +113,7 @@ src/
 
 - [ ] `npm run lint`、`npm run typecheck`、`npm test`、`npm run build` 全部通過
 - [ ] 規格裡這個畫面的每個行為都有對應測試,全部通過
-- [ ] <!-- FILL: 選了 i18n →「新增文案都進了 `zhTW.ts` 與 `en.ts`;新的錯誤 code 也進了 `errors.byCode`」;
-              沒選 →「新的錯誤 code 進了 `types/api/error.ts` 與 `utils/describeError.ts`」 -->
+- [ ] <!-- FILL: 選了 i18n →「新增文案都進了 `zhTW.ts` 與 `en.ts`;新的錯誤 code 也進了 `errors.byCode`」;沒選 →「新的錯誤 code 進了 `types/api/error.ts` 與 `utils/describeError.ts`」 -->
 - [ ] 新端點:DTO 在 `types/api/`、與契約逐字一致<!-- FILL: 選了 msw 加「、mock handler 進 `pendingHandlers`」,沒選就刪掉這個註解 -->
 - [ ] 需要權限的入口與按鈕已設 `permission` / `<Can>`;需要登入的頁面在 `RequireAuth` 底下
 - [ ] 與 prototype 或規格不同之處,已在回報與 PR 的「偏離設計稿」寫明

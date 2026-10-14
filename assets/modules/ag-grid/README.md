@@ -91,8 +91,9 @@ cp -R <skill>/assets/modules/ag-grid/files.community/. <project>/        # 選 C
 不新增測試檔。`ItemsPage.test.tsx` 以儲存格文字與按鈕名稱斷言,antd `Table` 與 `DataGrid` 都適用。
 `DataGrid` 在測試環境關閉欄位虛擬化(jsdom 量不到寬度)。
 
-`npm run build` 會對 `ag-grid` chunk 印出「超過 500 kB」的警告:AG Grid 本身就這麼大,已獨立成 chunk 並隨頁面 lazy 載入,
-屬預期,不算 build 失敗;不要為了消警告調高 `chunkSizeWarningLimit`。
+`npm run build` 會對 `ag-grid` chunk 印出「超過 500 kB」的警告:AG Grid 本身就這麼大,屬預期,不算 build 失敗;不要為了消警告調高 `chunkSizeWarningLimit`。
+這個 chunk **不是** lazy 載入:`providers.tsx` 在啟動時呼叫 `registerAgGrid()`,所以每一頁都會下載它(`index.html` 會
+`modulepreload`)。獨立成 chunk 的好處是快取:只有升級 AG Grid 時才失效,一般發版不必重新下載。
 
 ## 5. 與其他模組的互動
 

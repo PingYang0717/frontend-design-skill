@@ -55,7 +55,8 @@ export const THEME_STORAGE_KEY = `${PREFIX}:theme`;
 
 1. `import { buildAntdTheme } ...` 的上一行加 `import { useThemeStore } from '@/stores/useThemeStore';`
    (有 i18n 時放在 `useLanguageStore` 那行的下一行,維持字母順序)
-2. 元件內第一行加 `const isDarkMode = useThemeStore((state) => state.isDarkMode);`
+2. 元件內最前面的 store hook 區加 `const isDarkMode = useThemeStore((state) => state.isDarkMode);`(已選 i18n 時放在
+   `const language = …` 的上一行)
 3. `buildAntdTheme()` 改成 `buildAntdTheme(isDarkMode)`;`themeCssText()` 改成 `themeCssText(isDarkMode)`
 
 **`src/components/layouts/AppHeader.tsx`**:
