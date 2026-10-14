@@ -8,8 +8,8 @@
 
 ## 技術棧
 
-React 19 + React Compiler、Vite 8、TypeScript(strict)、Ant Design 6、React Router 8、
-TanStack Query 5、Zustand 5、Axios。測試是 Vitest + Testing Library,MSW 當假後端。
+React 19 + React Compiler、Vite 8、TypeScript(strict)、Ant Design 6、AG Grid Enterprise(表格)、
+React Hook Form(表單)、React Router 8、TanStack Query 5、Zustand 5、Axios。測試是 Vitest + Testing Library,MSW 當假後端。
 選用理由見 [`docs/conventions/tech-stack.md`](./docs/conventions/tech-stack.md)。
 
 ## 快速開始

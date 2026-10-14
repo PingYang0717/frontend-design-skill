@@ -12,14 +12,14 @@
 
 讀完整份 SPEC 與 prototype 後,只問 SPEC 與訊息都沒提供的:
 
-| 問題                                                                       | 用途                                                                                                                | 沒有答案時的預設                       |
-| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| 專案名稱:中文顯示名、英文顯示名、slug(英文小寫 kebab-case)                 | `package.json` name、`<title>`、字典 `app.name`。沒有英文名時用 slug 轉 Title Case(`room-booking` → `Room Booking`) | 問,不預設                              |
-| 認證方式:帳密登入回 token / SSO 跳轉 / gateway cookie;登入服務的端點與欄位 | `docs/adr/0021-auth-mode.md`、`types/api/auth.ts`、`api/authApi.ts`                                                 | 骨架預設(帳密 + Bearer token)          |
-| 部署環境:能否設定伺服器 fallback、是否部署在子路徑                         | `docs/adr/0020-router-mode.md`                                                                                      | history                                |
-| 後端現況:已有 / 開發中 / 未開始;有無 API 文件                              | DTO 是否標草案、mock 範圍(`pendingHandlers` / `shippedHandlers`)                                                    | 未開始:全部走 `pendingHandlers`        |
-| 是否需要多語系                                                             | 英文字典是否要認真翻譯(型別仍要求填滿)                                                                              | 只做繁中,英文字典照填                  |
-| 是否需要深色模式                                                           | `DARK_TOKENS` 是否逐值填                                                                                            | prototype 沒給就保留骨架預設並列待確認 |
+| 問題                                                                       | 用途                                                                | 沒有答案時的預設                                                                                                                              |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| 專案名稱:中文顯示名、英文顯示名、slug(英文小寫 kebab-case)                 | `package.json` name、`<title>`、字典 `app.name`                     | slug 用專案資料夾名;中文顯示名用 SPEC 標題;英文顯示名用 slug 轉 Title Case(`room-booking` → `Room Booking`)。三者都標「暫定」,列入回報第 1 項 |
+| 認證方式:帳密登入回 token / SSO 跳轉 / gateway cookie;登入服務的端點與欄位 | `docs/adr/0021-auth-mode.md`、`types/api/auth.ts`、`api/authApi.ts` | 骨架預設(帳密 + Bearer token)                                                                                                                 |
+| 部署環境:能否設定伺服器 fallback、是否部署在子路徑                         | `docs/adr/0020-router-mode.md`                                      | history                                                                                                                                       |
+| 後端現況:已有 / 開發中 / 未開始;有無 API 文件                              | DTO 是否標草案、mock 範圍(`pendingHandlers` / `shippedHandlers`)    | 未開始:全部走 `pendingHandlers`                                                                                                               |
+| 是否需要多語系                                                             | 英文字典是否要認真翻譯(型別仍要求填滿)                              | 只做繁中,英文字典照填                                                                                                                         |
+| 是否需要深色模式                                                           | `DARK_TOKENS` 是否逐值填                                            | prototype 沒給就保留骨架預設並列待確認                                                                                                        |
 
 ## 步驟 2:對照 SPEC 與 prototype
 
@@ -38,8 +38,8 @@ cp <SPEC> docs/spec/            # 檔名帶版本或日期,例如 spec-v1.0.md
 cp <prototype> docs/prototype/  # 例如 prototype-v1.0.html
 cp -R <skill>/references/standards docs/conventions
 cp -R <skill>/references/adr-baseline docs/adr
-cp <skill>/templates/CLAUDE.md <skill>/templates/adr.md ./   # adr.md 之後移到 docs/templates/
-mv adr.md docs/templates/adr.md
+cp <skill>/templates/CLAUDE.md <skill>/templates/AGENTS.md <skill>/templates/README.md ./   # AGENTS、README 在第 7 點填寫
+cp <skill>/templates/adr.md docs/templates/
 ```
 
 接著依序修改(每改完一批就跑 `npm run lint && npm run typecheck && npm test`):
@@ -58,7 +58,7 @@ mv adr.md docs/templates/adr.md
    第一個畫面,再刪 `pages/Home/`、`navEntries.tsx` 與 `navPages.tsx` 的 `home`、字典的 `nav.home` 與 `pages.home`,
    在 `app/routes.tsx` 的 `RootLayout` children 最前面加 `{ index: true, element: <Navigate to={ROUTES.<第一個畫面>} replace /> }`,
    並把 `RequirePermission.test.tsx`、`LoginPage.test.tsx` 中斷言首頁文字的地方改成第一個畫面。`ROUTES.home` 保留為 `'/'`
-7. **文件**:填 `templates/AGENTS.md`、`templates/README.md`(所有 `<!-- FILL: -->` 填完刪掉註解,`{{PLACEHOLDER}}` 全部替換;
+7. **文件**:填專案根目錄的 `AGENTS.md`、`README.md`(所有 `<!-- FILL: -->` 填完刪掉註解,`{{PLACEHOLDER}}` 全部替換;
    不知道的寫「待確認」,不編造)
 
 既有專案:新畫面需要的權限代碼加進 `permissions.ts`;新的 SPEC 與 prototype 版本放進 `docs/spec/`、`docs/prototype/`。
@@ -98,7 +98,8 @@ mv adr.md docs/templates/adr.md
 3. `permissions.ts` 移除 `itemsRead`、`itemsWrite`(真實功能沒有沿用時);`db.ts` 的 `seedUser()` 同步
 4. 字典移除 `items` 區塊與 `nav.items`;`handlers.ts`、`db.ts` 移除 items 的 handler 與種子資料
 5. `RequirePermission.test.tsx`、`RequireAuth.test.tsx` 改用真實功能的路由、權限與資料
-6. `grep -ri "item" src` 只剩真實功能的內容;四項檢查全綠
+6. `grep -rE "itemApi|useItems|useItemMutations|ItemTable|ItemCreateDialog|ItemsPage|itemsRead|itemsWrite|seedItem" src` 應為空;
+   最終以 `check-placeholders` 第 5 項(範例功能)為準。四項檢查全綠
 
 ## 步驟 5:驗證、commit 與回報
 
@@ -124,7 +125,7 @@ node <skill>/scripts/check-placeholders.mjs .
 
 使用者不在(排程執行或已說明晚點回來):
 
-- 有建議答案的問題:採用建議,在回報標記「採用建議(暫定)」
+- 有建議答案或預設的問題(含專案名稱):採用建議,在回報標記「採用建議(暫定)」
 - 沒有建議答案的問題(登入服務端點、聯絡窗口、環境網址):寫「待確認」,照常繼續
 - 兩者都列在最後回報裡(前者放第 1 項,後者放第 4 項)
 - 唯一會停下來的情況:步驟 1 發現 `<project>` 有內容卻不是公版產生的

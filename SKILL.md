@@ -29,12 +29,6 @@ description: 拿到 PM 的 SPEC(Markdown)與 UI/UX 的 HTML prototype,要產生�
 
 其餘資訊(認證方式、路由模式、後端現況、深色模式、多語系)SPEC 沒寫才在步驟 1 問。
 
-## 事前準備(每台機器一次)
-
-```bash
-cd <skill> && npm install   # 只有 Prettier(格式化 Skill 自己的 Markdown);不進專案骨架
-```
-
 ## 流程
 
 建立任務清單追蹤以下五步,每步完成就勾掉。
@@ -132,6 +126,8 @@ node <skill>/scripts/check-placeholders.mjs <project>
 Claude Code 讀 `CLAUDE.md`,所以骨架附一個只有 `@AGENTS.md` 的轉接檔。不要在轉接檔另寫規則。
 
 ## 更新這個 Skill
+
+維護者每台機器一次:`cd <skill> && npm install`(只有 Prettier,格式化 Skill 自己的 Markdown;不進專案骨架)。
 
 團隊規範要改就改這個 Skill(standards、adr-baseline、skeleton 一起改),在 `CHANGELOG.md` 記錄並升版;
 不要只在個別專案裡改。登入與權限的畫面或流程要變,改骨架,讓所有新專案一起變。
