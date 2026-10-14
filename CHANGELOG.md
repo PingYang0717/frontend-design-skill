@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## 3.0.1(2026-10-14)
+
+- 新增 `references/legacy-review.md`:拿 Skill 審查公司既有專案的清單(A 已知待補 13 題、B 五個模組、C 基底 15 題、
+  D 舊專案較好的做法)與固定的報告格式;每題寫明要查什麼、結果補到 Skill 哪裡。`SKILL.md` 檔案索引與「更新這個 Skill」連過去
+- `check-placeholders`:選了模組時,除了 `docs/conventions/<模組>.md`,也檢查模組 ADR 有沒有複製進 `docs/adr/`
+  (i18n 0010、msw 0011、ag-grid 0018、react-hook-form 0019;dark-mode 沒有 ADR)
+- `SKILL.md`「更新這個 Skill」:**改了基底檔案也要重跑全選組合**——模組 README 的「上一行 / 下一行加」綁著基底檔案現況,
+  只改基底不重跑,README 會悄悄對不上
+- `ag-grid` 模組規範「待補」加一條:評估改成表格頁才載入 AG Grid(目前每頁都下載 `ag-grid` chunk)
+- 修正 2.1.0「待補」節的舊檔名(`data-grid.md`、`forms.md` 在 3.0.0 已搬進模組)
+
+### 下一版的選項
+
+- `scripts/apply-module.mjs`:把模組 README 第 1–3 節的確定性步驟(裝套件、疊檔案、依錨點插入程式碼)寫成腳本,
+  找不到錨點就失敗並指出是哪份 README;README 只留說明。可順便做成「全選 / 全不選」的自動驗證
+
 ## 3.0.0(2026-10-14)
 
 **破壞性變更:骨架拆成「必選的基底」+「五個可選模組」,收件時一輪問答決定要用哪些。**
@@ -50,8 +66,8 @@
 
 ### 待補(既有專案審查後)
 
-- `data-grid.md` 第 8 節:常用 Enterprise 功能的團隊預設、Server-Side Row Model 寫法、列選取與批次操作、可編輯儲存格、欄位狀態保存、授權金鑰流程
-- `forms.md` 第 7 節:是否改用 zod + `@hookform/resolvers`、動態列 / 巢狀 / `Select` 選項來自 API / `Upload` 範本、多步驟表單、唯讀模式、欄位版面規則
+- `data-grid.md`(3.0.0 起為 `assets/modules/ag-grid/standard.md`)第 8 節:常用 Enterprise 功能的團隊預設、Server-Side Row Model 寫法、列選取與批次操作、可編輯儲存格、欄位狀態保存、授權金鑰流程
+- `forms.md`(3.0.0 起為 `assets/modules/react-hook-form/standard.md`)第 7 節:是否改用 zod + `@hookform/resolvers`、動態列 / 巢狀 / `Select` 選項來自 API / `Upload` 範本、多步驟表單、唯讀模式、欄位版面規則
 - 沒有權限的畫面:若既有專案的 403 頁或「停用並說明原因」的做法與骨架不同,改骨架的 `ForbiddenPage` 與 `auth.md` 第 4.1 / 5 節
 
 ## 2.0.0(2026-10-14)

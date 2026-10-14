@@ -1,7 +1,7 @@
 {
   "name": "frontend-project-bootstrap",
   "private": true,
-  "version": "3.0.0",
+  "version": "3.0.1",
   "type": "module",
   "description": "Skill 自己的工具依賴(格式化 Markdown 用);不進專案骨架。",
   "engines": {

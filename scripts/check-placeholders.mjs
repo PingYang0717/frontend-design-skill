@@ -52,13 +52,21 @@ if (existsSync(join(root, 'src'))) {
 // 3. 選用模組(docs/adr/0022-selected-modules.md 的表格:一列一模組,「是否採用」寫「是」或「否」)
 const readIf = (rel) => (existsSync(join(root, rel)) ? readFileSync(join(root, rel), 'utf8') : '');
 const SELECTED_MODULES_ADR = 'docs/adr/0022-selected-modules.md';
-/** 模組 → 選了才有的檔案(用來比對 0022 與實際疊上的模組)與規範檔名。 */
+/** 模組 → 選了才有的檔案(用來比對 0022 與實際疊上的模組)、規範檔名、模組 ADR 檔名(dark-mode 沒有 ADR)。 */
 const MODULES = {
-  i18n: { marker: 'src/i18n/zhTW.ts', standard: 'i18n.md' },
-  'dark-mode': { marker: 'src/stores/useThemeStore.ts', standard: 'dark-mode.md' },
-  msw: { marker: 'src/mocks/handlers.ts', standard: 'msw.md' },
-  'react-hook-form': { marker: 'src/components/common/FormField.tsx', standard: 'react-hook-form.md' },
-  'ag-grid': { marker: 'src/components/common/DataGrid.tsx', standard: 'ag-grid.md' },
+  i18n: { marker: 'src/i18n/zhTW.ts', standard: 'i18n.md', adr: '0010-ui-copy-in-typed-dictionary.md' },
+  'dark-mode': { marker: 'src/stores/useThemeStore.ts', standard: 'dark-mode.md', adr: null },
+  msw: { marker: 'src/mocks/handlers.ts', standard: 'msw.md', adr: '0011-dev-mocks-removed-when-endpoint-ships.md' },
+  'react-hook-form': {
+    marker: 'src/components/common/FormField.tsx',
+    standard: 'react-hook-form.md',
+    adr: '0019-react-hook-form-for-forms.md',
+  },
+  'ag-grid': {
+    marker: 'src/components/common/DataGrid.tsx',
+    standard: 'ag-grid.md',
+    adr: '0018-ag-grid-for-data-tables.md',
+  },
 };
 const selected = new Set();
 const selectedText = readIf(SELECTED_MODULES_ADR);
@@ -79,7 +87,7 @@ if (!selectedText) {
     else if (!answer.startsWith('否'))
       errors.push(`${SELECTED_MODULES_ADR} 的 ${name}「是否採用」要寫「是」或「否」,目前是「${answer}」`);
   }
-  for (const [name, { marker, standard }] of Object.entries(MODULES)) {
+  for (const [name, { marker, standard, adr }] of Object.entries(MODULES)) {
     if (!/^[是否]/.test(rows.get(name) ?? '')) continue; // 沒有這列或答案無效:上面已報錯
     const has = existsSync(join(root, marker));
     if (selected.has(name) && !has)
@@ -87,6 +95,8 @@ if (!selectedText) {
     if (!selected.has(name) && has) errors.push(`0022 沒選 ${name},但專案裡有 ${marker}`);
     if (selected.has(name) && !existsSync(join(root, 'docs/conventions', standard)))
       errors.push(`0022 選了 ${name},但缺少 docs/conventions/${standard}`);
+    if (selected.has(name) && adr && !existsSync(join(root, 'docs/adr', adr)))
+      errors.push(`0022 選了 ${name},但缺少 docs/adr/${adr}(assets/modules/${name}/README.md 第 6 節)`);
   }
 }
 for (const rel of ['docs/conventions/README.md', 'docs/adr/README.md']) {

@@ -134,13 +134,14 @@ node <skill>/scripts/check-placeholders.mjs <project>
 
 ### 說明與工具
 
-| 路徑                              | 什麼時候讀                       |
-| --------------------------------- | -------------------------------- |
-| `references/workflow-detail.md`   | 每一步的具體做法、指令與檔案對照 |
-| `references/spec-to-code.md`      | 步驟 2;SPEC 最少要有什麼         |
-| `assets/modules/<模組>/README.md` | 步驟 3,選了該模組時              |
-| `references/standards/`           | 步驟 4 寫程式時,碰到哪一層讀哪份 |
-| `scripts/check-placeholders.mjs`  | 步驟 5                           |
+| 路徑                              | 什麼時候讀                        |
+| --------------------------------- | --------------------------------- |
+| `references/workflow-detail.md`   | 每一步的具體做法、指令與檔案對照  |
+| `references/spec-to-code.md`      | 步驟 2;SPEC 最少要有什麼          |
+| `assets/modules/<模組>/README.md` | 步驟 3,選了該模組時               |
+| `references/standards/`           | 步驟 4 寫程式時,碰到哪一層讀哪份  |
+| `scripts/check-placeholders.mjs`  | 步驟 5                            |
+| `references/legacy-review.md`     | 維護者拿 Skill 審查公司既有專案時 |
 
 ## Agent 工具相容性
 
@@ -156,3 +157,11 @@ Claude Code 讀 `CLAUDE.md`,所以骨架附一個只有 `@AGENTS.md` 的轉接�
 個別專案的偏離寫成該專案的 ADR(0023 起)。
 修改 skeleton 後一定要在 `assets/skeleton/` 跑一次 lint、typecheck、test、build;修改模組後至少驗證全選與全不選兩個組合
 (做法見 `references/workflow-detail.md` 步驟 3);修改 Markdown 後跑 `npm run format`。
+
+**改了基底檔案也要重跑全選組合。** 模組 README 的「在 X 的上一行 / 下一行加」是對著基底檔案現在的內容寫的
+(尤其 `src/app/providers.tsx`、`vite.config.ts`、`vite-env.d.ts`、`.env.example`、`src/constants/storage.ts`、
+`src/components/layouts/AppHeader.tsx`、PR 範本)。只改基底、不重跑全選,五份 README 可能悄悄對不上,要到下一個新專案才發現。
+找不到錨點的那一行就是要同步修改的 README。
+
+**舊專案審查:** 拿這個 Skill 去比對公司既有專案時,照 `references/legacy-review.md` 做,產出固定格式的報告,
+再依報告把結果補進對應的規範、模組與骨架。
