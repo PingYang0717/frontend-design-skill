@@ -25,7 +25,7 @@ plugin,worker 腳本也不會進 `dist/`。注意「不進產物」不等於「�
 例外([ADR-0013](0013-lint-enforces-layer-boundaries.md))。這條規則讓「只要 DEV 為 false
 就整段移除」的保證不會被某個元件順手 import 假資料打破。
 
-**3. handler 與 `docs/api/` 的契約逐字一致。** 路徑、方法、狀態碼、body 形狀都照契約;
+**3. handler 與 API 契約逐字一致。** 路徑、方法、狀態碼、body 形狀都照契約;
 型別引用 `types/api/` 的 DTO([ADR-0003](0003-dto-matches-backend-contract.md))。假資料
 放 `mocks/db.ts`,不寫在元件或 hook 裡。
 

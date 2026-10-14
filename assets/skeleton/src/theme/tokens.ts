@@ -1,6 +1,6 @@
 /** 色票的唯一來源,同時餵給 antd ConfigProvider 與 CSS Modules 讀的 `--app-*` 變數。
  *
- *  新專案:依 docs/_bootstrap/prototype-analysis.md 的 design token 表,把下方數值**逐值**換成
+ *  新專案:從 prototype 的 CSS 變數與樣式表讀出實際值,把下方數值**逐值**換成
  *  prototype 的值(light 與 dark 各一組)。不要靠 antd 演算法推導出「差不多」的顏色。
  *  元件與 CSS 只能用這裡有的 token;漏掉的變數在深色模式會安靜地停在 fallback。 */
 

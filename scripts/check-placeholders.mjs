@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 檢查新專案是否還有沒填的範本內容。用法:node <skill>/scripts/check-placeholders.mjs <專案根目錄>
+// 檢查專案是否還有沒填的範本內容或沒換掉的骨架預設值。用法:node <skill>/scripts/check-placeholders.mjs <專案根目錄>
 // 結束碼:有 ERROR 為 1,只有 WARN 或全部通過為 0。
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -20,30 +20,32 @@ const walk = (dir) =>
     return statSync(full).isDirectory() ? walk(full) : [full];
   });
 
-// 1. 文件裡的 {{PLACEHOLDER}} 與 FILL 標記
+// 1. 文件裡的 {{PLACEHOLDER}} 與 FILL 標記(docs/templates/ 是給之後複製用的空白範本,本來就帶著 placeholder)
 const PLACEHOLDER = /\{\{[A-Z][A-Z0-9_]*\}\}/g;
-const FILL = /<!--\s*FILL\b/g;
+const FILL = /<!--\s*FILL\b/;
 const docFiles = [
-  ...['README.md', 'AGENTS.md', 'ARCHITECTURE.md', 'GLOSSARY.md', 'CLAUDE.md'].map((f) => join(root, f)),
+  ...['README.md', 'AGENTS.md', 'CLAUDE.md'].map((f) => join(root, f)),
   ...(existsSync(join(root, 'docs')) ? walk(join(root, 'docs')) : []),
-  // docs/templates/ 是給之後複製用的空白範本,本來就帶著 placeholder。
 ].filter((f) => existsSync(f) && f.endsWith('.md') && !relative(root, f).startsWith(join('docs', 'templates')));
 
 for (const file of docFiles) {
-  const lines = readFileSync(file, 'utf8').split('\n');
-  lines.forEach((line, index) => {
-    const where = `${relative(root, file)}:${index + 1}`;
-    for (const match of line.matchAll(PLACEHOLDER)) errors.push(`${where} 未替換的 ${match[0]}`);
-    if (FILL.test(line)) errors.push(`${where} 未填寫的 FILL 區塊`);
-    FILL.lastIndex = 0;
-  });
+  readFileSync(file, 'utf8')
+    .split('\n')
+    .forEach((line, index) => {
+      const where = `${relative(root, file)}:${index + 1}`;
+      for (const match of line.matchAll(PLACEHOLDER)) errors.push(`${where} 未替換的 ${match[0]}`);
+      if (FILL.test(line)) errors.push(`${where} 未填寫的 FILL 區塊`);
+    });
 }
 
-// 2. src 裡的 {{PLACEHOLDER}}
+// 2. src 裡的 {{PLACEHOLDER}} 與標了「草案」的 DTO(後者只提醒)
 if (existsSync(join(root, 'src'))) {
   for (const file of walk(join(root, 'src'))) {
     const text = readFileSync(file, 'utf8');
     for (const match of text.matchAll(PLACEHOLDER)) errors.push(`${relative(root, file)} 未替換的 ${match[0]}`);
+    if (file.includes(join('types', 'api')) && text.includes('草案')) {
+      warnings.push(`${relative(root, file)} 是草案,尚未與後端確認契約`);
+    }
   }
 }
 
@@ -51,34 +53,25 @@ if (existsSync(join(root, 'src'))) {
 const readIf = (rel) => (existsSync(join(root, rel)) ? readFileSync(join(root, rel), 'utf8') : '');
 if (/"name":\s*"app-skeleton"/.test(readIf('package.json'))) errors.push('package.json 的 name 仍是 app-skeleton');
 if (/"name":\s*"app-skeleton"/.test(readIf('package-lock.json')))
-  errors.push('package-lock.json 的 name 仍是 app-skeleton(執行 npm install --package-lock-only)');
+  errors.push('package-lock.json 的 name 仍是 app-skeleton(執行 npm install 會跟著更新)');
 if (/<title>App<\/title>/.test(readIf('index.html'))) errors.push('index.html 的 <title> 仍是預設值 App');
 if (readIf('src/i18n/zhTW.ts').includes("name: '系統名稱'")) errors.push('src/i18n/zhTW.ts 的 app.name 仍是預設值');
 if (readIf('src/i18n/en.ts').includes("name: 'App name'")) errors.push('src/i18n/en.ts 的 app.name 仍是預設值');
 
-// 4. 任務單的「參考畫面」要指到存在的截圖;沒有任何截圖時提醒
-const tasksDir = join(root, 'docs', 'tasks');
-const screensDir = join(root, 'docs', 'prototype', 'screens');
-if (existsSync(tasksDir)) {
-  const taskFiles = walk(tasksDir).filter((f) => f.endsWith('.md') && !f.endsWith('README.md'));
-  for (const file of taskFiles) {
-    const text = readFileSync(file, 'utf8');
-    for (const match of text.matchAll(/docs\/prototype\/screens\/([\w-]+\.png)/g)) {
-      if (!existsSync(join(screensDir, match[1]))) {
-        errors.push(`${relative(root, file)} 參考畫面不存在:${match[0]}`);
-      }
-    }
-    if (!/^\|\s*狀態\s*\|\s*(ready-for-agent|in-progress|needs-human|done)\s*\|/m.test(text)) {
-      errors.push(
-        `${relative(root, file)} 缺少「狀態」列或狀態值不在 ready-for-agent / in-progress / needs-human / done`
-      );
-    }
-  }
-  const pngs = existsSync(screensDir) ? readdirSync(screensDir).filter((f) => f.endsWith('.png')) : [];
-  if (pngs.length === 0) warnings.push('docs/prototype/screens/ 沒有任何截圖;實作 agent 只能靠文字描述畫面。');
+// 4. 規格與 prototype 原檔要在 repo 裡
+for (const [dir, what] of [
+  ['docs/spec', '規格'],
+  ['docs/prototype', 'prototype'],
+]) {
+  const full = join(root, dir);
+  const files = existsSync(full) ? readdirSync(full).filter((f) => !f.startsWith('.')) : [];
+  if (files.length === 0) errors.push(`${dir}/ 沒有任何檔案;${what}原檔要放進 repo`);
+}
+for (const rel of ['docs/adr/0018-router-mode.md', 'docs/adr/0019-auth-mode.md']) {
+  if (!existsSync(join(root, rel))) errors.push(`缺少 ${rel}`);
 }
 
-// 5. 範例功能仍在(第一個真實功能完成後應刪除)
+// 5. 範例功能仍在(全部畫面完成後應刪除)
 const EXAMPLE_FILES = [
   'src/types/api/item.ts',
   'src/api/itemApi.ts',
@@ -89,7 +82,7 @@ const EXAMPLE_FILES = [
 ];
 const remaining = EXAMPLE_FILES.filter((rel) => existsSync(join(root, rel)));
 if (remaining.length > 0) {
-  warnings.push(`骨架的範例功能(Item)仍在:${remaining.join('、')}。第一個真實功能完成後依任務單刪除。`);
+  errors.push(`骨架的範例功能(Item)仍在:${remaining.join('、')}。全部畫面完成後要移除(workflow-detail.md 步驟 4)。`);
 }
 
 for (const message of errors) console.log(`ERROR  ${message}`);

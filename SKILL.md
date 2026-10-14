@@ -1,36 +1,38 @@
 ---
 name: frontend-project-bootstrap
-description: 拿到 UI/UX prototype 要開始一個新的前端專案時使用:依團隊標準(React 19 + Ant Design + TanStack Query + Zustand,按層分的目錄)建立可執行的專案骨架,並依 prototype 填好 README、AGENTS.md、ARCHITECTURE、GLOSSARY、API 契約草案、BDD 規格、任務單與畫面截圖,停在「任務可以派給 coding agent(/implement)」的狀態。也用於「建立團隊標準前端專案」「新專案套用前端公版」。不用於修改既有專案。
+description: 拿到 PM 的 SPEC(Markdown)與 UI/UX 的 HTML prototype,要產生前端程式碼時使用:依團隊標準(React 19 + Ant Design + TanStack Query + Zustand,按層分的目錄,公版登入與權限)建立專案骨架,再依 SPEC 逐畫面實作功能與測試,直到 lint / typecheck / test / build 全綠。也用於「依規格產生前端程式碼」「建立團隊標準前端專案」「新專案套用前端公版」「在公版專案加新畫面」。不產生規格、任務單等文件;規格由 PM 與 UI/UX 提供。
 ---
 
 # Frontend Project Bootstrap
 
-把 UI/UX 交付的 prototype 轉成「團隊標準的前端專案 + 填好的文件 + 可開工的任務單」,讓之後不同人、不同 coding agent
-寫出的程式碼像同一個人寫的。
+輸入是 PM 的 **SPEC.md** 與 UI/UX 的 **HTML prototype**,輸出是**可執行、全綠的前端程式碼**:
+讓不同人、不同 coding agent 依同一份規格寫出的程式碼像同一個人寫的,登入、權限、錯誤處理等每個專案都一樣的
+東西直接沿用公版,不重做。
 
 版本:見 `CHANGELOG.md` 最上面一筆。
 
 ## 核心原則
 
-1. **prototype 是需求素材,不是要搬進專案的程式碼。** 從它擷取畫面、資料、色票與互動,不複製它的實作;原檔與截圖進 repo 當驗收標準。
-2. **團隊規範原樣複製,專案內容依 prototype 填寫。** 兩類檔案的處理方式不同(見下方「檔案索引」)。
-3. **不確定就問,不要猜。** 問題在停頓點分輪問,每題附建議答案;「是」就代表接受建議。
-4. **不實作業務功能。** 這個 Skill 只建立骨架、空白頁面與文件;業務功能之後依任務單由 `/implement` 開發。
-5. **驗證才算完成。** lint、typecheck、test、build 全綠,沒有殘留的 placeholder,每個畫面都有截圖。
+1. **SPEC 是需求,prototype 是視覺驗收標準,兩者都不是程式碼。** 從 prototype 擷取畫面、色票、互動;不複製它的實作。
+   原檔都放進 repo(`docs/spec/`、`docs/prototype/`)。
+2. **公版原樣複製,專案內容依 SPEC 實作。** 骨架、規範、ADR、登入與權限機制只能替換名稱與 token,不得改寫;
+   要偏離就寫專案 ADR(0018 起)。
+3. **SPEC 沒說的不要猜。** 擋住寫程式的缺口一輪問完(每題附建議答案);不擋的寫進回報的「待確認」照常做。
+4. **一個畫面一個切片,做完就驗。** 依「加一個新功能」的分層順序實作,每個畫面做完就跑 lint / typecheck / test。
+5. **全綠才算完成。** lint(0 warning)、typecheck、test、build 全過,沒有殘留的 placeholder,範例功能已移除。
 
 ## 需要的輸入
 
-- prototype(單一 HTML、多頁 HTML、設計檔連結或截圖)與它的版本 / 交付日期
-- 專案名稱與一句話說明
-- 新專案的資料夾位置(必須是空資料夾或新 repo;**已有內容時先停下來確認**)
+- SPEC.md(PM):畫面、欄位、行為、角色與權限;有 API 契約更好。最少要有什麼見 `references/spec-to-code.md` 第 1 節
+- prototype(UI/UX):HTML(單檔或多頁)與版本 / 交付日期
+- 專案資料夾:新專案是空資料夾;既有專案必須是這個 Skill 產生的(根目錄有 `AGENTS.md` 且 `docs/conventions/` 存在)
 
-其餘資訊(部署環境、後端現況、語系、深色模式)在步驟 1 詢問;細節見 `references/workflow-detail.md`。
+其餘資訊(認證方式、路由模式、後端現況、深色模式、多語系)SPEC 沒寫才在步驟 1 問。
 
 ## 事前準備(每台機器一次)
 
 ```bash
-cd <skill> && npm ci && npx playwright install chromium   # scripts/ 用的 Playwright 與 Prettier;不進專案骨架
-# 機器上已有 Chromium 時可不下載,跑截圖腳本時改用 CHROMIUM_EXECUTABLE=<路徑>
+cd <skill> && npm install   # 只有 Prettier(格式化 Skill 自己的 Markdown);不進專案骨架
 ```
 
 ## 流程
@@ -39,27 +41,27 @@ cd <skill> && npm ci && npx playwright install chromium   # scripts/ 用的 Play
 
 ### 步驟 1:收件
 
-先確認專案資料夾不存在或是空的(有內容就停下來問)。再確認 prototype 檔案、版本與團隊共享的存放位置,
-詢問 `references/workflow-detail.md` 步驟 1 表格中**訊息裡還沒提供的**項目。
+確認 SPEC、prototype 與專案資料夾(新專案要是空的;既有專案要是公版產生的,否則停下來問)。
+讀完整份 SPEC 與 prototype。只問 `references/workflow-detail.md` 步驟 1 表格中 **SPEC 與訊息都沒提供的**項目。
 
-### 步驟 2:分析 prototype 與截圖
+### 步驟 2:對照 SPEC 與 prototype,列出工作清單
 
-讀 `references/prototype-analysis.md`,依它的方法分析,產出 `docs/_bootstrap/prototype-analysis.md`
-(格式:`templates/prototype-analysis.md`)。prototype 是 HTML 時,同時把原檔放進 `docs/prototype/`、
-填 `docs/prototype/screens.json`(格式:`templates/prototype-screens.json`),跑截圖腳本產出每個畫面的 png。
+依 `references/spec-to-code.md` 把 SPEC 轉成程式碼清單:畫面 → 路由與選單、角色 → 權限代碼、欄位 → DTO、
+動作 → 端點與 mutation、prototype → token 與元件對映、行為 → 測試案例。清單放在任務清單裡,不產生文件。
 
-**⏸ 停頓點:** 依 `references/prototype-analysis.md` 的「停頓點」分輪提問:待確認問題、缺漏狀態的預設做法、
-路由模式(history / hash)、後端現況。收到回答後記入分析檔第 11、12 節再繼續。
+**⏸ 停頓點(只在有缺口時):** 擋住寫程式的缺口(權限矩陣、欄位型別、端點形狀、prototype 缺的畫面)一輪問完,
+每題附建議答案;「是」就代表接受建議。
 
-### 步驟 3:建立骨架
+### 步驟 3:建立骨架(只有新專案)
 
-複製 `assets/skeleton/`(排除 `node_modules`),`npm ci`,然後依 `references/workflow-detail.md` 步驟 3
-修改名稱、色票、路由模式、路由與選單、空白頁面、權限代碼。保留 Item 範例功能到第一個真實功能完成。
+複製 `assets/skeleton/`(排除 `node_modules`),`npm install`,依 `references/workflow-detail.md` 步驟 3 設定名稱、
+色票、路由模式、認證方式,複製規範與 ADR,放入 SPEC 與 prototype 原檔。既有專案跳過這一步。
 
-### 步驟 4:產出文件
+### 步驟 4:依 SPEC 產生程式碼
 
-依 `references/workflow-detail.md` 步驟 4 的對照表複製與填寫。所有 `<!-- FILL: -->` 依其指示填完並刪除註解,
-所有 `{{PLACEHOLDER}}` 替換。不知道的寫「待確認」,不編造。
+每個畫面依 `references/workflow-detail.md` 步驟 4 的分層順序實作:DTO → endpoint → mock → hook → 元件 → 頁面 →
+路由 / 選單 / 權限 → 字典 → 測試。登入、權限、錯誤處理、i18n、主題一律用骨架既有機制,不另寫。
+全部畫面完成後移除骨架的 Item 範例功能。
 
 ### 步驟 5:驗證、commit 與回報
 
@@ -68,60 +70,50 @@ npm run lint && npm run typecheck && npm test && npm run build
 node <skill>/scripts/check-placeholders.mjs <project>
 ```
 
-四項全綠(lint 沒有 warning)、檢查腳本 0 個 ERROR 才算完成;接著做第一次 commit。
-回報格式見 `references/workflow-detail.md` 步驟 5。
+四項全綠(lint 沒有 warning)、檢查腳本 0 個 ERROR 才算完成;接著 commit。回報格式見 `references/workflow-detail.md` 步驟 5。
 
 使用者不在場時:有建議答案的採用建議並標記「採用建議(暫定)」,沒有建議答案的寫「待確認」,照常繼續;
-兩者都列在回報裡。唯一要停下的情況是專案資料夾已有內容。
+兩者都列在回報裡。唯一要停下的情況是專案資料夾有內容卻不是公版產生的。
 
 ## 檔案索引
 
 ### 原樣複製(只能替換名稱,不得改寫內容)
 
-| 路徑                       | 複製到              | 內容                                                                                                                       |
-| -------------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `assets/skeleton/`         | 專案根目錄          | 可執行骨架:設定檔、api 層、資料 hook、DataBoundary、權限、i18n、theme、MSW、測試、CI(Azure DevOps)、PR 範本、Item 範例功能 |
-| `references/standards/`    | `docs/conventions/` | 18 份團隊開發規範 + 索引                                                                                                   |
-| `references/adr-baseline/` | `docs/adr/`         | ADR 0001–0016 + 索引                                                                                                       |
-| `templates/agents/`        | `docs/agents/`      | mattpocock skills 的 tracker 與 domain docs 設定(local markdown、single-context)                                           |
+| 路徑                       | 複製到              | 內容                                                                                                                                               |
+| -------------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `assets/skeleton/`         | 專案根目錄          | 可執行骨架:設定檔、api 層、資料 hook、DataBoundary、**登入與 session**、**權限**、i18n、theme、MSW、測試、CI(Azure DevOps)、PR 範本、Item 範例功能 |
+| `references/standards/`    | `docs/conventions/` | 19 份團隊開發規範 + 索引                                                                                                                           |
+| `references/adr-baseline/` | `docs/adr/`         | ADR 0001–0017 + 索引                                                                                                                               |
+| `templates/CLAUDE.md`      | 專案根目錄          | Claude Code 的轉接檔:只有 `@AGENTS.md`                                                                                                             |
 
-### 依 prototype 填寫
+### 依 SPEC 填寫
 
-| 範本                                                                      | 產出                                                                  |
-| ------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `templates/prototype-analysis.md`                                         | `docs/_bootstrap/prototype-analysis.md`                               |
-| `templates/prototype-screens.json`                                        | `docs/prototype/screens.json`(截圖腳本輸入)                           |
-| `templates/README.md`、`AGENTS.md`、`ARCHITECTURE.md`、`GLOSSARY.md`      | 專案根目錄                                                            |
-| `templates/CLAUDE.md`                                                     | 專案根目錄(Claude Code 的轉接檔:一行說明註解加 `@AGENTS.md`,原樣複製) |
-| `templates/prototype-README.md`                                           | `docs/prototype/README.md`                                            |
-| `templates/adr-router-mode.md`                                            | `docs/adr/0017-router-mode.md`                                        |
-| `templates/api-interface-auth.md`、`api-interface.md`、`api-checklist.md` | `docs/api/`                                                           |
-| `templates/feature-spec.md`                                               | `docs/specs/<feature>.md`                                             |
-| `templates/task.md`、`tasks-README.md`、`task-remove-example.md`          | `docs/tasks/`                                                         |
-| `templates/adr.md`、`bug-report.md` 等                                    | 另存一份到 `docs/templates/` 給之後使用                               |
+| 範本                           | 產出                                                         |
+| ------------------------------ | ------------------------------------------------------------ |
+| `templates/AGENTS.md`          | 專案根目錄:coding agent 的規則,專案特有規則只有 ADR 連結     |
+| `templates/README.md`          | 專案根目錄:名稱、啟動方式、路由表、後端、待確認              |
+| `templates/adr-router-mode.md` | `docs/adr/0018-router-mode.md`                               |
+| `templates/adr-auth-mode.md`   | `docs/adr/0019-auth-mode.md`                                 |
+| `templates/adr.md`             | 其他偏離團隊標準的決定(0020 起);另存一份到 `docs/templates/` |
+
+### 公版的登入與權限
+
+這兩塊每個專案都一樣,SPEC 只決定「有哪些權限代碼」與「用哪種認證方式」:
+
+| 需求              | 公版位置                                                                                                                                                | 規範                            |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| 登入頁、登出、401 | `src/pages/Login/`、`src/stores/useSessionStore.ts`、`src/app/session.ts`、`src/components/auth/RequireAuth.tsx`、`src/components/layouts/UserMenu.tsx` | `references/standards/login.md` |
+| 換認證方式        | 只改 `src/types/api/auth.ts`、`src/api/authApi.ts`、`src/mocks/handlers.ts`;寫 `docs/adr/0019-auth-mode.md`                                             | `login.md` 第 6 節              |
+| 頁面與按鈕的權限  | `src/constants/permissions.ts`、`navEntries.tsx` 的 `permission`、`<Can>`、`RequirePermission`                                                          | `references/standards/auth.md`  |
 
 ### 說明與工具
 
-| 路徑                               | 什麼時候讀                       |
-| ---------------------------------- | -------------------------------- |
-| `references/workflow-detail.md`    | 每一步的具體做法、指令與檔案對照 |
-| `references/prototype-analysis.md` | 步驟 2                           |
-| `scripts/screenshot-prototype.mjs` | 步驟 2(prototype 改版也重跑)     |
-| `scripts/check-placeholders.mjs`   | 步驟 5                           |
-
-## 接 mattpocock skills
-
-這個 Skill 的產出就是 [mattpocock/skills](https://github.com/mattpocock/skills) 的輸入;專案不需要再跑 `/setup-matt-pocock-skills`
-(跑了也只會原地更新 `AGENTS.md` 的 `## Agent skills` 與 `docs/agents/`,不要讓它寫進 `CLAUDE.md`)。
-
-| 它的 skill                     | 對應到這裡                                                                                                  |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| `/grill-with-docs`、`grilling` | 步驟 2 的停頓點是同一種訪談;之後要改設計時直接用它,名詞落在 `GLOSSARY.md`、決策落在 `docs/adr/0018+`        |
-| `domain-modeling`              | 讀寫 `GLOSSARY.md`(格式相同)與 `docs/adr/`(團隊格式,見 `docs/agents/domain.md`)                             |
-| `/to-spec`、`/to-tickets`      | **不用**。規格已是 `docs/specs/`(Gherkin 編號),任務已是 `docs/tasks/`(帶分層檔案路徑與可重用元件)           |
-| `/implement`                   | 第一版的實作方式:一次一張 `docs/tasks/<ID>-*.md`,從 `main` 開任務單寫的分支;它會呼叫 `tdd` 與 `code-review` |
-| `tdd`                          | seam 已寫在 `AGENTS.md`「測試 seam」,不用再議                                                               |
-| `/implement-spec`              | 可用但未試跑:每個 worktree 都要 `npm ci`(husky `prepare`),Azure DevOps 沒有 draft PR 整合                   |
+| 路徑                             | 什麼時候讀                       |
+| -------------------------------- | -------------------------------- |
+| `references/workflow-detail.md`  | 每一步的具體做法、指令與檔案對照 |
+| `references/spec-to-code.md`     | 步驟 2;SPEC 最少要有什麼         |
+| `references/standards/`          | 步驟 4 寫程式時,碰到哪一層讀哪份 |
+| `scripts/check-placeholders.mjs` | 步驟 5                           |
 
 ## Agent 工具相容性
 
@@ -131,5 +123,6 @@ Claude Code 讀 `CLAUDE.md`,所以骨架附一個只有 `@AGENTS.md` 的轉接�
 ## 更新這個 Skill
 
 團隊規範要改就改這個 Skill(standards、adr-baseline、skeleton 一起改),在 `CHANGELOG.md` 記錄並升版;
-不要只在個別專案裡改。個別專案的偏離寫成該專案的 ADR(0017 起)。
+不要只在個別專案裡改。登入與權限的畫面或流程要變,改骨架,讓所有新專案一起變。
+個別專案的偏離寫成該專案的 ADR(0018 起)。
 修改 skeleton 後一定要在 `assets/skeleton/` 跑一次 lint、typecheck、test、build;修改 Markdown 後跑 `npm run format`。

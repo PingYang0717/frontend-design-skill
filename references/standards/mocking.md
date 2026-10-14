@@ -8,7 +8,7 @@
 | 檔案                | 用途                                                                                           |
 | ------------------- | ---------------------------------------------------------------------------------------------- |
 | `mocks/handlers.ts` | `pendingHandlers`(後端未上線)、`shippedHandlers`(已上線,只給測試)、`handlers`(兩者合併,測試用) |
-| `mocks/db.ts`       | 假後端的記憶體資料;`resetDb()` 還原種子資料                                                    |
+| `mocks/db.ts`       | 假後端的記憶體資料;`resetDb()` 還原種子資料;`MOCK_LOGIN`(帳密)與 `MOCK_ACCESS_TOKEN`           |
 | `mocks/browser.ts`  | `setupWorker(...pendingHandlers)`,開發期只攔截未上線的端點                                     |
 | `mocks/server.ts`   | `setupServer(...handlers)`,測試攔截全部端點(`test/setup.ts` 啟動)                              |
 
@@ -48,7 +48,7 @@
 **規則**
 
 - 路徑用 `api('/xxx')` 組(`*/api` 前綴,與 `apiClient` 的 baseURL 一致)。
-- 回應形狀、狀態碼、錯誤 body 與 `docs/api/` 的契約**逐字一致**;型別引用 `types/api/`,讓契約改了 typecheck 會提醒。
+- 回應形狀、狀態碼、錯誤 body 與 API 契約**逐字一致**;型別引用 `types/api/`,讓契約改了 typecheck 會提醒。
 - 資料讀寫 `db`,不在 handler 裡寫死回應,讓「新增後清單出現新資料」這類流程可以測。
 - 清單端點加 `await delay()`,開發期才看得到 loading 狀態。
 - 一個端點一個 handler,依資源分段排列。
@@ -131,7 +131,7 @@ export const resetDb = () => {
 
 流程:
 
-1. 後端通知端點已上線(`docs/api/` 的契約同步更新)。
+1. 後端通知端點已上線(契約同步更新)。
 2. `npm run dev`(不帶 mock)手動驗證該功能對真後端可用。
 3. 把 handler 從 `pendingHandlers` 搬到 `shippedHandlers`。
 4. 跑 `npm test` 確認測試仍通過。

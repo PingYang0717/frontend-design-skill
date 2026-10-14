@@ -1,9 +1,11 @@
-import { afterAll, afterEach, beforeAll } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest';
 import { cleanup, configure } from '@testing-library/react';
 
-import { resetDb } from '@/mocks/db';
+import { connectSession } from '@/app/session';
+import { MOCK_ACCESS_TOKEN, resetDb } from '@/mocks/db';
 import { server } from '@/mocks/server';
 import { useLanguageStore } from '@/stores/useLanguageStore';
+import { useSessionStore } from '@/stores/useSessionStore';
 
 import '@testing-library/jest-dom/vitest';
 
@@ -25,7 +27,23 @@ Object.defineProperty(window, 'matchMedia', {
   }),
 });
 
-beforeAll(() => server.listen({ onUnhandledFrame: 'error' }));
+// antd Dropdown、Table 的固定欄位依賴 jsdom 沒有的 ResizeObserver;測試不需要真的量尺寸。
+class ResizeObserverStub {
+  observe = () => {};
+  unobserve = () => {};
+  disconnect = () => {};
+}
+Object.defineProperty(window, 'ResizeObserver', { writable: true, value: ResizeObserverStub });
+
+beforeAll(() => {
+  connectSession();
+  server.listen({ onUnhandledFrame: 'error' });
+});
+
+// 測試預設已登入;要測未登入的情況,在測試裡 useSessionStore.setState({ accessToken: null })。
+beforeEach(() => {
+  useSessionStore.setState({ accessToken: MOCK_ACCESS_TOKEN });
+});
 
 afterEach(() => {
   cleanup();

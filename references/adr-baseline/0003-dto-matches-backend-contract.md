@@ -15,7 +15,7 @@
 線路上的拼法,enum 值維持原樣(`'ACTIVE' | 'ARCHIVED'`)。後端改名,前端跟著改。
 
 **2. 只收前端消費的欄位。** `types/api` 描述前端用到什麼,不是後端吐了什麼。沒有消費端的
-欄位不收——它會讓讀型別的人以為有功能。完整的線路形狀記在 `docs/api/` 的契約文件。
+欄位不收——它會讓讀型別的人以為有功能。完整的線路形狀以後端的契約文件(或規格裡的 API 一節)為準。
 
 **3. 需要轉換的地方在使用點做。** 例如 enum 轉文案在字典裡查
 (`t.items.status[item.status]`),日期在 render 時格式化;不在 api 層先轉好。
@@ -59,7 +59,7 @@ const toItem = (dto: ItemDto): ItemViewModel => ({
 
 ## 後果
 
-- 接真後端時沒有形狀落差;mock handler 與 DTO 也就能直接對照 `docs/api/`
+- 接真後端時沒有形狀落差;mock handler 與 DTO 也就能直接對照契約
   ([ADR-0011](0011-dev-mocks-removed-when-endpoint-ships.md))。
 - 線路的怪形狀(JSON 字串欄位、巢狀過深)會滲進 UI 的使用點;這是刻意付的代價,不另包一層。
 - 型別只是編譯期的宣稱,不驗 runtime;防線的取捨見

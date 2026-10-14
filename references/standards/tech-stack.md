@@ -69,32 +69,34 @@
 
 ## 3. 版本策略
 
-### 3.1 `^` 範圍 + lockfile + `npm ci`
+### 3.1 `^` 範圍 + lockfile;本機 `npm install`、CI `npm ci`
 
 **規則**
 
 - `package.json` 用 `^` 範圍(`npm install <pkg>` 的預設)。
 - `package-lock.json` **一定進版控**,與 `package.json` 在同一個 commit 變動。
-- 安裝一律 `npm ci`(本機、CI 都是)。只有「要改依賴」時才用 `npm install`。
+- 本機安裝一律 `npm install`;CI 一律 `npm ci`。
 - Node 版本以 `package.json` 的 `engines.node` 為準;CI 在 `azure-pipelines.yml` 指定同一版。
 
-**原因**:`^` 讓升級容易;lockfile 讓每台機器裝到的版本完全相同;`npm ci` 嚴格依 lockfile 安裝,
-lockfile 與 `package.json` 不一致時直接失敗,不會悄悄改寫。
+**原因**:`^` 讓升級容易;lockfile 讓每台機器裝到的版本完全相同;`npm install` 依 lockfile 安裝但會修正
+不一致之處,適合本機;`npm ci` 不一致就直接失敗,放在 CI 擋下「lockfile 沒跟著 commit」。
 
-- ✅ `git clone` 後執行 `npm ci`。
-- ❌ 日常用 `npm install`:可能更新 lockfile,產生與功能無關的 diff。
+- ✅ `git clone` 後執行 `npm install`。
+- ✅ `npm install` 後 `package-lock.json` 有 diff:確認是預期的變更(`package.json` 改了)再一起 commit;
+  不是預期的就 `git checkout package-lock.json` 並查原因。
+- ❌ 把與功能無關的 lockfile diff 一起 commit。
 - ❌ 刪掉 `package-lock.json` 重新產生來「解決衝突」。
 - ❌ 把 `package-lock.json` 加進 `.gitignore`。
 
-**強制**:CI(`azure-pipelines.yml`)只跑 `npm ci`;lockfile 不一致時 CI 直接失敗。
+**強制**:CI(`azure-pipelines.yml`)只跑 `npm ci`;lockfile 與 `package.json` 不一致時 CI 直接失敗。
 
 **例外**:`typescript` 用 `~`(只接受 patch)。TypeScript 的 minor 版本常帶入新的型別檢查錯誤,
 不讓它跟著 `^` 自動進來。
 
 ### 3.2 lockfile 衝突
 
-**規則**:合併時 `package-lock.json` 衝突,先解決 `package.json` 的衝突,再執行 `npm install`
-讓 npm 重新產生 lockfile,最後 `npm ci` 驗證。不要手動編輯 lockfile 內容。
+**規則**:合併時 `package-lock.json` 衝突,先解決 `package.json` 的衝突,取目標分支的 lockfile 後執行
+`npm install` 讓 npm 重新產生,再跑四項檢查。不要手動編輯 lockfile 內容。
 
 ### 3.3 升級流程
 

@@ -63,7 +63,7 @@ import axios from 'axios'; // 元件自己開 HTTP
 
 ## 3. Commit 前:husky + lint-staged + commitlint
 
-`npm ci` 時 `prepare` 腳本會安裝 husky hook。
+`npm install` 時 `prepare` 腳本會安裝 husky hook。
 
 | Hook       | 檔案                | 做什麼                                                                            |
 | ---------- | ------------------- | --------------------------------------------------------------------------------- |
@@ -89,7 +89,7 @@ import axios from 'axios'; // 元件自己開 HTTP
 | -------------------- | ------------------------------------ | ------------------------------------------------ |
 | Use Node.js          | `NodeTool@0`,`22.22.x`               | 與 `package.json` 的 `engines.node` 一致         |
 | Cache npm            | `Cache@2`,key 含 `package-lock.json` | 加速安裝                                         |
-| Install dependencies | `npm ci`(`HUSKY=0`)                  | 完全依 lockfile 安裝,不悄悄升級;CI 不裝 git hook |
+| Install dependencies | `npm ci`(`HUSKY=0`)                  | 只依 lockfile 安裝,不一致就失敗;CI 不裝 git hook |
 | Lint                 | `npm run lint`                       | oxlint + ESLint                                  |
 | Typecheck            | `npm run typecheck`                  | `tsc -b`:app、test、node 三份 tsconfig           |
 | Test                 | `npm test`                           | Vitest 全部測試(含兩支 i18n 守門測試)            |
@@ -100,23 +100,23 @@ import axios from 'axios'; // 元件自己開 HTTP
 
 ## 5. 常用 npm scripts
 
-| 指令                                | 用途                                                                                                               |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `npm ci`                            | 安裝依賴。**一律用 `npm ci`**,不用 `npm install`(見 [ADR-0016](../adr/0016-dependency-versioning-and-lockfile.md)) |
-| `npm run dev`                       | 開發伺服器,`/api` 轉給 `VITE_PROXY_TARGET`(預設 `http://localhost:8080`)                                           |
-| `npm run dev:mock`                  | 開發伺服器 + MSW 假後端(讀 `.env.mock`,見 [mocking.md](./mocking.md))                                              |
-| `npm run build`                     | 正式建置(只檢查 `tsconfig.app.json`,不含 mocks)                                                                    |
-| `npm run preview`                   | 預覽 build 產物                                                                                                    |
-| `npm run typecheck`                 | 三份 tsconfig 全部檢查                                                                                             |
-| `npm run lint` / `npm run lint:fix` | 檢查 / 自動修正                                                                                                    |
-| `npm test` / `npm run test:watch`   | 跑一次 / 監看模式                                                                                                  |
+| 指令                                | 用途                                                                                                                 |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `npm install`                       | 安裝依賴。本機用 `npm install`;只有 CI 用 `npm ci`(見 [ADR-0016](../adr/0016-dependency-versioning-and-lockfile.md)) |
+| `npm run dev`                       | 開發伺服器,`/api` 轉給 `VITE_PROXY_TARGET`(預設 `http://localhost:8080`)                                             |
+| `npm run dev:mock`                  | 開發伺服器 + MSW 假後端(讀 `.env.mock`,見 [mocking.md](./mocking.md))                                                |
+| `npm run build`                     | 正式建置(只檢查 `tsconfig.app.json`,不含 mocks)                                                                      |
+| `npm run preview`                   | 預覽 build 產物                                                                                                      |
+| `npm run typecheck`                 | 三份 tsconfig 全部檢查                                                                                               |
+| `npm run lint` / `npm run lint:fix` | 檢查 / 自動修正                                                                                                      |
+| `npm test` / `npm run test:watch`   | 跑一次 / 監看模式                                                                                                    |
 
 推出去之前,本機至少跑一次 `npm run lint && npm run typecheck && npm test && npm run build`
 (PR 範本的自我檢查第一項)。
 
 ## 6. 依賴版本
 
-- `package.json` 用 `^` 範圍;`package-lock.json` 進版控;安裝一律 `npm ci`。
+- `package.json` 用 `^` 範圍;`package-lock.json` 進版控;本機 `npm install`、CI `npm ci`。
 - 升級套件:`npm install <pkg>@<版本>` 後,lockfile 與 `package.json` 一起 commit
   (type 用 `build`),四項檢查全綠才合併。
 - `typescript` 用 `~`(只接受 patch):TypeScript 的 minor 版本可能帶來新的型別錯誤。

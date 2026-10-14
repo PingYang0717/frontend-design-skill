@@ -1,19 +1,17 @@
 {
   "name": "frontend-project-bootstrap",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
-  "description": "Skill 自己的工具依賴(scripts/ 用);不進專案骨架。",
+  "description": "Skill 自己的工具依賴(格式化 Markdown 用);不進專案骨架。",
   "engines": {
     "node": ">=22.22.0"
   },
   "scripts": {
     "check-placeholders": "node scripts/check-placeholders.mjs",
-    "screenshot-prototype": "node scripts/screenshot-prototype.mjs",
-    "format": "prettier --config assets/skeleton/.prettierrc.json --write \"**/*.md\" \"templates/**/*.json\" \"scripts/*.mjs\" --ignore-path .prettierignore"
+    "format": "prettier --config assets/skeleton/.prettierrc.json --write \"**/*.md\" \"scripts/*.mjs\" --ignore-path .prettierignore"
   },
   "devDependencies": {
-    "playwright": "^1.64.0",
     "prettier": "^3.9.10"
   }
 }

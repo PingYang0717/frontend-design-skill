@@ -5,17 +5,19 @@ Vitest + Testing Library + MSW。不做 E2E;頁面測試從網址進入、經過
 
 ## 1. 工具與設定
 
-| 項目     | 位置                                          | 說明                                                                               |
-| -------- | --------------------------------------------- | ---------------------------------------------------------------------------------- |
-| 測試執行 | `vite.config.ts` 的 `test`                    | `environment: 'jsdom'`、`globals: false`(一律明確 import `describe`/`it`/`expect`) |
-| 全域設定 | `src/test/setup.ts`                           | 啟動 MSW server、補 `matchMedia`、每個測試後清理                                   |
-| 假後端   | `src/mocks/handlers.ts`、`db.ts`、`server.ts` | 開發期 mock 與測試共用同一份 handler                                               |
-| 渲染     | `src/test/renderApp.tsx`                      | 以真實 Provider 與路由表渲染整個 app                                               |
-| 斷言     | `@testing-library/jest-dom`                   | `toBeInTheDocument()` 等                                                           |
-| 互動     | `@testing-library/user-event`                 | 點擊、輸入一律用它                                                                 |
+| 項目     | 位置                                          | 說明                                                                                              |
+| -------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| 測試執行 | `vite.config.ts` 的 `test`                    | `environment: 'jsdom'`、`globals: false`(一律明確 import `describe`/`it`/`expect`)                |
+| 全域設定 | `src/test/setup.ts`                           | 啟動 MSW server、接上 session、補 `matchMedia` / `ResizeObserver`、每個測試預設已登入、測試後清理 |
+| 假後端   | `src/mocks/handlers.ts`、`db.ts`、`server.ts` | 開發期 mock 與測試共用同一份 handler                                                              |
+| 渲染     | `src/test/renderApp.tsx`                      | 以真實 Provider 與路由表渲染整個 app                                                              |
+| 斷言     | `@testing-library/jest-dom`                   | `toBeInTheDocument()` 等                                                                          |
+| 互動     | `@testing-library/user-event`                 | 點擊、輸入一律用它                                                                                |
 
 `setup.ts` 在每個測試後:`cleanup()` → `server.resetHandlers()` → `resetDb()` →
-`localStorage.clear()` → 語言重設為 `zh-TW`。所以測試裡改 `db` 或 `server.use` 不會洩漏到下一個測試。
+`localStorage.clear()` → 語言重設為 `zh-TW`;每個測試前把 session 設為已登入(`MOCK_ACCESS_TOKEN`)。
+所以測試裡改 `db`、`server.use` 或登出都不會洩漏到下一個測試;要測未登入,在測試裡
+`useSessionStore.setState({ accessToken: null })`。
 
 `setup.ts` 以 `configure({ asyncUtilTimeout: 3000 })` 把 `findBy…` / `waitFor` 的預設等待從 1 秒
 拉長到 3 秒:頁面是 lazy 載入且先 suspend,在慢機器上平行跑時,第一次渲染可能超過 1 秒。
@@ -134,12 +136,12 @@ db.currentUser = { ...db.currentUser, permissions: ['items:read'] };
 1. **正常顯示**:後端資料出現在畫面上。
 2. **主要寫入流程**:例如新增後清單出現新資料(經過 MSW、invalidate、重新抓取)。
 3. **讀取失敗**:錯誤卡出現,按重試能恢復。
-4. **權限**:沒有權限時入口或按鈕不存在;路由被導到 403。
+4. **權限**:沒有權限時入口或按鈕不存在;路由被導到 403。登入、登出與 401 由骨架的測試涵蓋,新功能不用重測。
 5. **URL 狀態**:篩選/分頁/tab 放在網址的,從帶參數的網址進入要正確呈現。
 6. **新的錯誤 code、新的字典條目**:由兩支守門測試自動涵蓋,不需另寫。
 
 範本:`src/pages/Items/ItemsPage.test.tsx`(1–5 都有)、
-`src/components/auth/RequirePermission.test.tsx`(權限)。
+`src/components/auth/RequirePermission.test.tsx`(權限)、`src/components/auth/RequireAuth.test.tsx`(登入)。
 
 ## 9. 不做的事
 

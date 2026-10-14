@@ -1,19 +1,20 @@
 # 路由
 
-> 路由模式(history 或 hash)由**每個專案收件時決定並寫 ADR**(`docs/adr/0017` 起的編號)。
+> 路由模式(history 或 hash)由**每個專案收件時決定並寫 ADR**(`docs/adr/0018` 起的編號)。
 > 選單、路由、權限守衛共用一份來源:[`navEntries.tsx`](../../src/components/layouts/navEntries.tsx)
 > 加上 [`app/navPages.tsx`](../../src/app/navPages.tsx)。
 
 ## 1. 組成
 
-| 檔案                                | 角色                                                                                 |
-| ----------------------------------- | ------------------------------------------------------------------------------------ |
-| `constants/routes.ts`               | `ROUTES`:所有路徑的唯一來源                                                          |
-| `components/layouts/navEntries.tsx` | `NAV_ENTRIES`:選單入口(key、路徑、圖示、文案、權限);`NavKey` 型別                    |
-| `app/navPages.tsx`                  | `NAV_PAGES: Record<NavKey, …>`:入口 → lazy 頁面                                      |
-| `app/routes.tsx`                    | `appRoutes`:由 `NAV_ENTRIES` 長出路由,每個入口包 `RequirePermission`;另加 403 與 `*` |
-| `app/router.tsx`                    | 建立 router(路由模式在這一行)                                                        |
-| `test/renderApp.tsx`                | 測試用 `createMemoryRouter(appRoutes)` 載入同一份路由表                              |
+| 檔案                                | 角色                                                                                                                                                      |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `constants/routes.ts`               | `ROUTES`:所有路徑的唯一來源                                                                                                                               |
+| `components/layouts/navEntries.tsx` | `NAV_ENTRIES`:選單入口(key、路徑、圖示、文案、權限);`NavKey` 型別                                                                                         |
+| `app/navPages.tsx`                  | `NAV_PAGES: Record<NavKey, …>`:入口 → lazy 頁面                                                                                                           |
+| `app/subPages.tsx`                  | 不在選單上的頁面(登入頁、詳細頁)的 lazy 宣告                                                                                                              |
+| `app/routes.tsx`                    | `appRoutes`:`PublicLayout` 區域(登入頁)+ `RequireAuth` 包住的 `RootLayout` 區域(由 `NAV_ENTRIES` 長出路由,每個入口包 `RequirePermission`;另加 403 與 `*`) |
+| `app/router.tsx`                    | 建立 router(路由模式在這一行)                                                                                                                             |
+| `test/renderApp.tsx`                | 測試用 `createMemoryRouter(appRoutes)` 載入同一份路由表                                                                                                   |
 
 ## 2. 新增一個選單入口
 
@@ -65,8 +66,8 @@ export const NAV_PAGES: Record<NavKey, React.LazyExoticComponent<React.FC>> = {
 ## 3. 不在選單上的路由
 
 **規則**:詳細頁、編輯頁等子頁不進 `NAV_ENTRIES`。在 `ROUTES` 加路徑,頁面的 `lazy` 宣告放在
-`app/subPages.tsx`(沒有這個檔就建立),再加進 `app/routes.tsx` 的 `RootLayout` children;需要權限時一樣包
-`RequirePermission`。
+`app/subPages.tsx`(登入頁已在裡面),再加進 `app/routes.tsx` 的 `RootLayout` children;需要權限時一樣包
+`RequirePermission`。不需要登入的頁面(目前只有登入頁)放 `PublicLayout` 區域。
 
 **原因**:`app/routes.tsx` 匯出的是路由表(不是元件),在同一個檔案頂層宣告 `lazy` 元件會觸發
 `react/only-export-components` 警告,也讓 Fast Refresh 失效。
@@ -136,8 +137,9 @@ const [page, setPage] = useState(1);
 
 查詢條件會影響後端請求時,把它放進 queryKey(`['items', { q, page }]`,見 [data-fetching.md](./data-fetching.md))。
 
-## 6. 權限守衛
+## 6. 登入與權限守衛
 
+`RootLayout` 整個被 `RequireAuth` 包住:沒有 session 一律導到 `ROUTES.login`(見 [login.md](./login.md))。
 每個 `NAV_ENTRIES` 入口的 `permission` 同時決定:選單是否顯示(`AppShell` 過濾)、直接輸入網址時是否導到
 `ROUTES.forbidden`(`RequirePermission`)。前端守衛只是體驗,真正的檢查在後端。詳見 [auth.md](./auth.md)。
 

@@ -29,7 +29,7 @@ steps:
         npm | "$(Agent.OS)"
       path: $(npm_config_cache)
 
-  # 一律 npm ci:完全依 lockfile 安裝,不會悄悄升級套件。
+  # CI 用 npm ci:只依 lockfile 安裝,與 package.json 不一致就失敗(本機用 npm install,見 ADR-0016)。
   - script: npm ci
     displayName: 'Install dependencies'
     env:

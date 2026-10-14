@@ -28,6 +28,7 @@ export const zhTW = {
     light: '淺色',
     dark: '深色',
     language: '語言',
+    logout: '登出',
   },
   errors: {
     offline: '無法連線到後端服務',
@@ -42,9 +43,18 @@ export const zhTW = {
     byCode: {
       VALIDATION_FAILED: '輸入的資料不正確,請檢查後再送出。',
       CONFLICT: '資料已被其他人修改,請重新整理後再試。',
+      INVALID_CREDENTIALS: '帳號或密碼不正確。',
     } satisfies Record<KnownErrorCode, string>,
   },
   pages: {
+    login: {
+      subtitle: '請以公司帳號登入',
+      username: '帳號',
+      password: '密碼',
+      usernameRequired: '請輸入帳號',
+      passwordRequired: '請輸入密碼',
+      submit: '登入',
+    },
     home: {
       title: '首頁',
       welcome: (name: string) => `歡迎回來,${name}`,

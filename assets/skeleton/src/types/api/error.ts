@@ -5,6 +5,6 @@ export interface ApiErrorBody {
 }
 
 /** 前端有對應文案的錯誤 code。每一個都必須在 i18n 字典 `errors.byCode` 裡有一句(測試會檢查)。 */
-export const KNOWN_ERROR_CODES = ['VALIDATION_FAILED', 'CONFLICT'] as const;
+export const KNOWN_ERROR_CODES = ['VALIDATION_FAILED', 'CONFLICT', 'INVALID_CREDENTIALS'] as const;
 
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number];

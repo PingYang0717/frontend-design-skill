@@ -139,14 +139,15 @@ useEffect(() => {
 
 ## 8. 共用零件,不手刻
 
-| 需求                                 | 用                                                          |
-| ------------------------------------ | ----------------------------------------------------------- |
-| 純圖示按鈕(帶 Tooltip 與 aria-label) | `components/common/IconButton`                              |
-| 讀取中 / 讀取失敗的邊界              | `components/common/DataBoundary`                            |
-| 讀取失敗的錯誤卡                     | `components/common/LoadErrorPanel`(由 `ErrorBoundary` 使用) |
-| 刪除等不可復原動作的確認             | `hooks/useConfirmDestructive`                               |
-| 依權限顯示                           | `components/auth/Can`                                       |
-| 搜尋輸入 debounce(300–500ms)         | `hooks/useDebouncedValue`                                   |
+| 需求                                 | 用                                                              |
+| ------------------------------------ | --------------------------------------------------------------- |
+| 純圖示按鈕(帶 Tooltip 與 aria-label) | `components/common/IconButton`                                  |
+| 讀取中 / 讀取失敗的邊界              | `components/common/DataBoundary`                                |
+| 讀取失敗的錯誤卡                     | `components/common/LoadErrorPanel`(由 `ErrorBoundary` 使用)     |
+| 刪除等不可復原動作的確認             | `hooks/useConfirmDestructive`                                   |
+| 依權限顯示                           | `components/auth/Can`                                           |
+| 需要登入的路由區域                   | `components/auth/RequireAuth`(`routes.tsx` 已包住 `RootLayout`) |
+| 搜尋輸入 debounce(300–500ms)         | `hooks/useDebouncedValue`                                       |
 
 - ✅ `<IconButton icon={<DeleteOutlined />} label={t.items.delete.label(item.name)} onClick={...} />`
 - ❌ `<Tooltip title="刪除"><Button icon={<DeleteOutlined />} /></Tooltip>`(沒有 aria-label、文案寫死)

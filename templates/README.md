@@ -2,9 +2,7 @@
 
 {{PROJECT_ONE_LINER}}
 
-<!-- FILL: 2–3 句說明:給誰用、解決什麼問題、主要有哪些功能。來源:docs/_bootstrap/prototype-analysis.md 的「專案概要」。 -->
-
-名詞定義見 [`GLOSSARY.md`](./GLOSSARY.md)。
+<!-- FILL: 2–3 句說明:給誰用、解決什麼問題、主要有哪些功能。來源:docs/spec/。 -->
 
 ---
 
@@ -19,16 +17,17 @@ TanStack Query 5、Zustand 5、Axios。測試是 Vitest + Testing Library,MSW �
 需要 Node 22.22 以上。
 
 ```bash
-npm ci
+npm install
 cp .env.example .env.local   # 依註解填入
 npm run dev                  # 打真後端,/api 由開發伺服器轉到 VITE_PROXY_TARGET
-npm run dev:mock             # 後端未就緒時:以 MSW 假後端開發
+npm run dev:mock             # 後端未就緒時:以 MSW 假後端開發,帳密見 src/mocks/db.ts 的 MOCK_LOGIN
 ```
 
 開啟 http://localhost:5173
 
 | 指令                        | 用途                                              |
 | --------------------------- | ------------------------------------------------- |
+| `npm install`               | 安裝依賴(本機;CI 用 `npm ci`)                     |
 | `npm run dev`               | 開發伺服器                                        |
 | `npm run dev:mock`          | 開發伺服器 + MSW 假後端(只攔截後端尚未上線的端點) |
 | `npm run build`             | 型別檢查 + 正式建置                               |
@@ -45,24 +44,26 @@ Commit 前 husky 會自動跑 lint-staged(lint + Prettier)與 commitlint,不需�
 
 ## 畫面與路由
 
-<!-- FILL: 表格列出每個路由:路徑、畫面名稱、需要的權限。來源:docs/_bootstrap/prototype-analysis.md 的路由樹;必須與 src/constants/routes.ts、src/components/layouts/navEntries.tsx 一致。 -->
+<!-- FILL: 表格列出每個路由:路徑、畫面名稱、需要的權限;必須與 src/constants/routes.ts、src/components/layouts/navEntries.tsx 一致。`/login` 是公版登入頁。 -->
 
-| 路徑 | 畫面 | 權限 |
-| ---- | ---- | ---- |
+| 路徑     | 畫面 | 權限 |
+| -------- | ---- | ---- |
+| `/login` | 登入 | 無   |
 
-路由模式:<!-- FILL: history 或 hash,與連到對應 ADR 的連結。 -->
+路由模式:<!-- FILL: history 或 hash,連到 docs/adr/0018-router-mode.md。 -->
+認證方式:<!-- FILL: 一句話,連到 docs/adr/0019-auth-mode.md。 -->
 
 ## 後端
 
-API 契約的唯一來源是 [`docs/api/`](./docs/api/);每條端點的狀態(已上線 / 開發中 / 未開始)記在
-[`docs/api/api-checklist.md`](./docs/api/api-checklist.md)。
+API 契約以 [`docs/spec/`](./docs/spec/) 的 API 一節或後端文件為準;DTO(`src/types/api/`)與 mock
+(`src/mocks/handlers.ts`)與契約逐字一致。後端尚未上線的端點在 `pendingHandlers`,上線後搬到 `shippedHandlers`。
 
-<!-- FILL: 後端的負責團隊或聯絡窗口、各環境的 API 位址(不含機密)。不知道就寫「待確認」並列入待確認問題。 -->
+<!-- FILL: 後端的負責團隊或聯絡窗口、各環境的 API 位址(不含機密)、登入服務。不知道就寫「待確認」。 -->
 
 ## 主題與視覺
 
-視覺以 prototype 為準([ADR-0001](./docs/adr/0001-visual-authority-is-the-prototype.md))。
-色票唯一來源是 `src/theme/tokens.ts`,逐值取自 prototype;prototype 版本見 `docs/prototype/`。
+視覺以 prototype 為準([ADR-0001](./docs/adr/0001-visual-authority-is-the-prototype.md));原檔在
+[`docs/prototype/`](./docs/prototype/)。色票唯一來源是 `src/theme/tokens.ts`,逐值取自 prototype。
 
 ## 部署
 
@@ -70,21 +71,17 @@ API 契約的唯一來源是 [`docs/api/`](./docs/api/);每條端點的狀態(�
 
 ## 文件地圖
 
-| 文件                                       | 內容                          |
-| ------------------------------------------ | ----------------------------- |
-| [`AGENTS.md`](./AGENTS.md)                 | coding agent 動工前必讀的規則 |
-| [`ARCHITECTURE.md`](./ARCHITECTURE.md)     | 架構與規則背後的理由          |
-| [`GLOSSARY.md`](./GLOSSARY.md)             | 領域名詞與該避免的說法        |
-| [`docs/conventions/`](./docs/conventions/) | 團隊開發規範                  |
-| [`docs/adr/`](./docs/adr/)                 | 架構決策紀錄                  |
-| [`docs/api/`](./docs/api/)                 | API 契約與對接核對表          |
-| [`docs/specs/`](./docs/specs/)             | 功能規格(BDD)                 |
-| [`docs/tasks/`](./docs/tasks/)             | 開發任務單                    |
-| [`docs/prototype/`](./docs/prototype/)     | prototype 版本紀錄與變更      |
+| 文件                                       | 內容                                 |
+| ------------------------------------------ | ------------------------------------ |
+| [`AGENTS.md`](./AGENTS.md)                 | coding agent 動工前必讀的規則        |
+| [`docs/spec/`](./docs/spec/)               | PM 提供的規格(需求的唯一來源)        |
+| [`docs/prototype/`](./docs/prototype/)     | UI/UX 提供的 prototype(視覺驗收標準) |
+| [`docs/conventions/`](./docs/conventions/) | 團隊開發規範                         |
+| [`docs/adr/`](./docs/adr/)                 | 架構決策紀錄                         |
 
-## 目前範圍與未完成項目
+## 待確認
 
-<!-- FILL: 列出 prototype 有、但這一期不做或還沒做的東西,以及等待後端的功能。來源:prototype-analysis.md 的待確認問題與使用者回答。 -->
+<!-- FILL: 規格或 prototype 沒說、實作時暫用預設或草案的項目,每條一句話與目前的做法。沒有就寫「無」。 -->
 
 ## 聯絡窗口
 

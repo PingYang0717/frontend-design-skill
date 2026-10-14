@@ -1,5 +1,35 @@
 # CHANGELOG
 
+## 2.0.0(2026-10-14)
+
+範圍改變:規格由 PM 與 UI/UX 提供(SPEC.md + HTML prototype),這個 Skill **只產生前端程式碼**,不再產生規格、任務單、
+GLOSSARY、ARCHITECTURE 等文件,也不再接 mattpocock skills 的 `/implement` 流程。
+
+- 流程改為:收件 → 對照 SPEC 與 prototype 列工作清單(`references/spec-to-code.md`)→ 建立骨架(只有新專案)→
+  逐畫面產生程式碼與測試 → 全部完成後移除 Item 範例 → 驗證、commit、回報。也支援在公版產生的既有專案加新畫面
+- 刪除:`references/prototype-analysis.md`、`scripts/screenshot-prototype.mjs`(與 Playwright 依賴)、
+  `templates/` 的 prototype-analysis、prototype-screens、prototype-README、feature-spec、task、tasks-README、
+  task-remove-example、api-interface(-auth)、api-checklist、bug-report、GLOSSARY、ARCHITECTURE、agents/
+- `templates/AGENTS.md`、`README.md` 改寫:規則指向 `docs/spec/`(SPEC 原檔)與 `docs/prototype/`;
+  `check-placeholders` 改檢查這兩個資料夾、兩份專案 ADR、範例功能是否已移除
+- **公版登入與 session**(ADR-0017、`standards/login.md`):骨架新增 `pages/Login/`、`stores/useSessionStore.ts`、
+  `app/session.ts`(Bearer header + 401 清 session)、`components/auth/RequireAuth.tsx`、`components/layouts/PublicLayout.tsx`、
+  `components/layouts/UserMenu.tsx`(使用者姓名 + 登出)、`hooks/useSessionMutations.ts`、`types/api/auth.ts`;
+  `POST /auth/login`、`POST /auth/logout` 的 mock 與 `MOCK_LOGIN`(admin / admin);`GET /me` 檢查 token;
+  `INVALID_CREDENTIALS` 錯誤 code;測試預設已登入;新增 3 支測試檔(42 個測試)。
+  認證方式由專案 ADR 選定(`templates/adr-auth-mode.md` → `docs/adr/0019`),換 SSO 或 cookie 只替換 `authApi.ts`、
+  `types/api/auth.ts` 與登入頁的進入方式
+- 專案 ADR 編號改從 0018 起:0018 路由模式、0019 認證方式;團隊基線 0001–0017
+- **安裝指令**:本機一律 `npm install`,只有 CI(`azure-pipelines.yml`)用 `npm ci`(ADR-0016、tech-stack、tooling、
+  AGENTS、README 同步);骨架建立不再需要 `npm install --package-lock-only`
+- 規範裡對 `docs/api/`、任務單、規格 scenario 的引用改為「規格(`docs/spec/`)或後端契約」;PR 範本同步
+- 新增 `standards/login.md`,規範索引 19 份;ADR-0012 的後果改連到 ADR-0017
+
+### 待補(需要團隊提供)
+
+- 公司登入服務的實際端點與欄位名:目前骨架是 `POST /auth/login` 回 `{ accessToken }`,請改成公司的實際契約後所有新專案一起生效
+- 若公司統一走 SSO,把 `login.md` 第 6 節的 SSO 流程做進骨架成為預設
+
 ## 1.0.0(2026-10-13)
 
 第一個正式發布版(tag `v1.0.0`),內容與 0.2.0 相同;從這一版開始依語意化版本升版。

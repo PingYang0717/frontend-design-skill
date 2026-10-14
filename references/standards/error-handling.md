@@ -11,6 +11,7 @@
 | 讀取失敗(`useSuspenseQuery` 丟出) | `DataBoundary` 內的 `ErrorBoundary` | `LoadErrorPanel` 錯誤卡 + 重試 | `describeLoadError`                     |
 | 寫入失敗(mutation)                | `useActionMutation` 的 `onError`    | 一行 toast                     | `describeActionError`                   |
 | 「這是什麼錯」的判讀              | `src/api/apiError.ts`               | —                              | `isOffline`、`isNotFound`、`errorCode`… |
+| 401(token 失效)                   | `app/session.ts` 的 interceptor     | 清掉 session,回到登入頁        | —(見 [login.md](./login.md))            |
 
 ## 1. 錯誤判讀只在 `api/apiError.ts`
 
@@ -132,7 +133,7 @@ export interface ApiErrorBody {
 
 ## 6. 新增一個錯誤 code 的步驟
 
-1. 與後端確認 code 字串(SCREAMING_CASE,寫進 `docs/api/` 契約)。
+1. 與後端確認 code 字串(SCREAMING_CASE,規格或後端契約要列出)。
 2. 加進 `src/types/api/error.ts` 的 `KNOWN_ERROR_CODES`。
 3. 在 `src/i18n/zhTW.ts` 的 `errors.byCode` 加一句——`satisfies Record<KnownErrorCode, string>`
    會讓漏寫直接 typecheck 失敗。

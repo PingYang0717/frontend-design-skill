@@ -8,6 +8,7 @@ import { useTranslations } from '@/i18n/useTranslations';
 import { LANGUAGES, useLanguageStore } from '@/stores/useLanguageStore';
 import { useLayoutStore } from '@/stores/useLayoutStore';
 import { useThemeStore } from '@/stores/useThemeStore';
+import UserMenu from './UserMenu';
 
 import styles from './AppShell.module.css';
 
@@ -49,6 +50,7 @@ const AppHeader: React.FC = () => {
           options={LANGUAGE_OPTIONS}
           popupMatchSelectWidth={false}
         />
+        <UserMenu />
       </Space>
     </Layout.Header>
   );

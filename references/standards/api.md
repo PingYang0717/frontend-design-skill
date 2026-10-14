@@ -2,7 +2,7 @@
 
 > 決策理由見 [ADR-0003](../adr/0003-dto-matches-backend-contract.md)(DTO 與後端一致)、
 > [ADR-0006](../adr/0006-api-errors-judged-in-one-place.md)(錯誤集中判讀)。
-> 契約文件放 `docs/api/`;錯誤文案規則見 [error-handling.md](./error-handling.md)。
+> 契約以規格(`docs/spec/`)的 API 一節或後端文件為準;錯誤文案規則見 [error-handling.md](./error-handling.md)。
 
 ## 1. 所有 HTTP 走 `apiClient`
 
@@ -33,12 +33,15 @@ return res.data;
 
 ## 2. 認證 header
 
-**規則**:換認證方式用 `setAuthHeaderProvider()`,provider **每次請求都被呼叫,不快取回傳值**;
-回傳值完全取代預設 header。不在個別 endpoint 手動加 `Authorization`。
+**規則**:`setAuthHeaderProvider()` 只在 `app/session.ts` 的 `connectSession()` 呼叫一次,provider
+**每次請求都被呼叫,不快取回傳值**;回傳值完全取代預設 header。不在個別 endpoint 手動加 `Authorization`。
 
 ```ts
-// ✅ 登入後
-setAuthHeaderProvider(() => ({ Authorization: `Bearer ${readToken()}` }));
+// ✅ src/app/session.ts
+setAuthHeaderProvider(() => {
+  const { accessToken } = useSessionStore.getState();
+  return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+});
 ```
 
 ```ts
@@ -47,7 +50,7 @@ const headers = { Authorization: `Bearer ${readToken()}` };
 setAuthHeaderProvider(() => headers);
 ```
 
-權限與登入流程見 [auth.md](./auth.md)。
+登入流程見 [login.md](./login.md),權限見 [auth.md](./auth.md)。
 
 ## 3. Endpoint module
 
@@ -82,7 +85,7 @@ export const listItems = () => apiClient.get<Item[]>('/items');
 **規則**
 
 - `types/api/<資源>.ts` 的欄位名、大小寫、列舉值與後端**逐字一致**,不在前端改名、不設轉換層。
-- 只收前端有用到的欄位;沒有消費端的欄位不收(契約文件 `docs/api/` 照實記錄即可)。
+- 只收前端有用到的欄位;沒有消費端的欄位不收(契約照實記錄即可)。
 - request 型別另外宣告:`CreateItemRequest`、`UpdateItemRequest`。
 - 列舉用字串 union,不用 `enum`。
 - 前端需要的衍生形狀(顯示用標籤、排序)在使用點算,不寫回 DTO。
@@ -143,7 +146,7 @@ const text = error.response?.data?.message; // 後端原話當主文案
 
 ## 6. 新增一個端點
 
-1. 在 `docs/api/` 確認或補上契約。
+1. 在規格或後端契約確認端點;沒有契約時依規格提草案,在 DTO 註解標「草案」並列入待確認。
 2. `types/api/<資源>.ts` 加 DTO / request 型別。
 3. `api/<資源>Api.ts` 加函式(`apiPath`、清單用 `expectArray`)。
 4. 新的錯誤 code 加進 `KNOWN_ERROR_CODES` 並補字典(`errorCodeCoverage` 測試會檢查)。

@@ -19,7 +19,7 @@ Iconify 上的鏡像 `ant-design:xxx-outlined`)。
 同時餵給 antd `ConfigProvider`(`theme/antdTheme.ts`)與 CSS Modules 讀的 `--app-*` 變數
 (`theme/cssVars.ts`)。不靠 antd 演算法推導「差不多」的顏色:antd 預設的深色表面
 (`#000000` / `#141414` / `#1f1f1f`)多半不是設計稿的值。prototype 的 token 表在收件分析
-時整理一次,之後改色只改 `tokens.ts`。prototype 原檔與每個畫面的截圖進版控(`docs/prototype/`),
+時整理一次,之後改色只改 `tokens.ts`。prototype 原檔進版控(`docs/prototype/`),規格放 `docs/spec/`,
 讓之後在乾淨 context 裡開工的 agent 看得到驗收標準,而不是只看文字描述。
 
 **3. 元件與 CSS 不寫死色碼。** CSS Module 一律寫 `var(--app-color-text)` 這種形式;
@@ -29,8 +29,8 @@ Iconify 上的鏡像 `ant-design:xxx-outlined`)。
 `MenuFoldOutlined`(去掉前綴、轉成 PascalCase)。**不用 emoji 或文字符號頂替圖示**
 (`»`、`⋯`、🌙 / ☀️ 這類):它們的大小、基線與顏色都不跟主題走,螢幕閱讀器也會照字面念出。
 
-**5. 刻意偏離 prototype 要留紀錄。** 偏離寫在該功能規格的「偏離紀錄」,並在 PR 範本
-(`.azuredevops/pull_request_template.md`)的「偏離設計稿」一節說明;影響全專案的偏離
+**5. 刻意偏離 prototype 要留紀錄。** 偏離在 PR 範本(`.azuredevops/pull_request_template.md`)
+的「偏離設計稿」一節說明並回報 UX;影響全專案的偏離
 (例如整個區域改以別的來源為準)另寫 ADR。
 
 ✅

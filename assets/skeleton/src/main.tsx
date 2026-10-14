@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import App from '@/app/App';
+import { connectSession } from '@/app/session';
 
 import './index.css';
 
@@ -14,6 +15,9 @@ const enableMocking = async () => {
   const { worker } = await import('@/mocks/browser');
   await worker.start({ onUnhandledFrame: 'bypass' });
 };
+
+// 登入狀態接上 apiClient(帶 token、401 清 session),要在第一個請求之前。
+connectSession();
 
 await enableMocking();
 

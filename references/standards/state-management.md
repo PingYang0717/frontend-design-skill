@@ -9,6 +9,7 @@
 | 伺服器資料(API 回來的任何東西)                                | TanStack Query   | `useItems()`、`useCurrentUser()`                      |
 | 可分享、重新整理要保留的檢視條件(篩選、搜尋、分頁、tab、排序) | URL query string | `ItemsPage` 的 `?q=`                                  |
 | 跨頁面、跨元件的全域 UI 狀態                                  | Zustand          | `useThemeStore`、`useLayoutStore`、`useLanguageStore` |
+| 登入狀態(token):client 端的 session,不是伺服器資料            | Zustand          | `useSessionStore`(見 [login.md](./login.md))          |
 | 只有一個元件(或一對父子)在用的 UI 狀態                        | `useState`       | `ItemsPage` 的 `isCreateOpen`                         |
 
 表單欄位值由 antd `Form` 自己管理,不另外放 state。
@@ -147,7 +148,7 @@ export const useThemeStore = create<ThemeState>()(
 
 | ✅ 適合                          | ❌ 不適合                              |
 | -------------------------------- | -------------------------------------- |
-| 主題、語言、側欄開合             | 清單資料、目前使用者(→ TanStack Query) |
+| 主題、語言、側欄開合、登入 token | 清單資料、目前使用者(→ TanStack Query) |
 | 跨頁面保留的草稿                 | 篩選、分頁(→ URL)                      |
 | 全域的「目前選取」且不需分享連結 | 只有一個對話框用的開關(→ `useState`)   |
 

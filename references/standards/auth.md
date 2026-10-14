@@ -1,6 +1,7 @@
 # 權限(Auth)
 
-角色權限骨架的寫法。決策背景見 [ADR-0012](../adr/0012-role-based-permission-skeleton.md)。
+角色權限骨架的寫法:登入**之後**能看哪一頁、按哪顆鈕。登入本身(登入頁、token、401)見
+[login.md](./login.md)。決策背景見 [ADR-0012](../adr/0012-role-based-permission-skeleton.md)。
 
 ## 0. 前提:前端守衛只是體驗
 
@@ -137,7 +138,7 @@ const ItemsPage: React.FC = () => {
 
 ## 7. 新增一個權限的步驟
 
-1. 與後端確認權限代碼字串(寫進 `docs/api/` 的契約)。
+1. 與後端確認權限代碼字串(規格或後端契約要列出)。
 2. 在 `src/constants/permissions.ts` 加一列。
 3. 頁面:在 `navEntries.tsx` 該入口設定 `permission`(不在選單的頁面,於 `routes.tsx` 用
    `RequirePermission` 包住)。
@@ -156,9 +157,9 @@ expect(screen.queryByRole('button', { name: new RegExp(t.common.create) })).not.
 
 ## 8. 認證 header
 
-**規則:** 登入後要帶的 token 等認證 header,用 `setAuthHeaderProvider()`
-(`src/api/apiClient.ts`)換掉 provider。provider 每次請求都會被呼叫,**不要快取回傳值**;
-不走 axios 的請求(`fetch`)也用 `getAuthHeaders()` 取 header,確保身分只有一個來源。
+**規則:** 認證 header 由 `app/session.ts` 的 `connectSession()` 透過 `setAuthHeaderProvider()`
+(`src/api/apiClient.ts`)提供,從 `useSessionStore` 讀 token。不走 axios 的請求(`fetch`)也用
+`getAuthHeaders()` 取 header,確保身分只有一個來源。細節見 [login.md](./login.md)。
 
 ❌ 錯誤:在元件或 hook 裡自己組 `Authorization` header。
 
@@ -166,4 +167,4 @@ expect(screen.queryByRole('button', { name: new RegExp(t.common.create) })).not.
 
 - 不在前端維護「角色 → 權限」對照表:後端直接回權限清單,前端只看權限,不看角色名稱。
 - 不把權限清單寫進 Zustand:它是伺服器資料,只走 TanStack Query
-  (見 [state-management.md](./state-management.md))。
+  (見 [state-management.md](./state-management.md));Zustand 裡只有 token(`useSessionStore`)。

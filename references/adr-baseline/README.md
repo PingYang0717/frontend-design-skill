@@ -3,9 +3,9 @@
 這個目錄記錄專案「為什麼這樣做」。規則本身寫在 [`../conventions/`](../conventions/);ADR 記的是
 規則背後的取捨,以及什麼情況下該重新討論。
 
-## 團隊基線(0001–0016)
+## 團隊基線(0001–0017)
 
-以下 16 份隨專案骨架一起產生,是團隊標準。
+以下 17 份隨專案骨架一起產生,是團隊標準。
 
 | 編號                                                   | 標題                                             | 摘要                                                                                                       |
 | ------------------------------------------------------ | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
@@ -24,12 +24,13 @@
 | [0013](0013-lint-enforces-layer-boundaries.md)         | Lint 強制分層邊界                                | oxlint + ESLint 分工;`no-restricted-imports` 擋跨層 import 與 `../`。                                      |
 | [0014](0014-accessibility-baseline.md)                 | 無障礙基線                                       | 可操作的東西都有名稱、讀取狀態會被念出、dialog 與選單的焦點契約。                                          |
 | [0015](0015-optimistic-updates-and-races.md)           | 樂觀更新與競態的正確性原則                       | 預設 invalidate;樂觀更新要能回滾、結果只寫回所屬對象、失敗保留使用者輸入。                                 |
-| [0016](0016-dependency-versioning-and-lockfile.md)     | 依賴版本與 lockfile                              | `^` 範圍 + `package-lock.json` 進版控 + 一律 `npm ci`。                                                    |
+| [0016](0016-dependency-versioning-and-lockfile.md)     | 依賴版本與 lockfile                              | `^` 範圍 + `package-lock.json` 進版控;本機 `npm install`、CI `npm ci`。                                    |
+| [0017](0017-login-and-session-skeleton.md)             | 登入與 session 骨架                              | 登入頁、`useSessionStore`、`RequireAuth`、401 處理全公司一致;認證方式由專案 ADR 選定。                     |
 
-## 專案自己的 ADR(0017 起)
+## 專案自己的 ADR(0018 起)
 
-**0017 起由專案自行新增。** 第一份通常是收件時決定的路由模式(history 或 hash,見
-`src/app/router.tsx` 的註解)。其他常見題目:認證方式、部署環境、某個區域的視覺例外。
+**0018 起由專案自行新增。** 前兩份是收件時決定的路由模式(history 或 hash,範本
+`adr-router-mode.md`)與認證方式(範本 `adr-auth-mode.md`)。其他常見題目:部署環境、某個區域的視覺例外。
 
 **偏離團隊標準必須寫 ADR。** 不採用某條規範、或改變上面任何一份的決策時,新增一份 ADR 說明
 背景、決策與取捨,並在新 ADR 裡連回被偏離的那份基線(基線檔案本身不改)。不寫 ADR 的

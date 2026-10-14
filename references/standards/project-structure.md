@@ -5,21 +5,21 @@
 
 ## 1. 資料夾:放什麼、不放什麼
 
-| 資料夾                 | 放什麼                                                                                                                | 不放什麼                            |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
-| `api/`                 | `apiClient.ts`、`apiError.ts`、`apiPath.ts`、`expectArray.ts`;每個資源一個 endpoint module(`itemApi.ts`)              | TanStack Query、React、狀態、文案   |
-| `types/api/`           | 與後端 DTO 逐字一致的型別(`item.ts`、`error.ts`)                                                                      | 前端自己的 view model、元件 props   |
-| `hooks/`               | 資料 hook(`queryOptions` + query / mutation)、跨元件共用的 UI hook(`useDebouncedValue`、`useConfirmDestructive`)      | JSX、只被一個元件用的邏輯           |
-| `stores/`              | Zustand store,只放全域 UI 狀態(`useThemeStore`)                                                                       | 任何來自 API 的資料                 |
-| `components/<domain>/` | UI 元件,依業務 domain 分子資料夾(`items/`);共用零件在 `common/`,外殼在 `layouts/`,權限元件在 `auth/`                  | 直接呼叫 API、路由設定              |
-| `pages/<Name>/`        | 路由頁面 `<Name>Page.tsx` 與它的頁面測試;只組裝元件、放 `DataBoundary`、讀 URL state                                  | 業務邏輯、資料轉換、API 呼叫        |
-| `app/`                 | 啟動組裝:`App.tsx`、`providers.tsx`、`queryClient.ts`、`router.tsx`、`routes.tsx`、`navPages.tsx`                     | 業務元件                            |
-| `constants/`           | 全域常數的唯一來源:`routes.ts`、`permissions.ts`、`storage.ts`                                                        | 文案(進 `i18n/`)、色碼(進 `theme/`) |
-| `i18n/`                | 字典 `zhTW.ts`(形狀來源)、`en.ts`、`useTranslations.ts`、`languages.ts`(語言名稱,刻意不進字典)、守門測試              | 業務邏輯                            |
-| `theme/`               | `tokens.ts`(唯一色票來源)、`antdTheme.ts`、`cssVars.ts`                                                               | 元件樣式(用 CSS Modules 跟著元件)   |
-| `utils/`               | 純函式(`describeError.ts`),不依賴 React                                                                               | hook、有副作用的程式                |
-| `mocks/`               | MSW `handlers.ts`(`pendingHandlers` / `shippedHandlers`)、記憶體資料 `db.ts`、`browser.ts`(開發期)、`server.ts`(測試) | 正式程式會 import 的任何東西        |
-| `test/`                | `setup.ts`、`renderApp.tsx` 等測試工具                                                                                | 測試案例本身(與被測檔案同目錄)      |
+| 資料夾                 | 放什麼                                                                                                                          | 不放什麼                            |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| `api/`                 | `apiClient.ts`、`apiError.ts`、`apiPath.ts`、`expectArray.ts`;每個資源一個 endpoint module(`itemApi.ts`)                        | TanStack Query、React、狀態、文案   |
+| `types/api/`           | 與後端 DTO 逐字一致的型別(`item.ts`、`error.ts`)                                                                                | 前端自己的 view model、元件 props   |
+| `hooks/`               | 資料 hook(`queryOptions` + query / mutation)、跨元件共用的 UI hook(`useDebouncedValue`、`useConfirmDestructive`)                | JSX、只被一個元件用的邏輯           |
+| `stores/`              | Zustand store,只放全域 UI 狀態(`useThemeStore`)與登入 token(`useSessionStore`)                                                  | 任何來自 API 的資料                 |
+| `components/<domain>/` | UI 元件,依業務 domain 分子資料夾(`items/`);共用零件在 `common/`,外殼在 `layouts/`,登入與權限守衛在 `auth/`                      | 直接呼叫 API、路由設定              |
+| `pages/<Name>/`        | 路由頁面 `<Name>Page.tsx` 與它的頁面測試;只組裝元件、放 `DataBoundary`、讀 URL state                                            | 業務邏輯、資料轉換、API 呼叫        |
+| `app/`                 | 啟動組裝:`App.tsx`、`providers.tsx`、`queryClient.ts`、`router.tsx`、`routes.tsx`、`navPages.tsx`、`subPages.tsx`、`session.ts` | 業務元件                            |
+| `constants/`           | 全域常數的唯一來源:`routes.ts`、`permissions.ts`、`storage.ts`                                                                  | 文案(進 `i18n/`)、色碼(進 `theme/`) |
+| `i18n/`                | 字典 `zhTW.ts`(形狀來源)、`en.ts`、`useTranslations.ts`、`languages.ts`(語言名稱,刻意不進字典)、守門測試                        | 業務邏輯                            |
+| `theme/`               | `tokens.ts`(唯一色票來源)、`antdTheme.ts`、`cssVars.ts`                                                                         | 元件樣式(用 CSS Modules 跟著元件)   |
+| `utils/`               | 純函式(`describeError.ts`),不依賴 React                                                                                         | hook、有副作用的程式                |
+| `mocks/`               | MSW `handlers.ts`(`pendingHandlers` / `shippedHandlers`)、記憶體資料 `db.ts`、`browser.ts`(開發期)、`server.ts`(測試)           | 正式程式會 import 的任何東西        |
+| `test/`                | `setup.ts`、`renderApp.tsx` 等測試工具                                                                                          | 測試案例本身(與被測檔案同目錄)      |
 
 **原因**:同一層的檔案遵守同一套規則(例如 `hooks/` 一律不含 JSX),reviewer 看路徑就知道該檢查什麼;
 依賴方向可以用 lint 強制。
@@ -104,7 +104,7 @@ import 的排序交給 `simple-import-sort`,不手動排。
 
 以新增「Item 詳細頁」為例,依序:
 
-1. **`docs/api/`** — 確認後端契約(路徑、request / response、錯誤 code)。
+1. **規格 `docs/spec/` 或後端契約** — 確認端點(路徑、request / response、錯誤 code);沒有契約就依規格提草案。
 2. **`types/api/item.ts`** — 補上 DTO 型別,欄位名與後端逐字一致([api.md](./api.md))。
 3. **`api/itemApi.ts`** — 新增 endpoint 函式,路徑用 `apiPath()`,清單用 `expectArray()`。
 4. **`hooks/`** — 新增 `queryOptions` 與 `useItem(id)`;寫入加在 `useItemMutations.ts`

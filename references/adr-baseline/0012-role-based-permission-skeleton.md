@@ -79,10 +79,10 @@ const visibleMenus = isAdmin ? ALL_MENUS : USER_MENUS;
   失敗時整個外殼顯示錯誤卡,這是刻意的——不知道使用者是誰就無法決定能看什麼。
 - 骨架只做「有沒有這個權限」;資料層級的權限(只能看自己部門的資料)由後端過濾回傳內容,
   前端不重做。
-- 骨架不含登入流程與 token 管理;認證 header 由 `apiClient.ts` 的 `setAuthHeaderProvider`
-  換上,每個專案依環境實作(SSO、gateway、token)並寫 ADR。
-- 權限代碼與後端不一致時不會有編譯錯誤,只會「永遠沒有權限」;`docs/api/` 的契約要列出
-  所有權限代碼。
+- 登入流程與 token 管理是另一份決策([ADR-0017](0017-login-and-session-skeleton.md)):沒有 session
+  時由 `RequireAuth` 送去登入頁;有 session 但沒有權限才會走到這裡的 403。
+- 權限代碼與後端不一致時不會有編譯錯誤,只會「永遠沒有權限」;規格或後端契約要列出
+  所有權限代碼,並與後端逐字核對。
 
 ### 何時重新討論
 

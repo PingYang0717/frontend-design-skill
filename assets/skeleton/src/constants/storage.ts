@@ -4,3 +4,4 @@ const PREFIX = 'app';
 export const THEME_STORAGE_KEY = `${PREFIX}:theme`;
 export const LANGUAGE_STORAGE_KEY = `${PREFIX}:language`;
 export const LAYOUT_STORAGE_KEY = `${PREFIX}:layout`;
+export const SESSION_STORAGE_KEY = `${PREFIX}:session`;

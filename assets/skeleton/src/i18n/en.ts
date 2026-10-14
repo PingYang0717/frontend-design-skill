@@ -26,6 +26,7 @@ export const en: Translations = {
     light: 'Light',
     dark: 'Dark',
     language: 'Language',
+    logout: 'Sign out',
   },
   errors: {
     offline: 'Cannot reach the server',
@@ -40,9 +41,18 @@ export const en: Translations = {
     byCode: {
       VALIDATION_FAILED: 'Some of the data is invalid. Please check and submit again.',
       CONFLICT: 'Someone else changed this data. Refresh and try again.',
+      INVALID_CREDENTIALS: 'The username or password is incorrect.',
     },
   },
   pages: {
+    login: {
+      subtitle: 'Sign in with your company account',
+      username: 'Username',
+      password: 'Password',
+      usernameRequired: 'Please enter your username',
+      passwordRequired: 'Please enter your password',
+      submit: 'Sign in',
+    },
     home: {
       title: 'Home',
       welcome: (name) => `Welcome back, ${name}`,
