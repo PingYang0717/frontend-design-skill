@@ -22,6 +22,8 @@
   `dark-mode` README 補一句 React 原始碼的深色通常是第二組 theme 物件或 `[data-theme]` 分支
 - 驗證:在骨架 `docs/prototype/` 放入會讓 lint 失敗的 `.tsx`、必定失敗的 `.test.tsx`、帶 placeholder 的 README 與
   `node_modules`,lint / typecheck / test / build 仍全綠、Prettier 不碰它、`check-placeholders` 只報 `node_modules` 那條
+- 全選組合(i18n → dark-mode → msw → react-hook-form → ag-grid Enterprise)在 Node 24.22.0 下重跑:五份 README 的錨點全部對上,
+  lint 0 warning、typecheck、test(10 檔 46 條)、build 全綠;msw 覆蓋版的 `eslint.config.js` 也含 `docs/prototype`。補上 3.1.0 欠的驗證
 
 ## 3.1.0(2026-10-15)
 
