@@ -11,6 +11,7 @@
   模組依它的 `docs/adr/0022-selected-modules.md`,不再問
 - 有其他內容 → **停下來**問使用者(無人值守時停止並回報),這個 Skill 不處理非公版專案
 
+prototype 的型態(HTML 單檔 / 多頁 HTML / React 原始碼)由副檔名判斷,不問;讀法見 `spec-to-code.md` 第 2 節。
 讀完整份 SPEC 與 prototype 後,下面兩張表**同一輪**問完,只問 SPEC 與訊息都沒提供的。
 每題編號、一句背景、選項、建議答案;使用者回「是」代表接受建議。
 
@@ -47,14 +48,19 @@ tar -C <skill>/assets/skeleton --exclude=node_modules --exclude=dist -cf - . | t
 git init                       # 若還不是 git repo
 npm pkg set name=<slug>
 npm install                    # 依 lockfile 安裝,順便把 lockfile 的 name 跟著改;prepare 會裝 husky hook
-mkdir -p docs/spec docs/prototype docs/templates
+mkdir -p docs/spec docs/prototype/<版本> docs/templates   # 例如 docs/prototype/v1.0/
 cp <SPEC> docs/spec/            # 檔名帶版本或日期,例如 spec-v1.0.md
-cp <prototype> docs/prototype/  # 例如 prototype-v1.0.html
+cp <prototype>.html docs/prototype/<版本>/   # HTML 單檔或多頁:直接複製
+tar -C <prototype> --exclude=node_modules --exclude=dist --exclude=.git --exclude=package-lock.json -cf - . \
+  | tar -C docs/prototype/<版本> -xf -       # React 原始碼:只放原始碼,不放依賴與產物
 cp -R <skill>/references/standards docs/conventions
 cp -R <skill>/references/adr-baseline docs/adr
 cp <skill>/templates/CLAUDE.md <skill>/templates/AGENTS.md <skill>/templates/README.md ./   # AGENTS、README 在第 8 點填寫
 cp <skill>/templates/adr.md docs/templates/
 ```
+
+骨架的 lint、format 與測試設定已排除 `docs/prototype/`(`eslint.config.js`、`.oxlintrc.json`、`.prettierignore`、
+`vite.config.ts` 的 `test.exclude`),React 原始碼放進去不會被檢查或改寫;不要為了它再改其他設定。
 
 **疊上模組**:依固定順序 **i18n → dark-mode → msw → react-hook-form → ag-grid**,對每個選「是」的模組讀
 `<skill>/assets/modules/<模組>/README.md`,照它的第 1–3、6 節做完(裝套件、疊 `files/` 與適用的變體、改既有檔案、
@@ -88,7 +94,8 @@ cp <skill>/templates/adr.md docs/templates/
 8. **文件**:填專案根目錄的 `AGENTS.md`、`README.md`(所有 `<!-- FILL: -->` 填完刪掉註解,`{{PLACEHOLDER}}` 全部替換;
    標「依 docs/adr/0022」的 FILL 依選擇擇一保留;不知道的寫「待確認」,不編造)
 
-既有專案:新畫面需要的權限代碼加進 `permissions.ts`;新的 SPEC 與 prototype 版本放進 `docs/spec/`、`docs/prototype/`。
+既有專案:新畫面需要的權限代碼加進 `permissions.ts`;新的 SPEC 與 prototype 版本放進 `docs/spec/`、`docs/prototype/<版本>/`
+(React 原始碼同樣排除 `node_modules`、`dist`、lockfile)。
 
 ## 步驟 4:依 SPEC 產生程式碼
 

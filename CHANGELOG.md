@@ -1,5 +1,28 @@
 # CHANGELOG
 
+## 3.2.0(2026-10-15)
+
+**prototype 輸入不再限定 HTML:UI/UX 交付 React 原始碼也收。** 流程仍是五步,只有步驟 1 的收件與步驟 2 的讀法多一種型態;
+輸出完全不變。
+
+- **原則補強(三處一致)**:ADR-0001 新增第 6 點「prototype 是程式碼時,仍然只是設計稿」;`SKILL.md` 核心原則 1 與
+  `templates/AGENTS.md` 第 6 條同步——React prototype 的元件、hook、狀態、路由、樣式方案一行都不進 `src/`,
+  只擷取 token、畫面清單、欄位、圖示與版面,在骨架上重寫
+- **讀 prototype**:`spec-to-code.md` 第 2 節加「React 原始碼」一列(token、畫面、欄位、圖示、版面各去哪裡找)、型態由副檔名
+  判斷不另外問、React 原始碼的讀法與對映關係(它的元件 → antd、Tailwind / theme → `tokens.ts`、router → `routes.ts`、
+  mock → DTO 草案)
+- **放進 repo**:`workflow-detail.md` 步驟 3 原檔統一放 `docs/prototype/<版本>/`;HTML 直接複製,React 原始碼以 tar 排除
+  `node_modules`、`dist`、`.git`、lockfile。既有專案加新版本同樣處理
+- **骨架排除 `docs/prototype/`**(否則 React 原始碼一放進去 lint 就紅、format 會改寫原檔、它的測試會被跑):
+  `eslint.config.js` 與 msw 覆蓋版的 `ignores`、`.oxlintrc.json` 的 `ignorePatterns`、`.prettierignore`、
+  `vite.config.ts` 的 `test.exclude`。`tsconfig` 本來就只含 `src`,不用改
+- **`check-placeholders`**:`docs/prototype/` 底下的 Markdown 不再當成專案文件檢查 placeholder;`docs/prototype/` 內出現
+  `node_modules`、`dist`、`.git` 時報 ERROR
+- `SKILL.md` 的 description 與「需要的輸入」改寫,加觸發語「把 UI/UX 的 React prototype 做成公版專案」;
+  `dark-mode` README 補一句 React 原始碼的深色通常是第二組 theme 物件或 `[data-theme]` 分支
+- 驗證:在骨架 `docs/prototype/` 放入會讓 lint 失敗的 `.tsx`、必定失敗的 `.test.tsx`、帶 placeholder 的 README 與
+  `node_modules`,lint / typecheck / test / build 仍全綠、Prettier 不碰它、`check-placeholders` 只報 `node_modules` 那條
+
 ## 3.1.0(2026-10-15)
 
 - **Node 24**:骨架與 Skill 的 `engines.node` 從 `>=22.22.0` 改為 `>=24.22.0`(目前的 Active LTS);

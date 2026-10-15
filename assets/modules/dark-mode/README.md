@@ -10,11 +10,11 @@ antd 主題、`--app-*` CSS 變數(選了 ag-grid 還有表格主題)跟著切�
 
 收件時追問一次,答案寫進 `docs/adr/0022-selected-modules.md` 的「細項」欄:
 
-| 選項                 | 做法                                                                                 |
-| -------------------- | ------------------------------------------------------------------------------------ |
-| 保留骨架預設(建議)   | `DARK_TOKENS` 維持 `files/` 裡的值(antd 預設深色中性色),主色等 seed token 與淺色共用 |
-| 從淺色推導           | 依 `docs/conventions/dark-mode.md` 第 3 節,從 prototype 的淺色值逐一換算             |
-| (prototype 有給深色) | 不用追問;`DARK_TOKENS` 逐值照抄 prototype                                            |
+| 選項                 | 做法                                                                                                       |
+| -------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 保留骨架預設(建議)   | `DARK_TOKENS` 維持 `files/` 裡的值(antd 預設深色中性色),主色等 seed token 與淺色共用                       |
+| 從淺色推導           | 依 `docs/conventions/dark-mode.md` 第 3 節,從 prototype 的淺色值逐一換算                                   |
+| (prototype 有給深色) | 不用追問;`DARK_TOKENS` 逐值照抄 prototype(React 原始碼的深色通常是第二組 theme 物件或 `[data-theme]` 分支) |
 
 ## 1. 安裝套件
 

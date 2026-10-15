@@ -6,5 +6,5 @@
     "react/only-export-components": ["warn", { "allowConstantExport": true }],
     "typescript/no-explicit-any": "error"
   },
-  "ignorePatterns": ["dist", "coverage", "node_modules"]
+  "ignorePatterns": ["dist", "coverage", "node_modules", "docs/prototype"]
 }

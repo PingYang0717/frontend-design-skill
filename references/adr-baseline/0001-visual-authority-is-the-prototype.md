@@ -2,7 +2,8 @@
 
 ## 背景
 
-每個專案收件時都會拿到一份 UI/UX prototype(設計稿、可點的原型或打包好的單檔成品)。它通常
+每個專案收件時都會拿到一份 UI/UX prototype(設計稿、可點的原型、打包好的單檔成品,或 UI/UX 自己寫的
+React 原始碼)。它通常
 用 inline style、寫死的色碼與 mock 資料畫成,圖示多半來自 Ant Design 的官方圖示集(或它在
 Iconify 上的鏡像 `ant-design:xxx-outlined`)。
 
@@ -32,6 +33,12 @@ Iconify 上的鏡像 `ant-design:xxx-outlined`)。
 **5. 刻意偏離 prototype 要留紀錄。** 偏離在 PR 範本(`.azuredevops/pull_request_template.md`)
 的「偏離設計稿」一節說明並回報 UX;影響全專案的偏離
 (例如整個區域改以別的來源為準)另寫 ADR。
+
+**6. prototype 是程式碼時,仍然只是設計稿。** UI/UX 交付 React 原始碼時,它的元件、hook、狀態、路由與
+樣式方案(MUI、shadcn、Tailwind、styled-components 等)一行都不複製進 `src/`;只擷取 token、畫面清單、
+欄位、圖示與版面,再依團隊規範在骨架上重寫。原始碼放 `docs/prototype/<版本>/`(不含 `node_modules`),
+lint、format 與測試都排除這個目錄。理由同第 1、2 點:視覺一致靠的是 token 與驗收,不是搬程式碼;
+搬進來的程式碼會帶進第二套元件庫與樣式方案,之後每個人都得同時維護兩套。
 
 ✅
 

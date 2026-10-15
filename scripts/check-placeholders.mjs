@@ -26,7 +26,13 @@ const FILL = /<!--\s*FILL\b/;
 const docFiles = [
   ...['README.md', 'AGENTS.md', 'CLAUDE.md'].map((f) => join(root, f)),
   ...(existsSync(join(root, 'docs')) ? walk(join(root, 'docs')) : []),
-].filter((f) => existsSync(f) && f.endsWith('.md') && !relative(root, f).startsWith(join('docs', 'templates')));
+].filter(
+  (f) =>
+    existsSync(f) &&
+    f.endsWith('.md') &&
+    !relative(root, f).startsWith(join('docs', 'templates')) &&
+    !relative(root, f).startsWith(join('docs', 'prototype')) // prototype 原檔(可能是 React 專案)不是我們的文件
+);
 
 for (const file of docFiles) {
   readFileSync(file, 'utf8')
@@ -124,6 +130,18 @@ for (const [dir, what] of [
   const full = join(root, dir);
   const files = existsSync(full) ? readdirSync(full).filter((f) => !f.startsWith('.')) : [];
   if (files.length === 0) errors.push(`${dir}/ 沒有任何檔案;${what}原檔要放進 repo`);
+}
+// React 原始碼的 prototype 只放原始碼:依賴與產物不進 repo(workflow-detail.md 步驟 3)
+const findDirs = (dir, names, depth = 4) =>
+  depth === 0 || !existsSync(dir)
+    ? []
+    : readdirSync(dir).flatMap((name) => {
+        const full = join(dir, name);
+        if (!statSync(full).isDirectory()) return [];
+        return names.includes(name) ? [full] : findDirs(full, names, depth - 1);
+      });
+for (const found of findDirs(join(root, 'docs/prototype'), ['node_modules', 'dist', '.git'])) {
+  errors.push(`${relative(root, found)} 不該進 repo;prototype 只放原始碼,重新複製時排除 node_modules、dist、.git`);
 }
 for (const rel of ['docs/adr/0020-router-mode.md', 'docs/adr/0021-auth-mode.md']) {
   if (!existsSync(join(root, rel))) errors.push(`缺少 ${rel}`);

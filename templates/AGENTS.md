@@ -9,7 +9,7 @@
 ## 開工前要讀
 
 1. 這份 `AGENTS.md`
-2. 規格 [`docs/spec/`](./docs/spec/)(PM 提供,需求的唯一來源)與 prototype [`docs/prototype/`](./docs/prototype/)(UI/UX 提供,視覺驗收標準)
+2. 規格 [`docs/spec/`](./docs/spec/)(PM 提供,需求的唯一來源)與 prototype [`docs/prototype/`](./docs/prototype/)(UI/UX 提供,視覺驗收標準;HTML 或 React 原始碼都只是設計稿,不是可複製的程式碼)
 3. 任務碰到的領域對應的 `docs/conventions/` 與 `docs/adr/`
 4. 與既有 ADR 衝突時,**在回報裡明講**,不要默默蓋過
 
@@ -33,6 +33,7 @@ React 19 + React Compiler、Vite 8、TypeScript(strict)、Ant Design 6、React R
      選了 i18n →「**畫面上每個字都進 i18n 字典**(含 `aria-label`)。測試斷言也引用字典,不寫死文字。」
      沒選 i18n →「**文案直接寫繁中字串**(含 `aria-label`);錯誤文案只在 `utils/describeError.ts`,系統名稱只在 `constants/app.ts`。」 -->
 6. **視覺以 prototype 為準。** 顏色只用 `theme/tokens.ts` 的 token;圖示只用 `@ant-design/icons`,不用 emoji 或文字頂替。
+   prototype 是 React 原始碼時,不複製它的元件、hook、樣式與路由;只擷取 token、版面、圖示與行為,在骨架上重寫。
 7. **登入、權限、401 用公版,不另寫。** 登入狀態只在 `useSessionStore`、401 只在 `app/session.ts`;需要登入的頁面都在
    `RequireAuth` 底下;權限在 `navEntries.tsx` 設 `permission`、按鈕包 `<Can>`。
 8. **不准新增未經同意的套件、不准寫死色碼、不准在元件裡 import axios 或 `@/api` 的 endpoint module。**

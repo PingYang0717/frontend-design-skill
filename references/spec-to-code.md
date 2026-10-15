@@ -23,12 +23,24 @@ PM 的 SPEC 格式不限,但下面幾項是寫程式的前提。缺的列入停�
 
 ## 2. 讀 prototype
 
-| 型態                               | 怎麼讀                                                                                                                                                                                       |
-| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 單一 HTML(打包的 React / Vue 成品) | 先找 `:root` / `[data-theme]` 的 CSS 變數與 `<style>`;再找畫面切換的狀態(view / page 的 state 與 switch)對照 SPEC 的畫面清單;找假資料陣列對照欄位;找圖示名稱(常見 `ant-design:xxx-outlined`) |
-| 多頁 HTML                          | 每個檔案是一個候選畫面;共用的 header / 側欄是版面                                                                                                                                            |
+先看拿到的是什麼:`.html` 檔走前兩列;含 `package.json` 或 `.tsx` / `.jsx` 的資料夾是 React 原始碼,走第三列。
+不用問,副檔名就能判。
+
+| 型態                               | 怎麼讀                                                                                                                                                                                                                                                                                                                                     |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 單一 HTML(打包的 React / Vue 成品) | 先找 `:root` / `[data-theme]` 的 CSS 變數與 `<style>`;再找畫面切換的狀態(view / page 的 state 與 switch)對照 SPEC 的畫面清單;找假資料陣列對照欄位;找圖示名稱(常見 `ant-design:xxx-outlined`)                                                                                                                                               |
+| 多頁 HTML                          | 每個檔案是一個候選畫面;共用的 header / 側欄是版面                                                                                                                                                                                                                                                                                          |
+| React 原始碼(資料夾)               | token:`theme.ts` / `tokens.ts`、`tailwind.config.*`、antd `ConfigProvider` 的 `theme`、全域 CSS 的 `:root`;畫面清單:router 設定、`pages/` 或 `screens/`、頂層 `switch(view)`;欄位:mock 資料、fixtures、表格 `columns`、表單欄位的 `name`;圖示:`@ant-design/icons`、lucide、iconify 的 import;外殼版面:layout 元件(header、sider)與其 props |
 
 大檔案不要整份讀:先搜尋 `:root`、`theme`、`color`、`fontFamily`、view 名稱、`aria-label`、表格欄位定義,再讀相關片段。
+React 原始碼先讀 `package.json`(知道它用什麼元件庫與樣式方案)、router 與 theme,再逐畫面讀 `pages/`;
+`node_modules`、`dist`、測試檔不讀。
+
+**React 原始碼只是另一種格式的設計稿。** 它的元件、hook、狀態、路由、樣式方案(MUI、shadcn、Tailwind、styled-components 等)
+一行都不進 `src/`。對映關係:它的元件 → antd 對應元件;Tailwind class / theme 物件 → `tokens.ts` 的值;它的 router →
+`constants/routes.ts` + `navEntries.tsx`;它的 mock → DTO 草案與測試假資料。找不到 antd 對應的元件,依規範自寫並列入「偏離」。
+prototype 用 antd 寫時 token 與圖示幾乎可直接對上;給 UI/UX 的回饋可以提這點,但不是收件的硬條件。
+
 prototype 與 SPEC 不一致時以 SPEC 的行為、prototype 的視覺為準,並列入待確認。
 
 ## 3. 對映表

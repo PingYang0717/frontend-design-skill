@@ -77,7 +77,8 @@ const LAYER_RULES = [
 ];
 
 export default [
-  { ignores: ['dist', 'coverage', 'node_modules'] },
+  // docs/prototype/ 是 UI/UX 的原檔(可能是 React 原始碼),不是專案程式碼,不 lint(ADR-0001)。
+  { ignores: ['dist', 'coverage', 'node_modules', 'docs/prototype'] },
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
     languageOptions: {

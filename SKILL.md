@@ -1,11 +1,11 @@
 ---
 name: frontend-project-bootstrap
-description: 拿到 PM 的 SPEC(Markdown)與 UI/UX 的 HTML prototype,要產生前端程式碼時使用:依團隊標準建立專案骨架,再依 SPEC 逐畫面實作功能與測試,直到 lint / typecheck / test / build 全綠。必選:React 19 + Ant Design + TanStack Query + Zustand + 公版登入與權限;可選:i18n、MSW、AG Grid、React Hook Form、深色模式,收件時問答決定。也用於「依規格產生前端程式碼」「建立團隊標準前端專案」「新專案套用前端公版」「在公版專案加新畫面」。不產生規格、任務單等文件;規格由 PM 與 UI/UX 提供。
+description: 拿到 PM 的 SPEC(Markdown)與 UI/UX 的 prototype(HTML 單檔、多頁 HTML 或 React 原始碼),要產生前端程式碼時使用:依團隊標準建立專案骨架,再依 SPEC 逐畫面實作功能與測試,直到 lint / typecheck / test / build 全綠。必選:React 19 + Ant Design + TanStack Query + Zustand + 公版登入與權限;可選:i18n、MSW、AG Grid、React Hook Form、深色模式,收件時問答決定。也用於「依規格產生前端程式碼」「建立團隊標準前端專案」「新專案套用前端公版」「在公版專案加新畫面」「把 UI/UX 的 React prototype 做成公版專案」。不產生規格、任務單等文件;規格由 PM 與 UI/UX 提供。
 ---
 
 # Frontend Project Bootstrap
 
-輸入是 PM 的 **SPEC.md** 與 UI/UX 的 **HTML prototype**,輸出是**可執行、全綠的前端程式碼**:
+輸入是 PM 的 **SPEC.md** 與 UI/UX 的 **prototype**(HTML 或 React 原始碼),輸出是**可執行、全綠的前端程式碼**:
 讓不同人、不同 coding agent 依同一份規格寫出的程式碼像同一個人寫的,登入、權限、錯誤處理等每個專案都一樣的
 東西直接沿用公版,不重做。
 
@@ -13,8 +13,9 @@ description: 拿到 PM 的 SPEC(Markdown)與 UI/UX 的 HTML prototype,要產生�
 
 ## 核心原則
 
-1. **SPEC 是需求,prototype 是視覺驗收標準,兩者都不是程式碼。** 從 prototype 擷取畫面、色票、互動;不複製它的實作。
-   原檔都放進 repo(`docs/spec/`、`docs/prototype/`)。
+1. **SPEC 是需求,prototype 是視覺驗收標準,兩者都不是程式碼。** 從 prototype 擷取畫面、色票、圖示、互動;不複製它的實作。
+   **prototype 是 React 原始碼時也一樣**:一行程式碼都不進 `src/`,它用的元件庫、狀態、路由、樣式方案都不跟,
+   一律對映成骨架的 antd + token + CSS Module。原檔都放進 repo(`docs/spec/`、`docs/prototype/<版本>/`)。
 2. **公版原樣複製,專案內容依 SPEC 實作。** 基底、選用的模組、規範、ADR、登入與權限機制只能替換名稱與 token,不得改寫;
    要偏離就寫專案 ADR(0023 起)。
 3. **基底 + 可選模組。** 骨架本身不含任何可選功能;收件時一輪問答決定五個模組,選「是」才讀該模組的 README、疊上它的檔案。
@@ -25,7 +26,8 @@ description: 拿到 PM 的 SPEC(Markdown)與 UI/UX 的 HTML prototype,要產生�
 ## 需要的輸入
 
 - SPEC.md(PM):畫面、欄位、行為、角色與權限;有 API 契約更好。最少要有什麼見 `references/spec-to-code.md` 第 1 節
-- prototype(UI/UX):HTML(單檔或多頁)與版本 / 交付日期
+- prototype(UI/UX):HTML 單檔、多頁 HTML,或 React 原始碼資料夾(不含 `node_modules`),與版本 / 交付日期;
+  型態由副檔名判斷,不另外問,讀法見 `references/spec-to-code.md` 第 2 節
 - 專案資料夾:新專案是空資料夾;既有專案必須是這個 Skill 產生的(根目錄有 `AGENTS.md` 且 `docs/conventions/` 存在)
 
 其餘資訊(專案名稱、認證方式、路由模式、後端現況、要用哪些模組)SPEC 沒寫才在步驟 1 問。

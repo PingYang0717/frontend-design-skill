@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEnv } from 'vite';
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 import babel from '@rolldown/plugin-babel';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 
@@ -51,6 +51,8 @@ export default defineConfig(({ mode }) => {
       environment: 'jsdom',
       setupFiles: ['./src/test/setup.ts'],
       globals: false,
+      // docs/prototype/ 是 UI/UX 的原檔,裡面若有測試也不是我們的(ADR-0001)
+      exclude: [...configDefaults.exclude, 'docs/prototype/**'],
     },
   };
 });

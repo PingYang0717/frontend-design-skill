@@ -2,3 +2,5 @@ dist
 node_modules
 coverage
 package-lock.json
+# UI/UX 的 prototype 原檔(可能是 React 原始碼),不改寫
+docs/prototype
