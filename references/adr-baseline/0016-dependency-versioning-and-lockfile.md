@@ -2,7 +2,7 @@
 
 ## 背景
 
-依賴版本有兩種常見做法:`package.json` 鎖死確切版本(`"react": "19.3.0"`),或用 `^` 範圍
+依賴版本有兩種常見做法:`package.json` 鎖死確切版本(`"react": "19.3.1"`),或用 `^` 範圍
 並靠 lockfile 固定實際安裝的版本。
 
 鎖死版本看似安全,但它只鎖了直接依賴,間接依賴照樣浮動;每次升級都要手改大量版本號,
@@ -36,8 +36,8 @@ lint → typecheck → test → build。
 
 ```json
 "dependencies": {
-  "react": "^19.3.0",
-  "@tanstack/react-query": "^5.104.2"
+  "react": "^19.3.1",
+  "@tanstack/react-query": "^5.104.3"
 },
 "devDependencies": {
   "typescript": "~6.0.3"

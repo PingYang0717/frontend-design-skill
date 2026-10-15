@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## 3.1.0(2026-10-15)
+
+- **Node 24**:骨架與 Skill 的 `engines.node` 從 `>=22.22.0` 改為 `>=24.22.0`(目前的 Active LTS);
+  `azure-pipelines.yml` 的 `NodeTool` 改 `24.22.x`,`tooling.md` 第 4 節與 `templates/README.md` 跟著改
+- 升級隨 Node 24 解鎖、或只差 patch 的套件:`jsdom` 29 → 30(30 要求 Node ^22.22.2 || ^24.15.0)、`lint-staged` 16 → 17、
+  `react` / `react-dom` 19.3.0 → 19.3.1、`@tanstack/react-query` 5.104.2 → 5.104.3;ADR-0016 的範例版本跟著改。
+  骨架在 Node 24.22.0 下 `npm ci` + lint / typecheck / test / build 全綠,lint-staged 17 以 `.lintstagedrc.json` 實跑過
+- **沒升的 major 與原因**:`typescript` 7(ADR-0016 以 `~` 鎖 minor;升 major 要另開 PR 驗 typescript-eslint 與 Vite 的相容)、
+  `@babel/core` 8(`babel-plugin-react-compiler` 1.0.0 仍依賴 `@babel/types` ^7)、`@types/node` 26(與 `engines` 的 Node 24 對齊,維持 24.x)
+- 模組套件(`msw` 3.0.3、`ag-grid` 36.2.0、`react-hook-form` 7.90.0)已是最新,engines 都容許 Node 24
+
+### 下一版的選項
+
+- 在 Node 24 下重跑全選組合(本版只驗了基底;模組 README 沒有以 `package.json` 為錨點,版本號變動不影響接線步驟)
+
 ## 3.0.1(2026-10-14)
 
 - 新增 `references/legacy-review.md`:拿 Skill 審查公司既有專案的清單(A 已知待補 13 題、B 五個模組、C 基底 15 題、

@@ -18,7 +18,7 @@ TanStack Query 5、Zustand 5、Axios。測試是 Vitest + Testing Library。
 
 ## 快速開始
 
-需要 Node 22.22 以上。
+需要 Node 24.22 以上。
 
 ```bash
 npm install

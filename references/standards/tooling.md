@@ -87,7 +87,7 @@ import axios from 'axios'; // 元件自己開 HTTP
 
 | 步驟                 | 指令                                 | 擋什麼                                           |
 | -------------------- | ------------------------------------ | ------------------------------------------------ |
-| Use Node.js          | `NodeTool@0`,`22.22.x`               | 與 `package.json` 的 `engines.node` 一致         |
+| Use Node.js          | `NodeTool@0`,`24.22.x`               | 與 `package.json` 的 `engines.node` 一致         |
 | Cache npm            | `Cache@2`,key 含 `package-lock.json` | 加速安裝                                         |
 | Install dependencies | `npm ci`(`HUSKY=0`)                  | 只依 lockfile 安裝,不一致就失敗;CI 不裝 git hook |
 | Lint                 | `npm run lint`                       | oxlint + ESLint                                  |

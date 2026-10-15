@@ -19,7 +19,7 @@ steps:
   - task: NodeTool@0
     displayName: 'Use Node.js'
     inputs:
-      versionSpec: '22.22.x'
+      versionSpec: '24.22.x'
 
   - task: Cache@2
     displayName: 'Cache npm'
