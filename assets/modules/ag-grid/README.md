@@ -46,6 +46,11 @@ cp -R <skill>/assets/modules/ag-grid/files.community/. <project>/        # 選 C
 | `src/components/items/ItemTable.tsx` | **覆蓋**基底:`DataGrid` + 儲存格元件,文字直接寫繁中            | `files.with-i18n/`:文字引用字典                                  |
 
 `DataGrid` 一律呼叫 `useAgGridTheme()`,所以它只隨 i18n 分兩版,不隨 dark-mode 分。
+表格專屬的樣式(列高、表頭、斑馬紋、hover、內距)讀基底 `tokens.ts` 的 `table`,步驟 3 填色票時一併填。
+
+**prototype 也是 AG Grid 時**:只搬它的 `columnDefs`(含 `valueFormatter`、排序 / 篩選設定)與 `withParams` 的值
+(照 `standard.md` 第 6.1 節對進 `tokens.table`);不搬它的 theme CSS 檔、`registerModules`、授權金鑰與
+它自己的 wrapper 元件,一律過 `DataGrid`。對不到 `tokens.table` 的樣式列待確認,不寫 `.ag-*` 覆寫。
 
 ## 3. 修改既有檔案
 

@@ -1,4 +1,4 @@
-# Azure DevOps Pipelines:PR 與主分支的品質關卡。四項全綠才能合併(在分支原則設定 Build validation 指向這條 pipeline)。
+# Azure DevOps Pipelines:PR 與主分支的品質關卡。四項全綠 + API 契約表與程式碼一致才能合併(在分支原則設定 Build validation 指向這條 pipeline)。
 trigger:
   branches:
     include:
@@ -46,3 +46,7 @@ steps:
 
   - script: npm run build
     displayName: 'Build'
+
+  # docs/api-contract.md 由程式碼產生;改了端點或 DTO 沒重跑 npm run api-contract 就擋下(docs/conventions/api.md 第 7 節)。
+  - script: npm run api-contract:check
+    displayName: 'API contract up to date'

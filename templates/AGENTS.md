@@ -33,11 +33,14 @@ React 19 + React Compiler、Vite 8、TypeScript(strict)、Ant Design 6、React R
      選了 i18n →「**畫面上每個字都進 i18n 字典**(含 `aria-label`)。測試斷言也引用字典,不寫死文字。」
      沒選 i18n →「**文案直接寫繁中字串**(含 `aria-label`);錯誤文案只在 `utils/describeError.ts`,系統名稱只在 `constants/app.ts`。」 -->
 6. **視覺以 prototype 為準。** 顏色只用 `theme/tokens.ts` 的 token;圖示只用 `@ant-design/icons`,不用 emoji 或文字頂替。
-   prototype 是 React 原始碼時,不複製它的元件、hook、樣式與路由;只擷取 token、版面、圖示與行為,在骨架上重寫。
+   prototype 是 React 原始碼時,可搬:JSX 結構、表單欄位與驗證、`columnDefs`、互動流程;不搬:它的 router、state、
+   API 呼叫、樣式方案、登入 / 權限 / theme / i18n 實作(ADR-0001 第 6 點)。搬入的片段仍要過規範,不加來源註解。
 7. **登入、權限、401 用公版,不另寫。** 登入狀態只在 `useSessionStore`、401 只在 `app/session.ts`;需要登入的頁面都在
    `RequireAuth` 底下;權限在 `navEntries.tsx` 設 `permission`、按鈕包 `<Can>`。
 8. **不准新增未經同意的套件、不准寫死色碼、不准在元件裡 import axios 或 `@/api` 的 endpoint module。**
    (後兩條由 lint 擋下。)
+9. **新增或修改端點 / DTO 後重跑 `npm run api-contract`,`docs/api-contract.md` 與程式碼一起進 PR。** 端點函式要有 JSDoc
+   (功能、`@screen`、`@error`;[`docs/conventions/api.md`](./docs/conventions/api.md) 第 7 節);契約表不手改,CI 會比對。
 
 ## 元件寫法
 

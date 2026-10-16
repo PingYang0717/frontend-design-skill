@@ -143,6 +143,9 @@ const findDirs = (dir, names, depth = 4) =>
 for (const found of findDirs(join(root, 'docs/prototype'), ['node_modules', 'dist', '.git'])) {
   errors.push(`${relative(root, found)} 不該進 repo;prototype 只放原始碼,重新複製時排除 node_modules、dist、.git`);
 }
+// 後端契約表由骨架的 scripts/gen-api-contract.mjs 產生(步驟 5 的 npm run api-contract);是否與程式碼一致由 CI 的 --check 擋
+if (!existsSync(join(root, 'docs/api-contract.md')))
+  errors.push('缺少 docs/api-contract.md;執行 npm run api-contract 產生後端契約表(workflow-detail.md 步驟 5)');
 for (const rel of ['docs/adr/0020-router-mode.md', 'docs/adr/0021-auth-mode.md']) {
   if (!existsSync(join(root, rel))) errors.push(`缺少 ${rel}`);
 }

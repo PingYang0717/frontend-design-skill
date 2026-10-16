@@ -77,7 +77,8 @@ cp <skill>/templates/adr.md docs/templates/
    中文 / 英文顯示名;沒選 → `src/constants/app.ts` 的 `APP_NAME` → 中文顯示名
 2. **色票**:`src/theme/tokens.ts` 依 prototype 逐值替換(沒選 dark-mode 是 `TOKENS`,選了是 `LIGHT_TOKENS` 與 `DARK_TOKENS`)。
    `DARK_TOKENS`:prototype 有深色就照抄,沒有就依 0022 的細項(保留骨架預設 / 依 `dark-mode.md` 第 3 節推導);
-   只給部分深色值時,有給的照抄,沒給的維持骨架預設
+   只給部分深色值時,有給的照抄,沒給的維持骨架預設。prototype 有表格時 `table`(列高、表頭、斑馬紋、hover、內距)
+   一併填;對不到 `TableTokens` 欄位的表格樣式列待確認,不寫 CSS 覆寫(`styling-theme.md` 第 2 節)
 3. **路由模式**:history 維持 `createBrowserRouter`;hash 改 `createHashRouter` 並新增 `src/utils/appHref.ts`
    (寫法見 `docs/conventions/routing.md`)。填 `templates/adr-router-mode.md` → `docs/adr/0020-router-mode.md`
 4. **認證方式**:依 `docs/conventions/login.md` 第 6 節。骨架預設只需把 `src/types/api/auth.ts`、`src/api/authApi.ts`
@@ -102,7 +103,8 @@ cp <skill>/templates/adr.md docs/templates/
 每個畫面一個切片,依 `docs/conventions/project-structure.md` 第 4 節的順序。括號是只有選了該模組才做的步驟:
 
 1. `types/api/<資源>.ts`:DTO 與 request 型別,與契約逐字一致;沒有契約就依 SPEC 欄位提草案,檔案註解標「草案」
-2. `api/<資源>Api.ts`:每個端點一個函式,`apiPath()` 組路徑,清單用 `expectArray()`
+2. `api/<資源>Api.ts`:每個端點一個函式,`apiPath()` 組路徑,清單用 `expectArray()`;每個函式寫 JSDoc(第一行功能、
+   `@screen 畫面`、`@error 狀態碼 情境 → 前端處理`;`api.md` 第 7 節),步驟 5 的契約表從這裡來
 3. (msw)`mocks/handlers.ts` 的 `pendingHandlers` + `mocks/db.ts` 的 `seedXxx()`;後端已上線的端點放 `shippedHandlers`。
    沒選 msw:`src/test/fixtures.ts` 加這個資源的假資料
 4. `hooks/use<資源>.ts`(`queryOptions` + `useSuspenseQuery`)、`hooks/use<資源>Mutations.ts`(`useActionMutation` + invalidate)
@@ -141,15 +143,18 @@ cp <skill>/templates/adr.md docs/templates/
 6. `grep -rE "itemApi|useItems|useItemMutations|ItemTable|ItemCreateDialog|ItemsPage|itemsRead|itemsWrite|seedItem|testItems" src`
    應為空;最終以 `check-placeholders` 第 5 項(範例功能)為準。四項檢查全綠
 
-## 步驟 5:驗證、commit 與回報
+## 步驟 5:驗證、產契約表、commit 與回報
 
 ```bash
 cd <project>
 npm run lint && npm run typecheck && npm test && npm run build
+npm run api-contract                       # 產 docs/api-contract.md;WARN 列的是不是公版寫法的端點
 node <skill>/scripts/check-placeholders.mjs .
 ```
 
-- 四個指令全綠(lint 不得有 warning);`check-placeholders` 0 個 ERROR
+- 四個指令全綠(lint 不得有 warning);`api-contract` 的 WARN 逐一處理(改回 `apiClient` + `apiPath` 的寫法再重跑);
+  `check-placeholders` 0 個 ERROR
+- 翻一次 `docs/api-contract.md`:每支端點的「功能」與「使用畫面」都有填(空的回去補 JSDoc)、DTO 草案的欄位已標在說明欄
 - 實際開一次:選了 msw 用 `npm run dev:mock` 以 `MOCK_LOGIN`(admin / admin)登入,沒選用 `npm run dev` 接後端;
   選了 dark-mode 時淺色、深色各看過一次每個畫面
 - 全部通過後 commit(訊息需符合 commitlint):新專案
@@ -161,6 +166,7 @@ node <skill>/scripts/check-placeholders.mjs .
   3. 偏離 prototype 或 SPEC 的地方與原因
   4. 仍待確認的問題(含 DTO 草案、找不到對應圖示、缺的畫面)
   5. 下一步:驗收方式;選了 msw 時,後端上線後把對應 handler 搬到 `shippedHandlers`
+  6. 後端契約表:`docs/api-contract.md`,N 支端點;有 WARN 時列出哪些 export 未解析
 
 ## 無人值守時
 

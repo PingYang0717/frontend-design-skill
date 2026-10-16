@@ -1,6 +1,6 @@
 ---
 name: frontend-project-bootstrap
-description: 拿到 PM 的 SPEC(Markdown)與 UI/UX 的 prototype(HTML 單檔、多頁 HTML 或 React 原始碼),要產生前端程式碼時使用:依團隊標準建立專案骨架,再依 SPEC 逐畫面實作功能與測試,直到 lint / typecheck / test / build 全綠。必選:React 19 + Ant Design + TanStack Query + Zustand + 公版登入與權限;可選:i18n、MSW、AG Grid、React Hook Form、深色模式,收件時問答決定。也用於「依規格產生前端程式碼」「建立團隊標準前端專案」「新專案套用前端公版」「在公版專案加新畫面」「把 UI/UX 的 React prototype 做成公版專案」。不產生規格、任務單等文件;規格由 PM 與 UI/UX 提供。
+description: 拿到 PM 的 SPEC(Markdown)與 UI/UX 的 prototype(HTML 單檔、多頁 HTML 或 React 原始碼),要產生前端程式碼時使用:依團隊標準建立專案骨架,再依 SPEC 逐畫面實作功能與測試,直到 lint / typecheck / test / build 全綠。必選:React 19 + Ant Design + TanStack Query + Zustand + 公版登入與權限;可選:i18n、MSW、AG Grid、React Hook Form、深色模式,收件時問答決定。也用於「依規格產生前端程式碼」「建立團隊標準前端專案」「新專案套用前端公版」「在公版專案加新畫面」「把 UI/UX 的 React prototype 做成公版專案」。不產生需求規格或任務單(由 PM 與 UI/UX 提供);完成後從程式碼反向產出後端 API 契約表 docs/api-contract.md(端點、功能、使用畫面、I/O 型別、預期錯誤處理),給後端照著實作。
 ---
 
 # Frontend Project Bootstrap
@@ -13,9 +13,12 @@ description: 拿到 PM 的 SPEC(Markdown)與 UI/UX 的 prototype(HTML 單檔、�
 
 ## 核心原則
 
-1. **SPEC 是需求,prototype 是視覺驗收標準,兩者都不是程式碼。** 從 prototype 擷取畫面、色票、圖示、互動;不複製它的實作。
-   **prototype 是 React 原始碼時也一樣**:一行程式碼都不進 `src/`,它用的元件庫、狀態、路由、樣式方案都不跟,
-   一律對映成骨架的 antd + token + CSS Module。原檔都放進 repo(`docs/spec/`、`docs/prototype/<版本>/`)。
+1. **SPEC 是需求,prototype 是視覺驗收標準。** 從 prototype 擷取畫面、色票、圖示、互動。
+   **prototype 是 React 原始碼時,依白名單逐段搬入,黑名單一律改用骨架機制**(完整清單在 `references/spec-to-code.md` 第 2 節):
+   可搬——JSX 結構與版面階層、表單欄位 / 驗證規則 / 預設值、`columnDefs` 與 `valueFormatter`、互動流程、antd 沒有對應的純展示小元件;
+   不搬——它的 router 與 layout 外殼、state(任何 store / Context)、API 呼叫與 mock server、樣式方案與色碼、
+   登入 / 權限 / 錯誤處理 / theme / i18n 的任何實作。搬入的片段仍要過規範(token、CSS Module、`<Can>`、`DataGrid`、資料 hook),
+   不加來源註解。原檔都放進 repo(`docs/spec/`、`docs/prototype/<版本>/`)。
 2. **公版原樣複製,專案內容依 SPEC 實作。** 基底、選用的模組、規範、ADR、登入與權限機制只能替換名稱與 token,不得改寫;
    要偏離就寫專案 ADR(0023 起)。
 3. **基底 + 可選模組。** 骨架本身不含任何可選功能;收件時一輪問答決定五個模組,選「是」才讀該模組的 README、疊上它的檔案。
@@ -74,16 +77,18 @@ i18n → dark-mode → msw → react-hook-form → ag-grid,逐一讀 `assets/mod
 每個畫面依 `references/workflow-detail.md` 步驟 4 的分層順序實作:DTO → endpoint → (msw)mock → hook → 元件 → 頁面 →
 路由 / 選單 / 權限 → (i18n)字典 → 測試。登入、權限、錯誤處理、主題一律用骨架既有機制;表格、表單、文案、測試的假後端
 **依所選模組**:選了就用模組的機制(`DataGrid`、`FormField`、字典、MSW),沒選就用基底的做法(antd `Table`、antd `Form`、
-繁中字串、`vi.mock`),不另寫第三套。全部畫面完成後移除骨架的 Item 範例功能。
+繁中字串、`vi.mock`),不另寫第三套。每個端點函式都寫 JSDoc(功能、`@screen`、`@error`;`docs/conventions/api.md` 第 7 節),
+步驟 5 由它產後端契約表。全部畫面完成後移除骨架的 Item 範例功能。
 
-### 步驟 5:驗證、commit 與回報
+### 步驟 5:驗證、產契約表、commit 與回報
 
 ```bash
 npm run lint && npm run typecheck && npm test && npm run build
+npm run api-contract            # 從 src/api 與 src/types/api 產 docs/api-contract.md 給後端
 node <skill>/scripts/check-placeholders.mjs <project>
 ```
 
-四項全綠(lint 沒有 warning)、檢查腳本 0 個 ERROR 才算完成;接著 commit。回報格式見 `references/workflow-detail.md` 步驟 5。
+四項全綠(lint 沒有 warning)、契約表已產生、檢查腳本 0 個 ERROR 才算完成;接著 commit。回報格式見 `references/workflow-detail.md` 步驟 5。
 
 使用者不在場時:有建議答案的採用建議並標記「採用建議(暫定)」(模組全選、AG Grid Enterprise、專案名稱用預設),
 沒有建議答案的寫「待確認」,照常繼續;兩者都列在回報裡。唯一要停下的情況是專案資料夾有內容卻不是公版產生的。
@@ -92,12 +97,12 @@ node <skill>/scripts/check-placeholders.mjs <project>
 
 ### 原樣複製(只能替換名稱,不得改寫內容)
 
-| 路徑                       | 複製到              | 內容                                                                                                                                           |
-| -------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `assets/skeleton/`         | 專案根目錄          | 基底:設定檔、api 層、資料 hook、DataBoundary、**登入與 session**、**權限**、theme、Vitest、CI(Azure DevOps)、PR 範本、Item 範例功能;自己就全綠 |
-| `references/standards/`    | `docs/conventions/` | 必選的團隊開發規範 + 索引(模組規範由模組提供)                                                                                                  |
-| `references/adr-baseline/` | `docs/adr/`         | 必選的基線 ADR + 索引(模組 ADR 由模組提供,編號不變)                                                                                            |
-| `templates/CLAUDE.md`      | 專案根目錄          | Claude Code 的轉接檔:只有 `@AGENTS.md`                                                                                                         |
+| 路徑                       | 複製到              | 內容                                                                                                                                                                           |
+| -------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `assets/skeleton/`         | 專案根目錄          | 基底:設定檔、api 層、資料 hook、DataBoundary、**登入與 session**、**權限**、theme、Vitest、CI(Azure DevOps)、PR 範本、`scripts/gen-api-contract.mjs`、Item 範例功能;自己就全綠 |
+| `references/standards/`    | `docs/conventions/` | 必選的團隊開發規範 + 索引(模組規範由模組提供)                                                                                                                                  |
+| `references/adr-baseline/` | `docs/adr/`         | 必選的基線 ADR + 索引(模組 ADR 由模組提供,編號不變)                                                                                                                            |
+| `templates/CLAUDE.md`      | 專案根目錄          | Claude Code 的轉接檔:只有 `@AGENTS.md`                                                                                                                                         |
 
 ### 可選模組(`assets/modules/<模組>/`)
 
@@ -136,14 +141,15 @@ node <skill>/scripts/check-placeholders.mjs <project>
 
 ### 說明與工具
 
-| 路徑                              | 什麼時候讀                        |
-| --------------------------------- | --------------------------------- |
-| `references/workflow-detail.md`   | 每一步的具體做法、指令與檔案對照  |
-| `references/spec-to-code.md`      | 步驟 2;SPEC 最少要有什麼          |
-| `assets/modules/<模組>/README.md` | 步驟 3,選了該模組時               |
-| `references/standards/`           | 步驟 4 寫程式時,碰到哪一層讀哪份  |
-| `scripts/check-placeholders.mjs`  | 步驟 5                            |
-| `references/legacy-review.md`     | 維護者拿 Skill 審查公司既有專案時 |
+| 路徑                                               | 什麼時候讀                                                                              |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `references/workflow-detail.md`                    | 每一步的具體做法、指令與檔案對照                                                        |
+| `references/spec-to-code.md`                       | 步驟 2;SPEC 最少要有什麼                                                                |
+| `assets/modules/<模組>/README.md`                  | 步驟 3,選了該模組時                                                                     |
+| `references/standards/`                            | 步驟 4 寫程式時,碰到哪一層讀哪份                                                        |
+| `scripts/check-placeholders.mjs`                   | 步驟 5                                                                                  |
+| `<project>/scripts/gen-api-contract.mjs`(骨架附帶) | 步驟 5,`npm run api-contract`;格式與 JSDoc 約定見 `references/standards/api.md` 第 7 節 |
+| `references/legacy-review.md`                      | 維護者拿 Skill 審查公司既有專案時                                                       |
 
 ## Agent 工具相容性
 

@@ -4,7 +4,9 @@ import { useThemeStore } from '@/stores/useThemeStore';
 import { LIGHT_TOKENS, tokensFor } from './tokens';
 
 /** tokens.ts → AG Grid Theming API 的 theme。與 antdTheme.ts 同一張表推導,表格與其他元件的顏色才會一致。
- *  只對應 ThemeTokens 已有的欄位;prototype 對表格有額外要求(列高、斑馬紋)時先在 tokens.ts 加欄位再對應。 */
+ *  表格專屬的樣式(列高、表頭、斑馬紋、hover、內距)來自 tokens.table,跟著淺色 / 深色切換;prototype 的表格樣式
+ *  對不到這些參數時,先在 tokens.ts 的 TableTokens 加欄位、這裡加對應,再使用——不寫 .ag-* 的 CSS 覆寫
+ *  (docs/conventions/ag-grid.md 第 6 節)。 */
 export const buildAgGridTheme = (isDarkMode: boolean) => {
   const tokens = tokensFor(isDarkMode);
   return themeQuartz.withPart(isDarkMode ? colorSchemeDark : colorSchemeLight).withParams({
@@ -20,6 +22,15 @@ export const buildAgGridTheme = (isDarkMode: boolean) => {
     fontFamily: tokens.fontFamily,
     fontSize: tokens.fontSize,
     browserColorScheme: isDarkMode ? 'dark' : 'light',
+    // 表格專屬:與 antd Table 的 component token 同一組值(antdTheme.ts)。
+    rowHeight: tokens.table.rowHeight,
+    headerHeight: tokens.table.headerHeight,
+    headerBackgroundColor: tokens.table.headerBg,
+    headerFontWeight: tokens.table.headerFontWeight,
+    oddRowBackgroundColor: tokens.table.stripeBg,
+    rowHoverColor: tokens.table.hoverBg,
+    cellHorizontalPadding: tokens.table.cellPaddingX,
+    spacing: tokens.table.spacing,
   });
 };
 

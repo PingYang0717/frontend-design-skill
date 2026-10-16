@@ -1,5 +1,44 @@
 # CHANGELOG
 
+## 3.3.0(2026-10-16)
+
+**三件事:回收 UI/UX React prototype 已驗證的邏輯、AG Grid 的表格樣式有正規出口、步驟 5 產出後端 API 契約表。**
+起因是實作時發現:UI/UX 的 React 其實也是 skill 跑出來、功能驗證過的,整包丟掉重猜很浪費;AG Grid 的樣式只對應 11 個
+Theming API 參數、列高 / 表頭 / 斑馬紋沒有出口,agent 在「做不出來 → 寫 `.ag-*` 覆寫 → 違規」之間反覆試錯,花掉大量 token。
+
+- **原則 1 改白名單 / 黑名單(三處一致)**:`SKILL.md` 核心原則 1、ADR-0001 第 6 點、`templates/AGENTS.md` 第 6 條同步——
+  React prototype **可搬**:JSX 結構與版面階層、表單欄位 / 驗證規則 / 預設值、`columnDefs` 與 `valueFormatter`、互動流程、
+  antd 沒有對應的純展示小元件;**不搬**:它的 router 與 layout 外殼、state、API 呼叫與 mock、樣式方案與色碼、
+  登入 / 權限 / 錯誤處理 / theme / i18n 實作。搬入的片段仍要過規範,不加來源註解、回報不列清單。
+  `spec-to-code.md` 第 2 節放同一張表,並補 columns → `ColDef` / `TableColumnsType`、表單 → `FormField` 的對映
+- **`tokens.ts` 加 `table`(`TableTokens`)**:`rowHeight`、`headerHeight`、`headerBg`、`headerFontWeight`、`stripeBg`、
+  `hoverBg`、`cellPaddingX`、`spacing`;dark-mode 覆蓋版的 `LIGHT_TOKENS` / `DARK_TOKENS` 各一組。同一組值餵三處:
+  antd `Table` 的 component token(`antdTheme.ts` 的 `components.Table`;列高以 `cellPaddingBlock` 逼近,斑馬紋 antd 沒有)、
+  `--app-table-*` CSS 變數(`cssVars.ts` 的 `TABLE_CSS_VAR_NAMES`;`CSS_VAR_NAMES` 改為 `Record<FlatTokenKey, string>`)、
+  AG Grid Theming API(兩個 `agGridTheme.ts` 變體加 `rowHeight`、`headerHeight`、`headerBackgroundColor`、`headerFontWeight`、
+  `oddRowBackgroundColor`、`rowHoverColor`、`cellHorizontalPadding`、`spacing`)
+- **ag-grid 規範第 6.1 節「prototype 的表格樣式怎麼對映」**:prototype 不論用 `withParams`、`.ag-*` class 或 `--ag-*` 變數寫,
+  各對到 `tokens.table` 哪個欄位一張表;**硬規則:對不到的樣式一律照公版做、列待確認,不試 `.ag-*` 覆寫、不反覆比對截圖**;
+  要新參數走「`TableTokens` 加欄位 → `cssVars` → 兩個 `agGridTheme` → `antdTheme`」,屬改公版,列偏離。
+  `--ag-*` 變數也明文禁止。README 第 2 節補「prototype 也是 AG Grid 時」只搬 `columnDefs` 與 `withParams` 的值;
+  `styling-theme.md` 第 2 節、`dark-mode.md` 第 3 節推導表、`workflow-detail.md` 步驟 3 色票一併補 `table`
+- **步驟 5 產後端契約表 `docs/api-contract.md`**:骨架新增 `scripts/gen-api-contract.mjs`(`npm run api-contract`,用專案自己的
+  TypeScript compiler API),掃 `src/api/*Api.ts` 與 `src/types/api/` 反向產生:每支端點的方法與路徑(`apiPath('items', id)` →
+  `/items/{id}`)、功能、使用畫面、Request(路徑 / body / 其他參數)、Response、預期錯誤與前端處理,以及每個 DTO 的欄位表
+  (名稱、型別、必填、JSDoc 說明)。只認公版寫法(`apiClient.<method>(apiPath(...))`),解析不出的 export 列檔尾「未解析的端點」並印
+  WARN,不算失敗;產出不帶時間戳,`--check`(`npm run api-contract:check`)比對不一致就以 1 結束
+- **端點 JSDoc 約定(`api.md` 新第 7 節)**:第一行功能、`@screen 畫面`、`@error 狀態碼 情境 → 前端處理`;沒寫的狀態碼自動補
+  公版共用三列(401 轉登入、403 錯誤卡 / toast、5xx 與斷線)。骨架的 `authApi.ts`、`itemApi.ts` 已照寫,是範本
+- **接線**:`SKILL.md` description(改「產出後端 API 契約表」)、步驟 4、步驟 5 指令與檔案索引;`workflow-detail.md` 步驟 4 第 2 項、
+  步驟 5 指令與回報第 6 項;`templates/AGENTS.md` 第 9 條(改了端點要重跑)、`templates/README.md`(指令表與「後端」一節);
+  `azure-pipelines.yml` 加 `API contract up to date` 步驟、PR 範本與 `git-workflow.md` 自我檢查加一項;
+  `check-placeholders` 缺 `docs/api-contract.md` 報 ERROR
+- 驗證:基底 lint 0 warning、typecheck、test(18 條)、build 全綠,`gen-api-contract` 產 6 支端點、`--check` 一致、
+  Prettier 通過;全選組合(i18n → dark-mode → msw → react-hook-form → ag-grid Enterprise)重組:五份 README 的錨點全部對上,
+  lint、typecheck、test(10 檔 46 條)、build 全綠,`ag-grid` chunk 仍為預期的 2.7 MB,契約表與 `--check` 正常,
+  非公版寫法的 export 正確列 WARN。本次在 Node 22.22 下驗證(engines 仍為 >=24.22)
+- 未做:`backend-api-contract` 配套 skill 改定位為「非公版產生的既有專案補產契約表」,共用同一個腳本與格式,在那個 skill 的 repo 改
+
 ## 3.2.0(2026-10-15)
 
 **prototype 輸入不再限定 HTML:UI/UX 交付 React 原始碼也收。** 流程仍是五步,只有步驟 1 的收件與步驟 2 的讀法多一種型態;

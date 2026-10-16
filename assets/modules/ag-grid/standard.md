@@ -121,9 +121,31 @@ const columns: ColDef<Item>[] = [
 
 - 表頭、空資料文字(`overlayNoRowsTemplate`)、操作按鈕的 `label`:選了 i18n 時全部進字典(`i18n.md`),沒選直接寫繁中。
   AG Grid 自己的文案(篩選選單、分頁器)由 `DataGrid` 的 `localeText` 處理,不另外翻。
-- 不寫 `.ag-*` 的 CSS 覆寫;顏色、圓角、字型由 `agGridTheme.ts` 的 Theming API 參數決定。prototype 的表格樣式
-  `ThemeTokens` 表達不出來時,先在 `tokens.ts` 加欄位再對應([styling-theme.md](./styling-theme.md) 第 2 節)。
+- 不寫 `.ag-*` 的 CSS 覆寫、不設 `--ag-*` 變數;顏色、圓角、字型由 `agGridTheme.ts` 的 Theming API 參數決定,
+  表格專屬的樣式由 `tokens.ts` 的 `table` 決定(下表)。
 - 不手動 import AG Grid 的 CSS 檔(`ag-grid.css`、`ag-theme-*.css`):Theming API 會自己注入樣式,兩者並存會打架。
+
+### 6.1 prototype 的表格樣式怎麼對映
+
+prototype 的表格樣式(不論它用 `withParams`、`.ag-*` class 還是 `--ag-*` 變數寫)只對映到 `tokens.ts` 的 `table`,
+由 `agGridTheme.ts` 餵給 Theming API;antd `Table`(`antdTheme.ts` 的 component token)讀同一組值。
+
+| prototype 的寫法(三種擇一)                                                                      | 對到 `tokens.table`    | 餵給 AG Grid 的參數     |
+| ----------------------------------------------------------------------------------------------- | ---------------------- | ----------------------- |
+| `rowHeight` / `.ag-row { height }` / `--ag-row-height`                                          | `rowHeight`            | `rowHeight`             |
+| `headerHeight` / `.ag-header { height }` / `--ag-header-height`                                 | `headerHeight`         | `headerHeight`          |
+| `headerBackgroundColor` / `.ag-header { background }` / `--ag-header-background-color`          | `headerBg`             | `headerBackgroundColor` |
+| `headerFontWeight` / `.ag-header-cell { font-weight }` / `--ag-header-font-weight`              | `headerFontWeight`     | `headerFontWeight`      |
+| `oddRowBackgroundColor` / `.ag-row-odd { background }` / `--ag-odd-row-background-color`        | `stripeBg`             | `oddRowBackgroundColor` |
+| `rowHoverColor` / `.ag-row-hover { background }` / `--ag-row-hover-color`                       | `hoverBg`              | `rowHoverColor`         |
+| `cellHorizontalPadding` / `.ag-cell { padding-left/right }` / `--ag-cell-horizontal-padding`    | `cellPaddingX`         | `cellHorizontalPadding` |
+| `spacing` / `--ag-spacing`                                                                      | `spacing`              | `spacing`               |
+| `accentColor`、`backgroundColor`、`foregroundColor`、`borderColor`、`fontFamily`、`fontSize` 等 | `ThemeTokens` 既有欄位 | 已對應,不另外加         |
+
+**硬規則:對不到上表的樣式,一律照公版做、列入回報的「待確認」;不嘗試 `.ag-*` 覆寫、不反覆比對截圖、不調高
+Theming API 以外的任何東西。** 真的需要新參數時:先在 `TableTokens` 加欄位(淺色、深色各給值)→ `cssVars.ts` 的
+`TABLE_CSS_VAR_NAMES` 補變數名 → `agGridTheme.ts` 兩個變體補對應 → 需要時 `antdTheme.ts` 的 `Table` 也補,再使用;
+這是改公版的事,寫進回報的「偏離」。
 
 ## 7. 測試
 
@@ -140,6 +162,7 @@ const columns: ColDef<Item>[] = [
 - 列選取(單選 / 多選)與批次操作的範本
 - 可編輯儲存格的規則:與 `useActionMutation`、樂觀更新([ADR-0015](../adr/0015-optimistic-updates-and-races.md))的關係
 - 欄位狀態(寬度、順序、排序)是否要記住、存哪裡
+- `tokens.table` 還缺的表格參數:舊專案審查時統計 prototype 最常要求、第 6.1 節對不到的樣式,補進 `TableTokens`
 - 公司的授權金鑰取得流程與到期提醒
 - **評估改成表格頁才載入 AG Grid**:目前 `providers.tsx` 啟動時就呼叫 `registerAgGrid()`,每一頁都下載約 2.7 MB
   (gzip 約 750 KB)的 `ag-grid` chunk。可改成在 `DataGrid` 第一次掛載時才 `import('@/app/agGrid')` 並註冊

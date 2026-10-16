@@ -24,4 +24,14 @@ export const buildAntdTheme = (): ThemeConfig => ({
     fontSize: TOKENS.fontSize,
     fontFamily: TOKENS.fontFamily,
   },
+  components: {
+    // 表格與 tokens.table 同一組值;選了 ag-grid 時 agGridTheme.ts 也讀它,兩種表格才會長得一樣。
+    // antd Table 沒有列高與斑馬紋的 token:列高以上下內距逼近(fontSize × 1.5714 是 antd 的行高),斑馬紋只有 AG Grid 有。
+    Table: {
+      headerBg: TOKENS.table.headerBg,
+      rowHoverBg: TOKENS.table.hoverBg,
+      cellPaddingInline: TOKENS.table.cellPaddingX,
+      cellPaddingBlock: Math.max(0, Math.round((TOKENS.table.rowHeight - TOKENS.fontSize * 1.5714) / 2)),
+    },
+  },
 });

@@ -1,7 +1,9 @@
-import { type ThemeTokens, TOKENS } from './tokens';
+import { type TableTokens, type ThemeTokens, TOKENS } from './tokens';
+
+type FlatTokenKey = Exclude<keyof ThemeTokens, 'table'>;
 
 /** token 名稱 → CSS 變數名稱。CSS Module 一律寫 `var(--app-color-text)` 這種形式。 */
-const CSS_VAR_NAMES: Record<keyof ThemeTokens, string> = {
+const CSS_VAR_NAMES: Record<FlatTokenKey, string> = {
   primary: '--app-color-primary',
   success: '--app-color-success',
   warning: '--app-color-warning',
@@ -19,13 +21,33 @@ const CSS_VAR_NAMES: Record<keyof ThemeTokens, string> = {
   fontFamily: '--app-font-family',
 };
 
-const toCssValue = (key: keyof ThemeTokens, value: string | number): string =>
-  typeof value === 'number' && key !== 'fontFamily' ? `${value}px` : String(value);
+/** 表格 token 的 CSS 變數;自製的清單、摘要表要跟資料表格對齊時用。 */
+const TABLE_CSS_VAR_NAMES: Record<keyof TableTokens, string> = {
+  rowHeight: '--app-table-row-height',
+  headerHeight: '--app-table-header-height',
+  headerBg: '--app-table-header-bg',
+  headerFontWeight: '--app-table-header-font-weight',
+  stripeBg: '--app-table-stripe-bg',
+  hoverBg: '--app-table-hover-bg',
+  cellPaddingX: '--app-table-cell-padding-x',
+  spacing: '--app-table-spacing',
+};
+
+/** 數值除了字型與字重都加 px。 */
+const UNITLESS = new Set<string>(['fontFamily', 'headerFontWeight']);
+
+const toCssValue = (key: string, value: string | number): string =>
+  typeof value === 'number' && !UNITLESS.has(key) ? `${value}px` : String(value);
 
 /** 宣告在 `:root`:對話框、下拉選單會 portal 到 body,掛在 wrapper 上的變數它們讀不到。 */
 export const themeCssText = (): string => {
-  const declarations = (Object.keys(CSS_VAR_NAMES) as Array<keyof ThemeTokens>)
-    .map((key) => `${CSS_VAR_NAMES[key]}: ${toCssValue(key, TOKENS[key])};`)
-    .join(' ');
+  const declarations = [
+    ...(Object.keys(CSS_VAR_NAMES) as FlatTokenKey[]).map(
+      (key) => `${CSS_VAR_NAMES[key]}: ${toCssValue(key, TOKENS[key])};`
+    ),
+    ...(Object.keys(TABLE_CSS_VAR_NAMES) as Array<keyof TableTokens>).map(
+      (key) => `${TABLE_CSS_VAR_NAMES[key]}: ${toCssValue(key, TOKENS.table[key])};`
+    ),
+  ].join(' ');
   return `:root { ${declarations} }`;
 };

@@ -28,8 +28,11 @@
 **原因:** antd 預設色與設計稿通常差一點點,差一點點的灰色在並排時一眼就看得出來;使用者驗收的對象是 prototype。
 
 - prototype 有、`ThemeTokens` 沒有的 token:先在 `ThemeTokens` 加欄位,再到 `cssVars.ts` 的
-  `CSS_VAR_NAMES` 加對應變數名(`Record<keyof ThemeTokens, string>` 會逼你補上),需要的話
+  `CSS_VAR_NAMES` 加對應變數名(`Record<FlatTokenKey, string>` 會逼你補上),需要的話
   在 `antdTheme.ts` 對應到 antd token。
+- 表格的樣式(列高、表頭底色、斑馬紋、hover、儲存格內距)在 `TOKENS.table`(`TableTokens`),同時餵 antd `Table` 的
+  component token 與 AG Grid 的 Theming API(選了 ag-grid 時);CSS 變數是 `--app-table-*`。prototype 的表格樣式
+  對不到 `TableTokens` 的欄位時列入待確認,不在 CSS 覆寫(`ag-grid.md` 第 6.1 節)。
 - 字型堆疊只在 `tokens.ts` 的 `FONT_FAMILY` 寫一次。
 
 ## 3. seed token 與 map / alias token

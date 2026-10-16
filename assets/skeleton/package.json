@@ -15,7 +15,9 @@
     "lint:fix": "oxlint --fix && eslint --fix .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepare": "husky"
+    "prepare": "husky",
+    "api-contract": "node scripts/gen-api-contract.mjs",
+    "api-contract:check": "node scripts/gen-api-contract.mjs --check"
   },
   "dependencies": {
     "@ant-design/icons": "^6.3.4",

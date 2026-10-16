@@ -148,8 +148,36 @@ const text = error.response?.data?.message; // 後端原話當主文案
 
 1. 在規格或後端契約確認端點;沒有契約時依規格提草案,在 DTO 註解標「草案」並列入待確認。
 2. `types/api/<資源>.ts` 加 DTO / request 型別。
-3. `api/<資源>Api.ts` 加函式(`apiPath`、清單用 `expectArray`)。
+3. `api/<資源>Api.ts` 加函式(`apiPath`、清單用 `expectArray`),並寫第 7 節的 JSDoc。
 4. 新的錯誤 code 加進 `KNOWN_ERROR_CODES` 並補文案(見 [error-handling.md](./error-handling.md) 第 6 節)。
 5. `hooks/` 加 `queryOptions` / mutation([data-fetching.md](./data-fetching.md))。
 6. 假後端:選了 msw 模組 → `mocks/handlers.ts` 的 `pendingHandlers` 補 handler,真後端上線後搬到 `shippedHandlers`
    (`msw.md`);沒選 → `test/fixtures.ts` 補假資料,頁面測試 `vi.mock` 這支 endpoint module([testing.md](./testing.md))。
+7. `npm run api-contract` 重產 `docs/api-contract.md`,與程式碼一起 commit(CI 以 `api-contract:check` 比對)。
+
+## 7. 端點的 JSDoc 與後端契約表
+
+**規則**:每個端點函式上方寫 JSDoc:第一行是**功能**(一句話),`@screen` 是**使用它的畫面**(一支多個畫面就寫多個),
+`@error` 是**這支特有的錯誤**,格式固定「`狀態碼 情境 → 前端處理`」。`scripts/gen-api-contract.mjs` 讀這些與 `types/api/`
+反向產生 `docs/api-contract.md`——每支端點的方法與路徑、功能、使用畫面、Request / Response 欄位表、預期錯誤與前端處理——
+給後端(或後端的 agent)照著實作。沒寫 `@error` 的狀態碼,腳本自動補公版共用的三列(401 轉登入、403 錯誤卡 / toast、
+5xx 與斷線;來源 [error-handling.md](./error-handling.md)、[ADR-0006](../adr/0006-api-errors-judged-in-one-place.md))。
+
+```ts
+// ✅ src/api/itemApi.ts
+/** 建立項目,回傳建立後的完整物件。
+ *  @screen 項目管理 > 新增對話框
+ *  @error 400 VALIDATION_FAILED:名稱空白或超過長度 → toast(errors.byCode) */
+export const createItem = (body: CreateItemRequest): Promise<Item> => apiClient.post<Item>(apiPath('items'), body);
+```
+
+```ts
+// ❌ 沒有 JSDoc:契約表的「功能」會是空的、後端不知道這支給哪個畫面用
+export const createItem = (body: CreateItemRequest): Promise<Item> => apiClient.post<Item>(apiPath('items'), body);
+```
+
+- 腳本只認公版寫法(`apiClient.<method>(apiPath(...), body?)`);繞過 `apiPath` 或不經 `apiClient` 的 export 會列在
+  契約表尾的「未解析的端點」並印 WARN,不算失敗——改回公版寫法後重跑。
+- DTO 欄位的 JSDoc(`/** 建立時間,ISO 8601 */`)會進契約表的「說明」欄;單位、格式、可空的條件寫在這裡。
+- `docs/api-contract.md` **不手改**;改了端點或 DTO 就重跑。CI 的 `npm run api-contract:check` 擋下沒重跑的 PR。
+- 契約表是「前端實際呼叫什麼」,不取代 `docs/spec/` 的需求;兩者不一致時以 SPEC 為準,回去改程式碼再重產。

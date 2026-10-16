@@ -36,10 +36,22 @@ PM 的 SPEC 格式不限,但下面幾項是寫程式的前提。缺的列入停�
 React 原始碼先讀 `package.json`(知道它用什麼元件庫與樣式方案)、router 與 theme,再逐畫面讀 `pages/`;
 `node_modules`、`dist`、測試檔不讀。
 
-**React 原始碼只是另一種格式的設計稿。** 它的元件、hook、狀態、路由、樣式方案(MUI、shadcn、Tailwind、styled-components 等)
-一行都不進 `src/`。對映關係:它的元件 → antd 對應元件;Tailwind class / theme 物件 → `tokens.ts` 的值;它的 router →
-`constants/routes.ts` + `navEntries.tsx`;它的 mock → DTO 草案與測試假資料。找不到 antd 對應的元件,依規範自寫並列入「偏離」。
-prototype 用 antd 寫時 token 與圖示幾乎可直接對上;給 UI/UX 的回饋可以提這點,但不是收件的硬條件。
+**React 原始碼是設計稿,也是可回收的邏輯。** 搬的單位是片段,不是檔案;哪些能搬、哪些不能,照這張表,不自行解讀:
+
+| 可以逐段搬進 `src/`(搬入後仍要過規範)                | 一律不搬,改用骨架機制                                  |
+| ---------------------------------------------------- | ------------------------------------------------------ |
+| JSX 結構、版面階層                                   | 它的 router、layout 外殼                               |
+| 表單欄位、驗證規則、預設值                           | 它的 state(Redux / Context / 自家 store)               |
+| 表格 `columnDefs`、`valueFormatter`、排序 / 篩選設定 | 它的 API 呼叫、fetch、mock server                      |
+| 互動流程(開關 dialog、確認、步驟、狀態轉移)          | 它的樣式方案(Tailwind / shadcn / MUI / 自寫 CSS)與色碼 |
+| antd 沒有對應的純展示小元件                          | 登入、權限、錯誤處理、theme、i18n 的任何實作           |
+
+搬入後的對映:它的元件 → antd 對應元件;Tailwind class / theme 物件 → `tokens.ts` 的值;它的 router →
+`constants/routes.ts` + `navEntries.tsx`;它的 mock → DTO 草案與測試假資料;它的 columns → `ColDef<DTO>[]`(ag-grid)或
+`TableColumnsType<DTO>`;它的表單 → `FormField`(react-hook-form)或 antd `Form.Item name`。搬入的片段不加來源註解,
+回報也不列清單——搬完就是專案的程式碼。找不到 antd 對應的元件,依規範自寫並列入「偏離」。
+prototype 用 antd + AG Grid 寫時,左欄幾乎可以直接搬、AG Grid 的 `withParams` 值可照抄進 `tokens.ts` 的 `table`;
+給 UI/UX 的回饋可以提這點,但不是收件的硬條件。
 
 prototype 與 SPEC 不一致時以 SPEC 的行為、prototype 的視覺為準,並列入待確認。
 

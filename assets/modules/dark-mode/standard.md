@@ -51,13 +51,14 @@ colorPrimary: tokens.primary, // 深色主題若給了暗色主色,會被 darkAl
 
 **從淺色推導的換算**(HSL;H 色相、S 飽和度、L 亮度):
 
-| token                                    | 換算                                                                          |
-| ---------------------------------------- | ----------------------------------------------------------------------------- |
-| `primary`、`success`、`warning`、`error` | 不換;`DARK_TOKENS` 以 `...LIGHT_TOKENS` 繼承(seed token,見第 2 節)            |
-| `bgLayout`、`bgContainer`、`bgElevated`  | 保留淺色值的 H;S 取 min(淺色 S, 15%);L 依序用 0%、8%、12%(骨架預設深色的亮度) |
-| `border`、`borderSecondary`              | 同上,L 依序用 26%、19%                                                        |
-| `text`、`textSecondary`、`textTertiary`  | `rgba(255, 255, 255, a)`,a 依序 0.85、0.65、0.45                              |
-| `borderRadius`、`fontSize`、`fontFamily` | 不換(繼承)                                                                    |
+| token                                               | 換算                                                                          |
+| --------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `primary`、`success`、`warning`、`error`            | 不換;`DARK_TOKENS` 以 `...LIGHT_TOKENS` 繼承(seed token,見第 2 節)            |
+| `bgLayout`、`bgContainer`、`bgElevated`             | 保留淺色值的 H;S 取 min(淺色 S, 15%);L 依序用 0%、8%、12%(骨架預設深色的亮度) |
+| `border`、`borderSecondary`                         | 同上,L 依序用 26%、19%                                                        |
+| `text`、`textSecondary`、`textTertiary`             | `rgba(255, 255, 255, a)`,a 依序 0.85、0.65、0.45                              |
+| `borderRadius`、`fontSize`、`fontFamily`            | 不換(繼承)                                                                    |
+| `table.headerBg`、`table.stripeBg`、`table.hoverBg` | 同 `bg*` 的換算,L 依序用 11%、8%、15%;`table` 其餘尺寸與字重不換(繼承)        |
 
 淺色中性色是純灰(S = 0)時,換算結果就是骨架預設值;prototype 的中性色帶色調(例如偏藍的灰)時,深色表面保留同一個色調。
 推導出的值在 PR 截圖給 UI/UX 確認,列入回報的「待確認」。

@@ -20,4 +20,5 @@
 - [ ] 讀取用 `useSuspenseQuery` + `DataBoundary`;寫入用 `useActionMutation`(例外已在註解寫理由)
 - [ ] 沒有寫死色碼;樣式只用 theme token
 - [ ] 需要權限的入口與按鈕已設定 `permission` / `<Can>`;需要登入的頁面都在 `RequireAuth` 底下
+- [ ] 新增或修改了端點 / DTO:JSDoc 有功能、`@screen`、`@error`,並已 `npm run api-contract` 重產 `docs/api-contract.md`
 - [ ] 有偏離團隊規範的決定,已寫 ADR

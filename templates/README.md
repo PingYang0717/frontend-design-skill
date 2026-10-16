@@ -32,15 +32,16 @@ npm run dev                  # 打真後端,/api 由開發伺服器轉到 VITE_P
 
 開啟 http://localhost:5173
 
-| 指令                        | 用途                          |
-| --------------------------- | ----------------------------- |
-| `npm install`               | 安裝依賴(本機;CI 用 `npm ci`) |
-| `npm run dev`               | 開發伺服器                    |
-| `npm run build`             | 型別檢查 + 正式建置           |
-| `npm run preview`           | 預覽建置結果                  |
-| `npm run lint` / `lint:fix` | oxlint + ESLint               |
-| `npm run typecheck`         | 型別檢查                      |
-| `npm test` / `test:watch`   | Vitest                        |
+| 指令                        | 用途                                                                 |
+| --------------------------- | -------------------------------------------------------------------- |
+| `npm install`               | 安裝依賴(本機;CI 用 `npm ci`)                                        |
+| `npm run dev`               | 開發伺服器                                                           |
+| `npm run build`             | 型別檢查 + 正式建置                                                  |
+| `npm run preview`           | 預覽建置結果                                                         |
+| `npm run lint` / `lint:fix` | oxlint + ESLint                                                      |
+| `npm run typecheck`         | 型別檢查                                                             |
+| `npm test` / `test:watch`   | Vitest                                                               |
+| `npm run api-contract`      | 從程式碼重產 `docs/api-contract.md`(CI 用 `api-contract:check` 比對) |
 
 Commit 前 husky 會自動跑 lint-staged(lint + Prettier)與 commitlint,不需要手動格式化。
 
@@ -62,6 +63,8 @@ Commit 前 husky 會自動跑 lint-staged(lint + Prettier)與 commitlint,不需�
 ## 後端
 
 API 契約以 [`docs/spec/`](./docs/spec/) 的 API 一節或後端文件為準;DTO(`src/types/api/`)與契約逐字一致。
+前端實際呼叫的端點、I/O 型別與預期錯誤處理在 [`docs/api-contract.md`](./docs/api-contract.md),由程式碼反向產生,
+給後端照著實作;改了端點或 DTO 要 `npm run api-contract` 重產。
 <!-- FILL: 選了 msw 時寫「mock(`src/mocks/handlers.ts`)也與契約逐字一致;後端尚未上線的端點在 `pendingHandlers`,
      上線後搬到 `shippedHandlers`。」;沒選就刪除這段。 -->
 

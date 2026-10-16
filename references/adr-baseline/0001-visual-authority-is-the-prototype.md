@@ -34,11 +34,21 @@ Iconify 上的鏡像 `ant-design:xxx-outlined`)。
 的「偏離設計稿」一節說明並回報 UX;影響全專案的偏離
 (例如整個區域改以別的來源為準)另寫 ADR。
 
-**6. prototype 是程式碼時,仍然只是設計稿。** UI/UX 交付 React 原始碼時,它的元件、hook、狀態、路由與
-樣式方案(MUI、shadcn、Tailwind、styled-components 等)一行都不複製進 `src/`;只擷取 token、畫面清單、
-欄位、圖示與版面,再依團隊規範在骨架上重寫。原始碼放 `docs/prototype/<版本>/`(不含 `node_modules`),
-lint、format 與測試都排除這個目錄。理由同第 1、2 點:視覺一致靠的是 token 與驗收,不是搬程式碼;
-搬進來的程式碼會帶進第二套元件庫與樣式方案,之後每個人都得同時維護兩套。
+**6. prototype 是程式碼時,依白名單逐段搬入,黑名單改用骨架機制。** UI/UX 交付 React 原始碼時,
+它驗證過的「功能面」可以回收,但搬的單位是片段,不是檔案:
+
+| 可以逐段搬進 `src/`(搬入後仍要過規範)                | 一律不搬,改用骨架機制                                  |
+| ---------------------------------------------------- | ------------------------------------------------------ |
+| JSX 結構、版面階層                                   | 它的 router、layout 外殼                               |
+| 表單欄位、驗證規則、預設值                           | 它的 state(Redux / Context / 自家 store)               |
+| 表格 `columnDefs`、`valueFormatter`、排序 / 篩選設定 | 它的 API 呼叫、fetch、mock server                      |
+| 互動流程(開關 dialog、確認、步驟)                    | 它的樣式方案(Tailwind / shadcn / MUI / 自寫 CSS)與色碼 |
+| antd 沒有對應的純展示小元件                          | 登入、權限、錯誤處理、theme、i18n 的任何實作           |
+
+搬入的片段仍要對映到 token、CSS Module、`<Can>`、`DataGrid`、資料 hook;不加來源註解,搬完就是專案的程式碼。
+原始碼放 `docs/prototype/<版本>/`(不含 `node_modules`),lint、format 與測試都排除這個目錄。
+理由:視覺一致靠的是 token 與驗收,整包搬會帶進第二套元件庫、狀態與樣式方案;但已驗證的欄位、規則與流程
+重新猜一次是浪費,也容易猜錯。
 
 ✅
 
