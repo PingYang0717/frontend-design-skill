@@ -1,5 +1,51 @@
 # CHANGELOG
 
+## 4.0.0(2026-10-17)
+
+**破壞性改版:基底的登入與權限換成公司的實況。** 3.x 假設每個系統自己做登入(登入頁、token、401 清 session)並打 `GET /me`
+拿權限清單;公司的實況是:登入由公司前端 SDK 處理(沒有 cookie 就跳轉公司登入畫面,各系統不做登入頁、沒有登出)、
+token 在 cookie 瀏覽器自動帶、後端每支 API 固定檢查「在不在公司網路」「有沒有這個系統的使用權限」,擋下來用公司的 React
+元件整頁遮罩、細粒度權限多數系統不需要。3.x 產的專案不能直接套 4.0 加畫面,升級步驟見 `legacy-review.md` 第 E 節。
+
+- **基底拆掉登入**:刪 `pages/Login/`、`stores/useSessionStore.ts`、`hooks/useSessionMutations.ts`、`components/auth/RequireAuth.tsx`、
+  `components/layouts/PublicLayout.tsx`、`UserMenu.tsx`、`types/api/auth.ts`、`api/authApi.ts`、`app/session.ts` 與相關測試;
+  `apiClient` 改 `withCredentials: true`,拿掉 `setAuthHeaderProvider` / `getAuthHeaders`;`KNOWN_ERROR_CODES` 拿掉 `INVALID_CREDENTIALS`;
+  `routes.tsx` 只剩一個 `RootLayout` 區域;`ROUTES` 刪 `login`、`forbidden`;header 右側改為帶註解的工具列(語言、主題、使用者資訊依序放)
+- **基底新增存取閘門**:`app/accessGate.ts`(`ACCESS_GATE_RULES` 一張表:狀態碼 / code → `outsideNetwork` / `noAppPermission`;
+  `resolveAccessGate()`;`connectAccessGate()` 的 interceptor 判到就寫 store,錯誤仍往外拋)、`stores/useAccessStore.ts`(不 persist)、
+  `components/common/AccessMask.tsx`(掛在 `AppProviders` 的 `<AntdApp>` 裡,所有頁面與外殼之上,不能關閉)、
+  `vendor/companyUi.tsx`(公司套件唯一轉接點;自帶 `FallbackAccessBlocked` 讓骨架能跑,註解裡的 `{{COMPANY_UI_PACKAGE}}` 由
+  `check-placeholders` 擋)、`test/companyUiStub.tsx`(測試替身,`setup.ts` 以 `vi.mock` 換掉);`AccessMask.test.tsx`
+  以 `httpClient.defaults.adapter` 測 interceptor;ESLint 加 `vendor/` 分層規則(不 import api / hooks / pages / stores;底層與 stores 不 import vendor)
+- **錯誤規則收成一條**:`error-handling.md` 新第 0 節「狀態碼決定全域動作,code 決定文案」;`describeActionError` 補 403 專屬文案
+  (i18n 字典加 `errors.forbiddenAction`);閘門與一般 403 重疊時靠 `code` 區分,收件時確認
+- **細粒度權限搬成第六個可選模組 `permissions`(建議「否」)**:`constants/permissions.ts`、`api/permissionApi.ts`(預設 `GET /permissions`
+  回 `string[]`,路徑與形狀收件時問)、`hooks/usePermission.ts`(`permissionsQuery`、`usePermission`、`usePermissionChecker`)、
+  **`<Can>` 與 `RequirePermission` 合併成一個 `<RequirePermission>`**(`onDenied="redirect"` 路由層、預設 `hide` 元件層,可給 `fallback`)、
+  `pages/Forbidden/`、`RequirePermission.test.tsx` 四個變體(`files/`、`with-i18n`、`with-msw`、`with-i18n-and-msw`);
+  `navEntries.permission`、`AppShell` 過濾、`routes.tsx` 包裝、字典 `pages.forbidden`、msw 的 `seedPermissions` + handler、
+  `fixtures.TEST_PERMISSIONS` 都以 README 第 3 節的錨點改既有檔案,不另出變體;import 的位置改由 `npm run lint:fix` 排。
+  規範 `permissions.md` 與 ADR-0012 隨模組進專案;Item 範例不再示範權限(按鈕不包守衛)
+- **既有五個模組同步**:i18n 刪登入 / 403 / UserMenu 檔與字典條目、`HomePage` 改「歡迎使用{系統名稱}」;msw 刪 `/auth/*`、`/me` handler
+  與 `MOCK_LOGIN`、`seedUser`,`setup.ts` 與 `main.tsx` 改接閘門,新增 `AccessMask.test.tsx` 的 MSW 版(`server.use` 回 423,請求真的經過
+  interceptor)、`eslint.config.js` 覆蓋版重產;react-hook-form 刪登入頁變體;ag-grid / i18n 的 `ItemTable` 解開 `<Can>`;
+  dark-mode README 的 `ThemeSwitch` 錨點改為右側工具列註解
+- **文件**:`login.md` → `access.md`(三件事三個負責人、cookie、`vendor/companyUi.tsx`、閘門表、外殼兩種、使用者資訊三種來源、測試);
+  `auth.md` 移入模組;ADR-0017 改寫為「登入交給公司 SDK,存取閘門整頁遮罩」;ADR-0012 隨模組;`templates/adr-auth-mode.md` →
+  `adr-access-gate.md`(公司套件、閘門表示法、權限 API、外殼四節);0022 範本加 `permissions` 列;`SKILL.md`(description、原則 2、3、
+  六題模組、步驟 3、4、檔案索引、「公版的登入、閘門與權限」表)、`workflow-detail.md`(收件三題:公司套件、閘門表示法、外殼與使用者資訊;
+  步驟 3 第 4、5 項;步驟 4 規則;無人值守預設 423 / 403 標暫定、permissions 不選)、`spec-to-code.md`、`project-structure.md`(`vendor/` 列與
+  依賴圖)、`routing.md`、`state-management.md`、`testing.md`、`components.md`、`api.md` 第 1、2 節、`naming.md`、`typescript.md`、
+  `data-fetching.md`、`git-workflow.md`、ADR-0001 / 0002、兩份 README 索引、`templates/AGENTS.md`(第 7、資料夾速查、測試、自我檢查)、
+  `templates/README.md`;`legacy-review.md` 第 B 節改六個模組、新增第 E 節「3.x 公版專案升到 4.0」
+- **工具**:`gen-api-contract` 的共用錯誤列改為:401 交給公司 SDK、閘門狀態碼整頁遮罩(讀專案 `app/accessGate.ts` 的表,閘門用掉的碼不再列成
+  一般錯誤)、403 錯誤卡 / toast、5xx 與斷線;`check-placeholders` 改找 `0021-access-gate.md`、加 `permissions` 模組的 marker
+- 驗證:基底 lint 0 warning、typecheck、test(4 檔 14 條)、build 全綠,契約表 3 支端點;全選組合(六個模組,permissions 疊
+  `with-i18n-and-msw`)重組:六份 README 的錨點全部對上,lint、typecheck、test(8 檔 38 條)、build 全綠,契約表 4 支端點、`--check` 一致,
+  `check-placeholders` 正確擋下 `{{COMPANY_UI_PACKAGE}}`。本次在 Node 22.22 下驗證(engines 仍為 >=24.22)
+- 未做 / 已知限制:公司 SDK 拿不到,`companyUi.tsx` 的接法在第一個真實專案可能要微調;閘門狀態碼每案不同,第一版契約表的錯誤列要在回報核對;
+  `ag-grid.md` 第 8 節的待補項目不變
+
 ## 3.3.0(2026-10-16)
 
 **三件事:回收 UI/UX React prototype 已驗證的邏輯、AG Grid 的表格樣式有正規出口、步驟 5 產出後端 API 契約表。**

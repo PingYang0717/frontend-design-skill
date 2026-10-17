@@ -148,8 +148,8 @@ useEffect(() => {
 | 讀取中 / 讀取失敗的邊界              | `components/common/DataBoundary`                                            |
 | 讀取失敗的錯誤卡                     | `components/common/LoadErrorPanel`(由 `ErrorBoundary` 使用)                 |
 | 刪除等不可復原動作的確認             | `hooks/useConfirmDestructive`                                               |
-| 依權限顯示                           | `components/auth/Can`                                                       |
-| 需要登入的路由區域                   | `components/auth/RequireAuth`(`routes.tsx` 已包住 `RootLayout`)             |
+| 被閘門擋住的整頁遮罩                 | `components/common/AccessMask`(`AppProviders` 已掛,不用自己放)              |
+| 依權限顯示(選了 permissions 模組)    | `components/auth/RequirePermission`(`permissions.md`)                       |
 | 搜尋輸入 debounce(300–500ms)         | `hooks/useDebouncedValue`                                                   |
 
 - ✅ ``<IconButton icon={<DeleteOutlined />} label={`刪除 ${item.name}`} onClick={...} />``
@@ -169,10 +169,10 @@ useEffect(() => {
 
 **規則**:依 `docs/adr/0022-selected-modules.md`,一個專案只用一套,不混用。
 
-| 需求 | 沒選模組(基底)                                                                                           | 選了模組                                                                   |
-| ---- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| 表單 | antd `Form.useForm<Request 型別>()` + 一個欄位一個 `Form.Item name`,驗證寫 `rules`;送出用 `onFinish`     | react-hook-form:`useForm` + 一個欄位一個 `FormField`(`react-hook-form.md`) |
-| 表格 | antd `Table<DTO>`,欄位定義 `TableColumnsType<DTO>`,`rowKey` 用 id;操作欄的 `render` 回傳元件並包 `<Can>` | ag-grid:`DataGrid` + `ColDef<DTO>[]`(`ag-grid.md`)                         |
+| 需求 | 沒選模組(基底)                                                                                                                                        | 選了模組                                                                   |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| 表單 | antd `Form.useForm<Request 型別>()` + 一個欄位一個 `Form.Item name`,驗證寫 `rules`;送出用 `onFinish`                                                  | react-hook-form:`useForm` + 一個欄位一個 `FormField`(`react-hook-form.md`) |
+| 表格 | antd `Table<DTO>`,欄位定義 `TableColumnsType<DTO>`,`rowKey` 用 id;操作欄的 `render` 回傳元件(選了 permissions 模組時寫入按鈕包 `<RequirePermission>`) | ag-grid:`DataGrid` + `ColDef<DTO>[]`(`ag-grid.md`)                         |
 
 - 表單型別用 `types/api/` 的 request 型別;送出用 mutation 的 `mutateAsync`,失敗時對話框保持開啟、輸入不消失
 - 對話框裡的 antd 表單加 `clearOnDestroy`,關閉後下次打開是空白的

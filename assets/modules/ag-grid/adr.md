@@ -23,7 +23,7 @@ AG Grid 本身有很多進入點:元件可以各自 `registerModules`、各自�
 `DataBoundary`([ADR-0005](0005-suspense-query-and-data-boundary.md));後端分頁時才升級 Server-Side Row Model。
 
 **5. 儲存格用 React 元件,不用 HTML 字串。** `cellRenderer` 給 `React.FC<CustomCellRendererProps<DTO>>`,
-文案規則與表格外相同(選了 i18n 時進字典)、顏色走 token、權限用 `<Can>`——表格裡的規則與表格外一樣。
+文案規則與表格外相同(選了 i18n 時進字典)、顏色走 token、權限用 `<RequirePermission>`(選了 permissions 模組時)——表格裡的規則與表格外一樣。
 
 ✅
 

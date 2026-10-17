@@ -1,7 +1,7 @@
 # 模組:react-hook-form(表單)
 
 表單狀態與驗證交給 React Hook Form,antd 只管版面與輸入元件,兩者由公版 `components/common/FormField.tsx` 接起來;
-公版登入頁與 Item 範例的新增對話框都改用 `useForm` + `FormField`。
+Item 範例的新增對話框改用 `useForm` + `FormField`。
 沒選這個模組時,基底的表單用 antd `Form.useForm` + `Form.Item name`。
 
 套用順序第 4 個(在 i18n、dark-mode、msw 之後)。
@@ -23,10 +23,9 @@ cp -R <skill>/assets/modules/react-hook-form/files.with-i18n/. <project>/
 | 檔案                                        | 說明                                                                     |
 | ------------------------------------------- | ------------------------------------------------------------------------ |
 | `src/components/common/FormField.tsx`       | 新增:`Controller` ↔ antd `Form.Item`,負責 label 關聯、必填星號、錯誤訊息 |
-| `src/pages/Login/LoginPage.tsx`             | **覆蓋**基底:`useForm<LoginRequest>` + 兩個 `FormField`;畫面與行為不變   |
 | `src/components/items/ItemCreateDialog.tsx` | **覆蓋**基底:`useForm<CreateItemRequest>` + `FormField`                  |
 
-`files/` 的驗證訊息直接寫繁中字串;`files.with-i18n/` 的版本引用字典(`t.pages.login.*`、`t.items.create.*`)。
+`files/` 的驗證訊息直接寫繁中字串;`files.with-i18n/` 的版本引用字典(`t.items.create.*`)。
 
 ## 3. 修改既有檔案
 
@@ -34,7 +33,7 @@ cp -R <skill>/assets/modules/react-hook-form/files.with-i18n/. <project>/
 
 ## 4. 測試
 
-不新增測試檔。`LoginPage.test.tsx`(必填訊息、錯誤帳密)與 `ItemsPage.test.tsx`(新增對話框)以 label 與訊息文字斷言,
+不新增測試檔。`ItemsPage.test.tsx`(新增對話框)以 label 與訊息文字斷言,
 antd Form 與 React Hook Form 兩種實作都適用,已涵蓋 `FormField`。
 
 ## 5. 與其他模組的互動

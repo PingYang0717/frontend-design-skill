@@ -2,7 +2,7 @@
 
 > 選了 react-hook-form 模組才有這份規範(`docs/adr/0022-selected-modules.md`)。表單狀態與驗證一律用 React Hook Form,antd 只負責版面與輸入元件,兩者由骨架的 `components/common/FormField`
 > 接起來。決策理由見 [ADR-0019](../adr/0019-react-hook-form-for-forms.md)。
-> 範本:`src/components/items/ItemCreateDialog.tsx`(骨架的範例功能)、`src/pages/Login/LoginPage.tsx`(公版登入頁)。
+> 範本:`src/components/items/ItemCreateDialog.tsx`(骨架的範例功能)。
 >
 > **狀態:初版。** 驗證 schema(是否引入 zod)、複雜欄位(動態列、巢狀物件、檔案上傳)與既有專案的實際用法,
 > 待舊專案審查後補上;本檔標「待補」的段落就是缺口。
@@ -103,7 +103,7 @@ render 函式裡轉:`{(field) => <Checkbox checked={field.value} onChange={(e) =
 ## 6. 測試
 
 - 用 `getByLabelText(<label 文字>)` 找欄位(選了 i18n 時引用字典)、`user.type` 輸入、`getByRole('button', { name })` 送出,斷言結果
-  出現在畫面上(範本:`ItemsPage.test.tsx` 的 `creates an item`、`LoginPage.test.tsx`)。
+  出現在畫面上(範本:`ItemsPage.test.tsx` 的 `creates an item`)。
 - 驗證訊息用 `findByText(<訊息>)` 斷言(非同步,驗證在 submit 後才顯示)。
 - 不測 React Hook Form 的內部狀態(`formState`、`getValues`)。
 

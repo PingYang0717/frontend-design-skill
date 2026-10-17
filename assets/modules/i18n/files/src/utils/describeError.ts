@@ -40,6 +40,9 @@ export const describeActionError = (error: unknown, t: Translations): string => 
   if (isKnownCode(code)) {
     return t.errors.byCode[code];
   }
+  if (isForbidden(error)) {
+    return t.errors.forbiddenAction;
+  }
   const status = httpStatus(error);
   return status === undefined ? t.errors.actionFailed : t.errors.actionFailedWithStatus(status);
 };

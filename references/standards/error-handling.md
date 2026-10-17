@@ -1,17 +1,31 @@
 # 錯誤處理
 
-讀取失敗與寫入失敗走兩條不同的路,文案都由前端依後端的 `code` 決定。
+讀取失敗與寫入失敗走兩條不同的路,文案都由前端依後端的 `code` 決定;整個系統此刻不能用的情況(閘門)另外走整頁遮罩。
 決策背景見 [ADR-0006](../adr/0006-api-errors-judged-in-one-place.md)、
-[ADR-0007](../adr/0007-error-copy-owned-by-frontend.md)。
+[ADR-0007](../adr/0007-error-copy-owned-by-frontend.md)、[ADR-0017](../adr/0017-access-gate.md)。
+
+## 0. 一句話:狀態碼決定全域動作,code 決定文案
+
+後端的錯誤有兩種表達方式,公版把它們分工:
+
+| 看什麼             | 決定什麼                                                      | 在哪裡判                              |
+| ------------------ | ------------------------------------------------------------- | ------------------------------------- |
+| **HTTP 狀態碼**    | 要不要做**全域動作**:401 交給公司 SDK 跳轉;閘門狀態碼整頁遮罩 | `app/accessGate.ts`(唯一一處)         |
+| **body 的 `code`** | 顯示**哪一句話**:錯誤卡的 detail、toast 的那一行              | `utils/describeError.ts`(查 `byCode`) |
+| 404 / 403 / 斷線   | 錯誤卡的固定句子(「找不到」「沒有權限」「無法連線」)          | `describeError.ts`,透過 `apiError.ts` |
+
+畫面與 hook 兩種都不自己判:全域動作交給閘門,文案交給 `describeError`。狀態碼與 code 重疊時(閘門與一般拒絕都用 403),
+閘門規則加上 `code` 區分,收件時跟後端確認([access.md](./access.md) 第 3 節)。
 
 ## 總覽
 
-| 情境                              | 誰接                                | 呈現                           | 文案函式                                |
-| --------------------------------- | ----------------------------------- | ------------------------------ | --------------------------------------- |
-| 讀取失敗(`useSuspenseQuery` 丟出) | `DataBoundary` 內的 `ErrorBoundary` | `LoadErrorPanel` 錯誤卡 + 重試 | `describeLoadError`                     |
-| 寫入失敗(mutation)                | `useActionMutation` 的 `onError`    | 一行 toast                     | `describeActionError`                   |
-| 「這是什麼錯」的判讀              | `src/api/apiError.ts`               | —                              | `isOffline`、`isNotFound`、`errorCode`… |
-| 401(token 失效)                   | `app/session.ts` 的 interceptor     | 清掉 session,回到登入頁        | —(見 [login.md](./login.md))            |
+| 情境                              | 誰接                                | 呈現                           | 文案函式                                      |
+| --------------------------------- | ----------------------------------- | ------------------------------ | --------------------------------------------- |
+| 讀取失敗(`useSuspenseQuery` 丟出) | `DataBoundary` 內的 `ErrorBoundary` | `LoadErrorPanel` 錯誤卡 + 重試 | `describeLoadError`                           |
+| 寫入失敗(mutation)                | `useActionMutation` 的 `onError`    | 一行 toast                     | `describeActionError`                         |
+| 「這是什麼錯」的判讀              | `src/api/apiError.ts`               | —                              | `isOffline`、`isNotFound`、`errorCode`…       |
+| 不在公司網路 / 沒有系統權限(閘門) | `app/accessGate.ts` 的 interceptor  | `AccessMask` 整頁遮罩,不能關   | —(公司的遮罩元件,見 [access.md](./access.md)) |
+| 401(未登入 / 逾期)                | 公司登入 SDK                        | 跳轉公司登入畫面               | —(前端不處理)                                 |
 
 ## 1. 錯誤判讀只在 `api/apiError.ts`
 
@@ -109,11 +123,11 @@ onClose();
 **規則:** 錯誤文案由 `src/utils/describeError.ts` 產生,不在元件裡拼。
 
 - `describeLoadError(error, what, t)` → `{ heading, detail, technical? }`:
-  斷線 → `errors.offline`;404 → `errors.notFound(what)`;403 → `errors.forbidden(what)`;
+  斷線 → `errors.offline`;404 → `errors.notFound(what)`;403(非閘門)→ `errors.forbidden(what)`;
   其他 → 已知 code 查 `errors.byCode`,否則 `errors.loadFailedDetail`。
   後端原話只放 `technical`,在錯誤卡的「技術細節」小字展開。
-- `describeActionError(error, t)` → 一行字串:斷線 → `errors.offline`;已知 code → `byCode`;
-  否則 `actionFailedWithStatus(status)` 或 `actionFailed`。**toast 不放後端原話。**
+- `describeActionError(error, t)` → 一行字串:斷線 → `errors.offline`;已知 code → `byCode`;403(非閘門)→
+  `errors.forbiddenAction`;否則 `actionFailedWithStatus(status)` 或 `actionFailed`。**toast 不放後端原話。**
 
 **原因:** 後端 `message` 是寫給維運的語彙(堆疊、SQL 錯誤、類別名稱),使用者看不懂也無法照著行動;
 `code` 是穩定契約,前端據此寫出能照著做的句子。

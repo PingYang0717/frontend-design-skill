@@ -44,15 +44,38 @@ const endpointFiles = readdirSync(apiDir)
 const program = ts.createProgram(endpointFiles, { ...parsed.options, noEmit: true });
 const checker = program.getTypeChecker();
 
-/** 公版共用的錯誤處理(docs/conventions/error-handling.md、ADR-0006);每支端點沒寫 @error 的狀態碼都補上這幾列。 */
+/** 讀 src/app/accessGate.ts 的 ACCESS_GATE_RULES(只認 `{ kind: '...', status: N, code: '...' }` 這種寫法)。 */
+const readAccessGateRules = () => {
+  const file = join(root, 'src', 'app', 'accessGate.ts');
+  if (!existsSync(file)) return [];
+  const text = readFileSync(file, 'utf8');
+  const block = text.match(/ACCESS_GATE_RULES[^=]*=\s*\[([\s\S]*?)\];/)?.[1] ?? '';
+  return [...block.matchAll(/\{([^}]*)\}/g)].map(([, body]) => ({
+    kind: body.match(/kind:\s*'([^']+)'/)?.[1],
+    status: body.match(/status:\s*(\d+)/)?.[1],
+    code: body.match(/code:\s*'([^']+)'/)?.[1],
+  }));
+};
+
+/** 公版共用的錯誤處理(docs/conventions/error-handling.md 第 0 節、access.md);每支端點沒寫 @error 的狀態碼都補上這幾列。
+ *  閘門(公司網路外、沒有系統權限)的狀態碼或 code 依專案的 app/accessGate.ts,這裡直接讀那張表。 */
+const GATE_ERRORS = readAccessGateRules().map(({ kind, status, code }) => ({
+  status: [status, code].filter(Boolean).join(' + ') || '(依 app/accessGate.ts)',
+  when: kind === 'outsideNetwork' ? '不在公司網路內' : '沒有這個系統的使用權限',
+  handling: '整頁遮罩(AccessMask),不能關閉',
+}));
 const SHARED_ERRORS = [
-  { status: '401', when: 'token 失效或未登入', handling: '清掉 session,回到登入頁(app/session.ts)' },
-  { status: '403', when: '沒有權限', handling: '讀取 → 窗格錯誤卡;寫入 → toast' },
-  {
-    status: '5xx / 斷線',
-    when: '伺服器錯誤或連不到後端',
-    handling: '讀取 → 錯誤卡 + 重試;寫入 → toast;不顯示後端原話',
-  },
+  { status: '401', when: '未登入或登入逾期', handling: '公司登入 SDK 跳轉登入畫面;前端不處理' },
+  ...GATE_ERRORS,
+  // 閘門已經用掉的狀態碼(例如 403)不再列成一般錯誤,避免同一個碼兩種說法。
+  ...[
+    { status: '403', when: '沒有這個操作的權限(閘門以外)', handling: '讀取 → 窗格錯誤卡;寫入 → toast' },
+    {
+      status: '5xx / 斷線',
+      when: '伺服器錯誤或連不到後端',
+      handling: '讀取 → 錯誤卡 + 重試;寫入 → toast;不顯示後端原話',
+    },
+  ].filter((row) => !GATE_ERRORS.some((gate) => gate.status === row.status)),
 ];
 
 const warnings = [];

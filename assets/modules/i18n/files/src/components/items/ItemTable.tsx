@@ -2,37 +2,33 @@ import React from 'react';
 import { Table, type TableColumnsType, Tag } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 
-import Can from '@/components/auth/Can';
 import IconButton from '@/components/common/IconButton';
-import { PERMISSIONS } from '@/constants/permissions';
 import { useConfirmDestructive } from '@/hooks/useConfirmDestructive';
 import { useDeleteItem } from '@/hooks/useItemMutations';
 import { useItems } from '@/hooks/useItems';
 import { useTranslations } from '@/i18n/useTranslations';
 import type { Item, ItemStatus } from '@/types/api/item';
 
-/** 操作欄範本:寫入動作用 Can 包住,刪除走 useConfirmDestructive。 */
+/** 操作欄範本:刪除走 useConfirmDestructive;選了 permissions 模組時寫入按鈕包 RequirePermission。 */
 const ItemActions: React.FC<{ item: Item }> = ({ item }) => {
   const deleteItem = useDeleteItem();
   const confirmDestructive = useConfirmDestructive();
   const t = useTranslations();
 
   return (
-    <Can permission={PERMISSIONS.itemsWrite}>
-      <IconButton
-        danger
-        icon={<DeleteOutlined />}
-        label={t.items.delete.label(item.name)}
-        loading={deleteItem.isPending && deleteItem.variables === item.id}
-        onClick={() =>
-          confirmDestructive({
-            title: t.items.delete.confirmTitle(item.name),
-            content: t.items.delete.confirmContent,
-            onConfirm: () => deleteItem.mutateAsync(item.id),
-          })
-        }
-      />
-    </Can>
+    <IconButton
+      danger
+      icon={<DeleteOutlined />}
+      label={t.items.delete.label(item.name)}
+      loading={deleteItem.isPending && deleteItem.variables === item.id}
+      onClick={() =>
+        confirmDestructive({
+          title: t.items.delete.confirmTitle(item.name),
+          content: t.items.delete.confirmContent,
+          onConfirm: () => deleteItem.mutateAsync(item.id),
+        })
+      }
+    />
   );
 };
 

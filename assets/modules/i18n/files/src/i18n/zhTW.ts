@@ -25,13 +25,13 @@ export const zhTW = {
   },
   header: {
     language: '語言',
-    logout: '登出',
   },
   errors: {
     offline: '無法連線到後端服務',
     offlineDetail: '請確認網路或後端服務狀態後重試。',
     notFound: (what: string) => `找不到這筆${what},可能已被刪除。`,
     forbidden: (what: string) => `你沒有檢視這筆${what}的權限。`,
+    forbiddenAction: '你沒有執行這個操作的權限。',
     loadFailed: (what: string) => `${what}載入失敗`,
     loadFailedDetail: '請稍後重試;若持續發生,請聯絡系統管理員。',
     actionFailed: '操作失敗,請稍後再試。',
@@ -40,25 +40,12 @@ export const zhTW = {
     byCode: {
       VALIDATION_FAILED: '輸入的資料不正確,請檢查後再送出。',
       CONFLICT: '資料已被其他人修改,請重新整理後再試。',
-      INVALID_CREDENTIALS: '帳號或密碼不正確。',
     } satisfies Record<KnownErrorCode, string>,
   },
   pages: {
-    login: {
-      subtitle: '請以公司帳號登入',
-      username: '帳號',
-      password: '密碼',
-      usernameRequired: '請輸入帳號',
-      passwordRequired: '請輸入密碼',
-      submit: '登入',
-    },
     home: {
       title: '首頁',
-      welcome: (name: string) => `歡迎回來,${name}`,
-    },
-    forbidden: {
-      title: '沒有權限',
-      description: '你的帳號沒有存取這個頁面的權限,如有需要請聯絡系統管理員。',
+      welcome: (appName: string) => `歡迎使用${appName}。`,
     },
     notFound: {
       title: '找不到頁面',

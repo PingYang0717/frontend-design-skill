@@ -12,45 +12,37 @@
 `apiClient` 做三件事:
 
 1. `baseURL` 取自 `VITE_API_BASE_URL`(預設 `/api`)。
-2. request interceptor 附上 `getAuthHeaders()` 的認證 header。
-3. response interceptor **拆掉 `res.data`**,呼叫端直接拿到 DTO;錯誤**原樣拋出**,不在這裡轉換或吞掉。
+2. `withCredentials: true`:身分在公司登入 SDK 放的 cookie 裡,瀏覽器自動帶;前端不組 header([access.md](./access.md))。
+3. response interceptor **拆掉 `res.data`**,呼叫端直接拿到 DTO;錯誤**原樣拋出**,不在這裡轉換或吞掉
+   (閘門的判讀在 `app/accessGate.ts` 另外註冊的 interceptor)。
 
 ```ts
 // ✅
-apiClient.get<CurrentUser>('/me'); // Promise<CurrentUser>
+apiClient.get<Item[]>('/items'); // Promise<Item[]>
 ```
 
 ```ts
 // ❌
-const res = await axios.get('/api/me');
+const res = await axios.get('/api/items');
 return res.data;
 ```
 
 **強制**:ESLint `no-restricted-imports`——`components/`、`pages/`、`hooks/` 禁止 import `axios`。
 
 `httpClient`(原始 axios instance)只在需要操作 axios 本身時使用(註冊額外 interceptor、測試)。
-不走 axios 的請求(例如串流 `fetch`)要自己帶 `getAuthHeaders()`,讓身分只有一個來源。
+不走 axios 的請求(例如串流 `fetch`)要自己加 `credentials: 'include'`,cookie 才會跟著送。
 
-## 2. 認證 header
+## 2. 身分與閘門
 
-**規則**:`setAuthHeaderProvider()` 只在 `app/session.ts` 的 `connectSession()` 呼叫一次,provider
-**每次請求都被呼叫,不快取回傳值**;回傳值完全取代預設 header。不在個別 endpoint 手動加 `Authorization`。
-
-```ts
-// ✅ src/app/session.ts
-setAuthHeaderProvider(() => {
-  const { accessToken } = useSessionStore.getState();
-  return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
-});
-```
+**規則**:前端不保管 token、不組 `Authorization`、不判 401:登入由公司 SDK 處理。
+被公司閘門擋下(不在公司網路、沒有系統權限)的狀態碼只在 `app/accessGate.ts` 判斷,整頁遮罩;
+端點函式與 hook 不碰這兩件事。細節見 [access.md](./access.md);細粒度權限(選了 permissions 模組)見 `permissions.md`。
 
 ```ts
-// ❌ provider 外快取:token 換了仍送舊值
-const headers = { Authorization: `Bearer ${readToken()}` };
-setAuthHeaderProvider(() => headers);
+// ❌ 端點函式裡自己帶 header 或判狀態
+apiClient.get('/items', { headers: { Authorization: `Bearer ${token}` } });
+if (httpStatus(error) === 423) { ... }
 ```
-
-登入流程見 [login.md](./login.md),權限見 [auth.md](./auth.md)。
 
 ## 3. Endpoint module
 
@@ -160,7 +152,7 @@ const text = error.response?.data?.message; // 後端原話當主文案
 **規則**:每個端點函式上方寫 JSDoc:第一行是**功能**(一句話),`@screen` 是**使用它的畫面**(一支多個畫面就寫多個),
 `@error` 是**這支特有的錯誤**,格式固定「`狀態碼 情境 → 前端處理`」。`scripts/gen-api-contract.mjs` 讀這些與 `types/api/`
 反向產生 `docs/api-contract.md`——每支端點的方法與路徑、功能、使用畫面、Request / Response 欄位表、預期錯誤與前端處理——
-給後端(或後端的 agent)照著實作。沒寫 `@error` 的狀態碼,腳本自動補公版共用的三列(401 轉登入、403 錯誤卡 / toast、
+給後端(或後端的 agent)照著實作。沒寫 `@error` 的狀態碼,腳本自動補公版共用的幾列(401 交給公司 SDK、閘門狀態碼整頁遮罩——讀 `app/accessGate.ts` 的表、403 錯誤卡 / toast、
 5xx 與斷線;來源 [error-handling.md](./error-handling.md)、[ADR-0006](../adr/0006-api-errors-judged-in-one-place.md))。
 
 ```ts

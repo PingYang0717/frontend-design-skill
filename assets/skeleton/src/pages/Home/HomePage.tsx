@@ -1,16 +1,12 @@
 import React from 'react';
 import { Card, Typography } from 'antd';
 
-import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { APP_NAME } from '@/constants/app';
 
-const HomePage: React.FC = () => {
-  const user = useCurrentUser();
-
-  return (
-    <Card title="首頁">
-      <Typography.Paragraph>歡迎回來,{user.name}</Typography.Paragraph>
-    </Card>
-  );
-};
+const HomePage: React.FC = () => (
+  <Card title="首頁">
+    <Typography.Paragraph>歡迎使用{APP_NAME}。</Typography.Paragraph>
+  </Card>
+);
 
 export default HomePage;

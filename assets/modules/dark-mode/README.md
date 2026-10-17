@@ -61,8 +61,8 @@ export const THEME_STORAGE_KEY = `${PREFIX}:theme`;
 
 **`src/components/layouts/AppHeader.tsx`**:
 
-1. `import UserMenu from './UserMenu';` 的上一行加 `import ThemeSwitch from './ThemeSwitch';`
-2. `<UserMenu />` 的上一行加 `<ThemeSwitch />`
+1. `import { useLayoutStore } from '@/stores/useLayoutStore';` 的下一行加 `import ThemeSwitch from './ThemeSwitch';`
+2. `{/* 右側工具列` 那行註解的下一行加 `<ThemeSwitch />`
 
 **有選 i18n 時,字典**:`src/i18n/zhTW.ts` 與 `en.ts` 的 `header` 最前面加三條
 

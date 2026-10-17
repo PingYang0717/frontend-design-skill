@@ -3,7 +3,6 @@ import { Layout, Menu } from 'antd';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 
 import DataBoundary from '@/components/common/DataBoundary';
-import { usePermissionChecker } from '@/hooks/usePermission';
 import { useTranslations } from '@/i18n/useTranslations';
 import { useLayoutStore } from '@/stores/useLayoutStore';
 import AppHeader from './AppHeader';
@@ -15,11 +14,10 @@ import styles from './AppShell.module.css';
 const AppShell: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const isAllowed = usePermissionChecker();
   const isSiderCollapsed = useLayoutStore((state) => state.isSiderCollapsed);
   const t = useTranslations();
 
-  const menuItems = NAV_ENTRIES.filter((entry) => isAllowed(entry.permission)).map((entry) => ({
+  const menuItems = NAV_ENTRIES.map((entry) => ({
     key: entry.path,
     icon: entry.icon,
     label: entry.label(t),

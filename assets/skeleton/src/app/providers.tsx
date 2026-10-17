@@ -3,6 +3,7 @@ import { App as AntdApp, ConfigProvider } from 'antd';
 import zhTW from 'antd/locale/zh_TW';
 import { QueryClientProvider } from '@tanstack/react-query';
 
+import AccessMask from '@/components/common/AccessMask';
 import { buildAntdTheme } from '@/theme/antdTheme';
 import { themeCssText } from '@/theme/cssVars';
 import { createQueryClient } from './queryClient';
@@ -24,7 +25,11 @@ const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
         button={{ autoInsertSpace: false }}
       >
         <style>{themeCssText()}</style>
-        <AntdApp>{children}</AntdApp>
+        <AntdApp>
+          {/* 存取閘門的整頁遮罩放在所有頁面之上;測試的 renderApp 也走這裡,同一條路。 */}
+          <AccessMask />
+          {children}
+        </AntdApp>
       </ConfigProvider>
     </QueryClientProvider>
   );

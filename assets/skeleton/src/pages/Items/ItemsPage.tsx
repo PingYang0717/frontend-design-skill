@@ -3,11 +3,9 @@ import { Button, Card, Flex, Input } from 'antd';
 import { useSearchParams } from 'react-router';
 import { PlusOutlined } from '@ant-design/icons';
 
-import Can from '@/components/auth/Can';
 import DataBoundary from '@/components/common/DataBoundary';
 import ItemCreateDialog from '@/components/items/ItemCreateDialog';
 import ItemTable from '@/components/items/ItemTable';
-import { PERMISSIONS } from '@/constants/permissions';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 
 /** 頁面範本:只組裝與放邊界,不寫業務邏輯。搜尋條件放 URL,重新整理與分享連結都保得住。 */
@@ -23,11 +21,9 @@ const ItemsPage: React.FC = () => {
     <Card
       title="項目管理"
       extra={
-        <Can permission={PERMISSIONS.itemsWrite}>
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)}>
-            新增
-          </Button>
-        </Can>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)}>
+          新增
+        </Button>
       }
     >
       <Flex vertical gap={16}>

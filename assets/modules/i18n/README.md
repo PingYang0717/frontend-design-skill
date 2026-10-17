@@ -19,14 +19,14 @@ rm <project>/src/constants/app.ts   # 系統名稱改由字典 app.name 提供
 `files/` 新增 `src/i18n/`(字典、`useTranslations`、語言名稱、兩支守門測試)與 `src/stores/useLanguageStore.ts`,
 並以字典版**覆蓋**基底的這些檔案(內容與基底相同,只是文字改為引用字典):
 
-| 類別     | 檔案                                                                                                                                                     |
-| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 共用零件 | `components/common/LoadErrorPanel.tsx`、`SuspenseLoader.tsx`                                                                                             |
-| 外殼     | `components/layouts/AppHeader.tsx`(加語言選單)、`AppShell.tsx`、`PublicLayout.tsx`、`RootLayout.tsx`、`UserMenu.tsx`、`navEntries.tsx`(`label` 改為函式) |
-| 頁面     | `pages/Forbidden/`、`pages/NotFound/`、`pages/Home/HomePage.tsx`、`pages/Login/LoginPage.tsx`、`pages/Items/ItemsPage.tsx`                               |
-| 範例功能 | `components/items/ItemTable.tsx`、`ItemCreateDialog.tsx`、`hooks/useItemMutations.ts`                                                                    |
-| 其他     | `hooks/useActionErrorToast.ts`、`useConfirmDestructive.ts`、`utils/describeError.ts`(錯誤文案改查 `errors.byCode`)                                       |
-| 測試     | `test/setup.ts`(每個測試後語言還原為繁中)、6 支頁面與守衛測試(斷言改引用字典)                                                                            |
+| 類別     | 檔案                                                                                                                 |
+| -------- | -------------------------------------------------------------------------------------------------------------------- |
+| 共用零件 | `components/common/LoadErrorPanel.tsx`、`SuspenseLoader.tsx`                                                         |
+| 外殼     | `components/layouts/AppHeader.tsx`(加語言選單)、`AppShell.tsx`、`RootLayout.tsx`、`navEntries.tsx`(`label` 改為函式) |
+| 頁面     | `pages/NotFound/`、`pages/Home/HomePage.tsx`、`pages/Items/ItemsPage.tsx`                                            |
+| 範例功能 | `components/items/ItemTable.tsx`、`ItemCreateDialog.tsx`、`hooks/useItemMutations.ts`                                |
+| 其他     | `hooks/useActionErrorToast.ts`、`useConfirmDestructive.ts`、`utils/describeError.ts`(錯誤文案改查 `errors.byCode`)   |
+| 測試     | `test/setup.ts`(每個測試後語言還原為繁中)、`HomePage.test.tsx`、`ItemsPage.test.tsx`(斷言改引用字典)                 |
 
 ## 3. 修改既有檔案
 
@@ -72,7 +72,7 @@ i18n 是第一個套用的模組,後面的模組都會看它:
 | --------------- | ---------------------------------------------------------------------------------- |
 | dark-mode       | 多疊 `files.with-i18n/`;字典 `header` 加 `theme`、`light`、`dark`(見該模組 README) |
 | msw             | 多疊 `files.with-i18n/`(測試與 setup 的斷言引用字典)                               |
-| react-hook-form | 多疊 `files.with-i18n/`(登入頁與 Item 對話框的文字引用字典)                        |
+| react-hook-form | 多疊 `files.with-i18n/`(Item 對話框的文字引用字典)                                 |
 | ag-grid         | 多疊 `files.with-i18n/`(`DataGrid` 的內建文案跟語言切換、`ItemTable` 引用字典)     |
 
 ## 6. 規範與 ADR

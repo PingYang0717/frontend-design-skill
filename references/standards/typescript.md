@@ -80,7 +80,7 @@ callback 可依賴推斷。
 
 ```ts
 export const listItems = async (): Promise<Item[]> => …
-export const usePermission = (permission: Permission | undefined): boolean => { … };
+export const resolveAccessGate = (error: unknown): AccessGateKind | undefined => { … };
 ```
 
 **原因:** 匯出函式的回傳型別是對外契約,標出來才不會因為實作改了一行就悄悄變形。

@@ -23,13 +23,13 @@ export const en: Translations = {
   },
   header: {
     language: 'Language',
-    logout: 'Sign out',
   },
   errors: {
     offline: 'Cannot reach the server',
     offlineDetail: 'Check your network or the service status, then retry.',
     notFound: (what) => `This ${what} could not be found. It may have been deleted.`,
     forbidden: (what) => `You do not have permission to view this ${what}.`,
+    forbiddenAction: 'You do not have permission to do this.',
     loadFailed: (what) => `Failed to load ${what}`,
     loadFailedDetail: 'Please retry later. If it keeps happening, contact your administrator.',
     actionFailed: 'The action failed. Please try again later.',
@@ -38,25 +38,12 @@ export const en: Translations = {
     byCode: {
       VALIDATION_FAILED: 'Some of the data is invalid. Please check and submit again.',
       CONFLICT: 'Someone else changed this data. Refresh and try again.',
-      INVALID_CREDENTIALS: 'The username or password is incorrect.',
     },
   },
   pages: {
-    login: {
-      subtitle: 'Sign in with your company account',
-      username: 'Username',
-      password: 'Password',
-      usernameRequired: 'Please enter your username',
-      passwordRequired: 'Please enter your password',
-      submit: 'Sign in',
-    },
     home: {
       title: 'Home',
-      welcome: (name) => `Welcome back, ${name}`,
-    },
-    forbidden: {
-      title: 'Access denied',
-      description: 'Your account cannot access this page. Contact your administrator if you need access.',
+      welcome: (appName) => `Welcome to ${appName}.`,
     },
     notFound: {
       title: 'Page not found',

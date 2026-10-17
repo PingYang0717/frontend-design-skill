@@ -1,0 +1,10 @@
+/* 骨架自帶的替代遮罩:蓋住整個視窗;接上公司套件後連同 FallbackAccessBlocked 一起刪除。 */
+.mask {
+  position: fixed;
+  inset: 0;
+  z-index: 2000; /* 高於 antd 的 Modal(1000)與 message(1010),遮罩出現時不能再操作任何東西 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--app-color-bg-layout);
+}

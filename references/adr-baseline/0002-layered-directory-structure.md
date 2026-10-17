@@ -17,8 +17,8 @@ coding agent 協作時,這種漂移累積得特別快。
 src/
   api/          apiClient、apiError、apiPath、expectArray 與各資源的 endpoint module
   app/          Router、路由表、Provider、QueryClient(進入點是 src/main.tsx)
-  components/   依 domain 切:common / layouts / auth / items …
-  constants/    路由、權限、storage key 等共用常數
+  components/   依 domain 切:common / layouts / items …(選了 permissions 還有 auth)
+  constants/    路由、storage key 等共用常數(選了 permissions 還有權限代碼)
   hooks/        資料 hook(queryOptions + useSuspenseQuery)與跨元件的 UI hook
   i18n/         介面文案字典(選了 i18n 模組時)
   mocks/        MSW handler 與假資料(選了 msw 模組時;開發期 mock 與測試共用)
@@ -28,6 +28,7 @@ src/
   theme/        design token 與它的兩個出口(antd theme、CSS 變數)
   types/api/    與後端 DTO 逐字一致的型別
   utils/        純函式
+  vendor/       公司共用套件的唯一轉接點(companyUi)
 ```
 
 1. **同一層的東西彼此長得像。** `hooks/` 裡每個資料 hook 都是 `queryOptions` +
@@ -66,7 +67,7 @@ src/
 - 改一個功能要跨好幾個資料夾;換來的是任何一個資料夾打開都只有一種寫法。
 - 「這個檔案該放哪」幾乎沒有灰帶:看它是什麼(endpoint、hook、元件、純函式),不是看它
   屬於哪個功能。
-- 跨功能共用的東西不必搬家:`hooks/useCurrentUser.ts` 從一開始就在大家都找得到的地方。
+- 跨功能共用的東西不必搬家:`hooks/useDebouncedValue.ts` 從一開始就在大家都找得到的地方。
 - 功能刪除時要記得清每一層;沒人 import 的 export 不會被 `noUnusedLocals` 抓到,殘留的
   endpoint 或 hook 靠 review 清掉。
 

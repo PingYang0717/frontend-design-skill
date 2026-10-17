@@ -2,11 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { getCurrentUser } from '@/api/authApi';
 import { createItem, deleteItem, listItems } from '@/api/itemApi';
-import { PERMISSIONS } from '@/constants/permissions';
 import { zhTW as t } from '@/i18n/zhTW';
-import { TEST_USER, testItems } from '@/test/fixtures';
+import { testItems } from '@/test/fixtures';
 import { renderApp } from '@/test/renderApp';
 import { responseError } from '@/test/responseError';
 import type { Item } from '@/types/api/item';
@@ -60,14 +58,6 @@ describe('Items page', () => {
     expect(vi.mocked(createItem)).toHaveBeenCalledWith({ name: '新的項目' }, expect.anything());
   });
 
-  it('hides write actions from a read-only user', async () => {
-    vi.mocked(getCurrentUser).mockResolvedValue({ ...TEST_USER, permissions: [PERMISSIONS.itemsRead] });
-    renderApp('/items');
-    await screen.findByText('範例項目 A');
-
-    expect(screen.queryByRole('button', { name: new RegExp(t.common.create) })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: t.items.delete.label('範例項目 A') })).not.toBeInTheDocument();
-  });
 
   it('shows an error card with retry when the list fails to load', async () => {
     vi.mocked(listItems).mockRejectedValueOnce(responseError(500, { code: 'BOOM' }));

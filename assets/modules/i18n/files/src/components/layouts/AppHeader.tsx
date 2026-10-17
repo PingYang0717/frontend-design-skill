@@ -7,7 +7,6 @@ import { LANGUAGE_LABELS } from '@/i18n/languages';
 import { useTranslations } from '@/i18n/useTranslations';
 import { LANGUAGES, useLanguageStore } from '@/stores/useLanguageStore';
 import { useLayoutStore } from '@/stores/useLayoutStore';
-import UserMenu from './UserMenu';
 
 import styles from './AppShell.module.css';
 
@@ -31,6 +30,7 @@ const AppHeader: React.FC = () => {
         <Typography.Text strong>{t.app.name}</Typography.Text>
       </Space>
       <Space>
+        {/* 右側工具列:語言切換(i18n)、主題切換(dark-mode)、使用者資訊(access.md 第 5 節)依序放這裡。 */}
         <Select
           aria-label={t.header.language}
           value={language}
@@ -38,7 +38,6 @@ const AppHeader: React.FC = () => {
           options={LANGUAGE_OPTIONS}
           popupMatchSelectWidth={false}
         />
-        <UserMenu />
       </Space>
     </Layout.Header>
   );

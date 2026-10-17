@@ -1,8 +1,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
+import { connectAccessGate } from '@/app/accessGate';
 import App from '@/app/App';
-import { connectSession } from '@/app/session';
 
 import './index.css';
 
@@ -16,8 +16,8 @@ const enableMocking = async () => {
   await worker.start({ onUnhandledFrame: 'bypass' });
 };
 
-// 登入狀態接上 apiClient(帶 token、401 清 session),要在第一個請求之前。
-connectSession();
+// 存取閘門接上 apiClient(公司網路外、沒有系統權限 → 整頁遮罩),要在第一個請求之前。
+connectAccessGate();
 
 await enableMocking();
 

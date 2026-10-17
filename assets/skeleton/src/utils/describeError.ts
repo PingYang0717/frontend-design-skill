@@ -5,7 +5,6 @@ import { KNOWN_ERROR_CODES, type KnownErrorCode } from '@/types/api/error';
 const ERROR_COPY_BY_CODE: Record<KnownErrorCode, string> = {
   VALIDATION_FAILED: '輸入的資料不正確,請檢查後再送出。',
   CONFLICT: '資料已被其他人修改,請重新整理後再試。',
-  INVALID_CREDENTIALS: '帳號或密碼不正確。',
 };
 
 const OFFLINE = '無法連線到後端服務';
@@ -48,6 +47,9 @@ export const describeActionError = (error: unknown): string => {
   const code = errorCode(error);
   if (isKnownCode(code)) {
     return ERROR_COPY_BY_CODE[code];
+  }
+  if (isForbidden(error)) {
+    return '你沒有執行這個操作的權限。';
   }
   const status = httpStatus(error);
   return status === undefined ? '操作失敗,請稍後再試。' : `操作失敗(HTTP ${status}),請稍後再試。`;

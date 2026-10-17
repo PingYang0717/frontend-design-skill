@@ -40,11 +40,11 @@ export const useItems = () => useSuspenseQuery(itemsQuery).data;
 需要調整快取時間時寫在 `queryOptions` 裡並附理由:
 
 ```ts
-// ✅ src/hooks/useCurrentUser.ts
-export const currentUserQuery = queryOptions({
-  queryKey: currentUserQueryKey,
-  queryFn: getCurrentUser,
-  // 身分在一次瀏覽中幾乎不變,不必每次回到視窗就重抓。
+// ✅ src/hooks/useTags.ts(幾乎不變的參照資料)
+export const tagsQuery = queryOptions({
+  queryKey: tagsQueryKey,
+  queryFn: listTags,
+  // 標籤清單在一次瀏覽中幾乎不變,不必每次回到視窗就重抓。
   staleTime: 5 * 60 * 1000,
 });
 ```

@@ -27,7 +27,7 @@ npm run dev                  # 打真後端,/api 由開發伺服器轉到 VITE_P
 ```
 
 <!-- FILL: 選了 msw 時在上面的指令區塊加一行
-     「npm run dev:mock             # 後端未就緒時:以 MSW 假後端開發,帳密見 src/mocks/db.ts 的 MOCK_LOGIN」,
+     「npm run dev:mock             # 後端未就緒時:以 MSW 假後端開發,不經過登入與閘門」,
      並在下表 `npm run dev` 下面加一列「`npm run dev:mock` | 開發伺服器 + MSW 假後端(只攔截後端尚未上線的端點)」;沒選就刪除這段。 -->
 
 開啟 http://localhost:5173
@@ -51,14 +51,14 @@ Commit 前 husky 會自動跑 lint-staged(lint + Prettier)與 commitlint,不需�
 
 ## 畫面與路由
 
-<!-- FILL: 表格列出每個路由:路徑、畫面名稱、需要的權限;必須與 src/constants/routes.ts、src/components/layouts/navEntries.tsx 一致。`/login` 是公版登入頁。 -->
+<!-- FILL: 表格列出每個路由:路徑、畫面名稱(選了 permissions 時多一欄需要的權限);必須與 src/constants/routes.ts、src/components/layouts/navEntries.tsx 一致。 -->
 
-| 路徑     | 畫面 | 權限 |
-| -------- | ---- | ---- |
-| `/login` | 登入 | 無   |
+| 路徑 | 畫面 |
+| ---- | ---- |
+| `/`  | 首頁 |
 
 路由模式:<!-- FILL: history 或 hash,連到 docs/adr/0020-router-mode.md。 -->
-認證方式:<!-- FILL: 一句話,連到 docs/adr/0021-auth-mode.md。 -->
+登入與閘門:登入由公司 SDK 處理(沒有登入頁);<!-- FILL: 一句話寫閘門的表示法與遮罩來源,連到 docs/adr/0021-access-gate.md。 -->
 
 ## 後端
 
@@ -68,7 +68,7 @@ API 契約以 [`docs/spec/`](./docs/spec/) 的 API 一節或後端文件為準;D
 <!-- FILL: 選了 msw 時寫「mock(`src/mocks/handlers.ts`)也與契約逐字一致;後端尚未上線的端點在 `pendingHandlers`,
      上線後搬到 `shippedHandlers`。」;沒選就刪除這段。 -->
 
-<!-- FILL: 後端的負責團隊或聯絡窗口、各環境的 API 位址(不含機密)、登入服務。不知道就寫「待確認」。 -->
+<!-- FILL: 後端的負責團隊或聯絡窗口、各環境的 API 位址(不含機密)、本機開發怎麼拿到公司 cookie(SDK 本機模式或 proxy)。不知道就寫「待確認」。 -->
 
 ## 主題與視覺
 

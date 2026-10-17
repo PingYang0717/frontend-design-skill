@@ -4,7 +4,8 @@ export interface ApiErrorBody {
   message?: string;
 }
 
-/** 前端有對應文案的錯誤 code。每一個都必須在 i18n 字典 `errors.byCode` 裡有一句(測試會檢查)。 */
-export const KNOWN_ERROR_CODES = ['VALIDATION_FAILED', 'CONFLICT', 'INVALID_CREDENTIALS'] as const;
+/** 前端有對應文案的錯誤 code。每一個都必須在 utils/describeError.ts 的 ERROR_COPY_BY_CODE 有一句
+ *  (選了 i18n 時在字典 `errors.byCode`,測試會檢查)。閘門用的 code(若後端以 code 表示)寫在 app/accessGate.ts,不在這裡。 */
+export const KNOWN_ERROR_CODES = ['VALIDATION_FAILED', 'CONFLICT'] as const;
 
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number];

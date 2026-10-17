@@ -54,8 +54,17 @@ const LAYER_RULES = [
     files: ['src/stores/**'],
     patterns: [
       {
-        group: ['@/api/*', '@/hooks/*', '@/components/*', '@/pages/*'],
+        group: ['@/api/*', '@/hooks/*', '@/components/*', '@/pages/*', '@/vendor/*'],
         message: 'Zustand 只放 UI 狀態;伺服器資料一律用 TanStack Query(docs/conventions/state-management.md)。',
+      },
+    ],
+  },
+  {
+    files: ['src/vendor/**'],
+    patterns: [
+      {
+        group: ['@/api/*', '@/hooks/*', '@/pages/*', '@/stores/*'],
+        message: 'vendor 只轉接公司套件(docs/conventions/access.md 第 2 節);資料與狀態由呼叫端以 props 傳入。',
       },
     ],
   },
@@ -63,8 +72,8 @@ const LAYER_RULES = [
     files: ['src/api/**', 'src/utils/**', 'src/types/**', 'src/constants/**'],
     patterns: [
       {
-        group: ['@/hooks/*', '@/stores/*', '@/components/*', '@/pages/*', '@/app/*'],
-        message: 'api / utils / types / constants 是底層,不可反向依賴 hooks、stores 或 UI。',
+        group: ['@/hooks/*', '@/stores/*', '@/components/*', '@/pages/*', '@/app/*', '@/vendor/*'],
+        message: 'api / utils / types / constants 是底層,不可反向依賴 hooks、stores、UI 或 vendor。',
       },
     ],
   },

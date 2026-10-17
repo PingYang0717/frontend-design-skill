@@ -6,15 +6,15 @@
 
 ## 1. 組成
 
-| 檔案                                | 角色                                                                                                                                                      |
-| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `constants/routes.ts`               | `ROUTES`:所有路徑的唯一來源                                                                                                                               |
-| `components/layouts/navEntries.tsx` | `NAV_ENTRIES`:選單入口(key、路徑、圖示、文案、權限);`NavKey` 型別                                                                                         |
-| `app/navPages.tsx`                  | `NAV_PAGES: Record<NavKey, …>`:入口 → lazy 頁面                                                                                                           |
-| `app/subPages.tsx`                  | 不在選單上的頁面(登入頁、詳細頁)的 lazy 宣告                                                                                                              |
-| `app/routes.tsx`                    | `appRoutes`:`PublicLayout` 區域(登入頁)+ `RequireAuth` 包住的 `RootLayout` 區域(由 `NAV_ENTRIES` 長出路由,每個入口包 `RequirePermission`;另加 403 與 `*`) |
-| `app/router.tsx`                    | 建立 router(路由模式在這一行)                                                                                                                             |
-| `test/renderApp.tsx`                | 測試用 `createMemoryRouter(appRoutes)` 載入同一份路由表                                                                                                   |
+| 檔案                                | 角色                                                                                                                                    |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `constants/routes.ts`               | `ROUTES`:所有路徑的唯一來源                                                                                                             |
+| `components/layouts/navEntries.tsx` | `NAV_ENTRIES`:選單入口(key、路徑、圖示、文案;選了 permissions 模組多一個權限欄位);`NavKey` 型別                                         |
+| `app/navPages.tsx`                  | `NAV_PAGES: Record<NavKey, …>`:入口 → lazy 頁面                                                                                         |
+| `app/subPages.tsx`                  | 不在選單上的頁面(詳細頁、編輯頁)的 lazy 宣告                                                                                            |
+| `app/routes.tsx`                    | `appRoutes`:一個 `RootLayout` 區域,由 `NAV_ENTRIES` 長出路由,另加 `*`(選了 permissions 模組:每個入口包 `RequirePermission`、多一個 403) |
+| `app/router.tsx`                    | 建立 router(路由模式在這一行)                                                                                                           |
+| `test/renderApp.tsx`                | 測試用 `createMemoryRouter(appRoutes)` 載入同一份路由表                                                                                 |
 
 ## 2. 新增一個選單入口
 
@@ -26,7 +26,6 @@ export const ROUTES = {
   home: '/',
   items: '/items',
   reports: '/reports',
-  forbidden: '/403',
 } as const;
 ```
 
@@ -40,7 +39,7 @@ export type NavKey = 'home' | 'items' | 'reports';
   path: ROUTES.reports,
   icon: <BarChartOutlined />,
   label: '報表', // 選了 i18n 時寫成 (t) => t.nav.reports
-  permission: PERMISSIONS.reportsRead,
+  // 選了 permissions 模組時再加 permission: PERMISSIONS.reportsRead
 },
 ```
 
@@ -61,13 +60,13 @@ export const NAV_PAGES: Record<NavKey, React.LazyExoticComponent<React.FC>> = {
 `npm run typecheck` 失敗。
 
 - ❌ 在 `AppShell` 的 `Menu` 直接加一個 `{ key: '/reports', label: '報表' }`
-- ❌ 在 `app/routes.tsx` 手寫 `{ path: '/reports', element: <ReportsPage /> }` 卻沒加進選單與權限
+- ❌ 在 `app/routes.tsx` 手寫 `{ path: '/reports', element: <ReportsPage /> }` 卻沒加進選單
 
 ## 3. 不在選單上的路由
 
 **規則**:詳細頁、編輯頁等子頁不進 `NAV_ENTRIES`。在 `ROUTES` 加路徑,頁面的 `lazy` 宣告放在
-`app/subPages.tsx`(登入頁已在裡面),再加進 `app/routes.tsx` 的 `RootLayout` children;需要權限時一樣包
-`RequirePermission`。不需要登入的頁面(目前只有登入頁)放 `PublicLayout` 區域。
+`app/subPages.tsx`,再加進 `app/routes.tsx` 的 `RootLayout` children;選了 permissions 模組且需要權限時包
+`<RequirePermission onDenied="redirect">`。沒有「不需登入」的區域:登入由公司 SDK 在進站前處理。
 
 **原因**:`app/routes.tsx` 匯出的是路由表(不是元件),在同一個檔案頂層宣告 `lazy` 元件會觸發
 `react/only-export-components` 警告,也讓 Fast Refresh 失效。
@@ -88,14 +87,9 @@ export const ItemDetailPage = lazy(() => import('@/pages/ItemDetail/ItemDetailPa
 // src/app/routes.tsx(RootLayout 的 children)
 import { ItemDetailPage } from './subPages';
 // ...
-{
-  path: ROUTES.itemDetail,
-  element: (
-    <RequirePermission permission={PERMISSIONS.itemsRead}>
-      <ItemDetailPage />
-    </RequirePermission>
-  ),
-},
+{ path: ROUTES.itemDetail, element: <ItemDetailPage /> },
+// 選了 permissions 模組時:
+// element: <RequirePermission permission={PERMISSIONS.itemsRead} onDenied="redirect"><ItemDetailPage /></RequirePermission>
 ```
 
 組帶參數的連結用 react-router 的 `generatePath`,不手拼:
@@ -137,11 +131,12 @@ const [page, setPage] = useState(1);
 
 查詢條件會影響後端請求時,把它放進 queryKey(`['items', { q, page }]`,見 [data-fetching.md](./data-fetching.md))。
 
-## 6. 登入與權限守衛
+## 6. 登入與守衛
 
-`RootLayout` 整個被 `RequireAuth` 包住:沒有 session 一律導到 `ROUTES.login`(見 [login.md](./login.md))。
-每個 `NAV_ENTRIES` 入口的 `permission` 同時決定:選單是否顯示(`AppShell` 過濾)、直接輸入網址時是否導到
-`ROUTES.forbidden`(`RequirePermission`)。前端守衛只是體驗,真正的檢查在後端。詳見 [auth.md](./auth.md)。
+路由表沒有登入區域:沒有 cookie 時公司 SDK 在 SPA 載入前就跳轉,進得來就是已登入;被閘門擋住時 `AccessMask`
+整頁遮罩,與路由無關(見 [access.md](./access.md))。選了 permissions 模組時,每個 `NAV_ENTRIES` 入口的 `permission`
+同時決定:選單是否顯示(`AppShell` 過濾)、直接輸入網址時是否導到 `ROUTES.forbidden`(`<RequirePermission onDenied="redirect">`)。
+前端守衛只是體驗,真正的檢查在後端。詳見 `permissions.md`。
 
 ## 7. 路由模式:history vs hash
 

@@ -5,7 +5,6 @@ import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import IconButton from '@/components/common/IconButton';
 import { APP_NAME } from '@/constants/app';
 import { useLayoutStore } from '@/stores/useLayoutStore';
-import UserMenu from './UserMenu';
 
 import styles from './AppShell.module.css';
 
@@ -23,9 +22,7 @@ const AppHeader: React.FC = () => {
         />
         <Typography.Text strong>{APP_NAME}</Typography.Text>
       </Space>
-      <Space>
-        <UserMenu />
-      </Space>
+      <Space>{/* 右側工具列:語言切換(i18n)、主題切換(dark-mode)、使用者資訊(access.md 第 5 節)依序放這裡。 */}</Space>
     </Layout.Header>
   );
 };

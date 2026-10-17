@@ -25,17 +25,17 @@ rm <project>/src/test/fixtures.ts   # 假資料改在 src/mocks/db.ts
 
 `files/` 的內容:
 
-| 檔案                | 說明                                                                                                                             |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `src/mocks/`        | 新增:`handlers.ts`(pending / shipped)、`db.ts`(種子資料與 `MOCK_LOGIN`)、`browser.ts`、`server.ts`                               |
-| `.env.mock`         | 新增:`dev:mock` 用,`VITE_ENABLE_MOCKS=true`                                                                                      |
-| `src/main.tsx`      | **覆蓋**基底:`VITE_ENABLE_MOCKS=true` 時先啟動 MSW worker                                                                        |
-| `eslint.config.js`  | **覆蓋**基底:多一條 `NO_MOCKS`(正式程式碼不得 import `@/mocks/*`)                                                                |
-| `tsconfig.app.json` | **覆蓋**基底:`exclude` 多 `src/mocks`                                                                                            |
-| `src/test/setup.ts` | **覆蓋**基底:啟動 MSW server,每個測試後 `resetDb()`;不再 `vi.mock` authApi                                                       |
-| 6 支測試            | **覆蓋**基底:`RequireAuth`、`RequirePermission`、`UserMenu`、`HomePage`、`LoginPage`、`ItemsPage`,改用 `server.use(...)` 與 `db` |
+| 檔案                | 說明                                                                                                                                               |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/mocks/`        | 新增:`handlers.ts`(pending / shipped)、`db.ts`(種子資料)、`browser.ts`、`server.ts`                                                                |
+| `.env.mock`         | 新增:`dev:mock` 用,`VITE_ENABLE_MOCKS=true`                                                                                                        |
+| `src/main.tsx`      | **覆蓋**基底:`VITE_ENABLE_MOCKS=true` 時先啟動 MSW worker                                                                                          |
+| `eslint.config.js`  | **覆蓋**基底:多一條 `NO_MOCKS`(正式程式碼不得 import `@/mocks/*`)                                                                                  |
+| `tsconfig.app.json` | **覆蓋**基底:`exclude` 多 `src/mocks`                                                                                                              |
+| `src/test/setup.ts` | **覆蓋**基底:啟動 MSW server,每個測試後 `resetDb()`                                                                                                |
+| 3 支測試            | **覆蓋**基底:`HomePage`、`ItemsPage`、`AccessMask`,改用 `server.use(...)` 與 `db`(遮罩測試以 `server.use` 回閘門的狀態碼,請求真的經過 interceptor) |
 
-`files.with-i18n/` 是同一組 `setup.ts` 與 6 支測試的字典版(斷言引用字典、每個測試後語言還原)。
+`files.with-i18n/` 是同一組 `setup.ts` 與 3 支測試的字典版(斷言引用字典、每個測試後語言還原)。
 
 ## 3. 修改既有檔案
 
@@ -96,6 +96,6 @@ cp <skill>/assets/modules/msw/adr.md <project>/docs/adr/0011-dev-mocks-removed-w
 ## 7. 之後的開發
 
 - 新端點:`handlers.ts` 的 `pendingHandlers` 加 handler、`db.ts` 加 `seedXxx()`;後端上線後搬到 `shippedHandlers`
-- 換認證方式時 `handlers.ts` 的 `/auth/*` 一起改;權限代碼改了,`db.ts` 的 `seedUser()` 給齊
+- 登入與閘門不 mock:登入由公司 SDK 處理;要在 `dev:mock` 看遮罩,臨時在 `pendingHandlers` 加一個回閘門狀態碼的 handler,看完刪掉
 - 移除 Item 範例時,`handlers.ts` 的 items handler 與 `db.ts` 的 `seedItems` 一起刪
 - 細則見 `docs/conventions/msw.md`

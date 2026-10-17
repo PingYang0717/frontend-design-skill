@@ -4,7 +4,6 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { zhTW as t } from '@/i18n/zhTW';
-import { db } from '@/mocks/db';
 import { server } from '@/mocks/server';
 import { renderApp } from '@/test/renderApp';
 
@@ -38,14 +37,6 @@ describe('Items page', () => {
     expect(await screen.findByText('新的項目')).toBeInTheDocument();
   });
 
-  it('hides write actions from a read-only user', async () => {
-    db.currentUser = { ...db.currentUser, permissions: ['items:read'] };
-    renderApp('/items');
-    await screen.findByText('範例項目 A');
-
-    expect(screen.queryByRole('button', { name: new RegExp(t.common.create) })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: t.items.delete.label('範例項目 A') })).not.toBeInTheDocument();
-  });
 
   it('shows an error card with retry when the list fails to load', async () => {
     server.use(http.get('*/api/items', () => HttpResponse.json({ code: 'BOOM' }, { status: 500 })));

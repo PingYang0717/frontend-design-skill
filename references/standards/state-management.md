@@ -6,10 +6,10 @@
 
 | 狀態                                                          | 放哪裡           | 骨架範例                                                            |
 | ------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------- |
-| 伺服器資料(API 回來的任何東西)                                | TanStack Query   | `useItems()`、`useCurrentUser()`                                    |
+| 伺服器資料(API 回來的任何東西)                                | TanStack Query   | `useItems()`、(選了 permissions)`usePermissions()`                  |
 | 可分享、重新整理要保留的檢視條件(篩選、搜尋、分頁、tab、排序) | URL query string | `ItemsPage` 的 `?q=`                                                |
 | 跨頁面、跨元件的全域 UI 狀態                                  | Zustand          | `useLayoutStore`;選了模組時還有 `useThemeStore`、`useLanguageStore` |
-| 登入狀態(token):client 端的 session,不是伺服器資料            | Zustand          | `useSessionStore`(見 [login.md](./login.md))                        |
+| 被閘門擋住的狀態:由 interceptor 寫入,整頁遮罩讀               | Zustand          | `useAccessStore`(見 [access.md](./access.md));不 persist            |
 | 只有一個元件(或一對父子)在用的 UI 狀態                        | `useState`       | `ItemsPage` 的 `isCreateOpen`                                       |
 
 表單欄位值由 antd `Form` 自己管理,不另外放 state。
@@ -88,7 +88,7 @@ onChange={(event) => setSearchParams(event.target.value ? { q: event.target.valu
 - 一律包 `devtools`(最外層)並給 `name`;每個 `set` 帶 action 名稱(第三個參數)。
 - 需要跨重新整理記住的才加 `persist`,storage key 一律取自 `constants/storage.ts`。
 - 元件讀取用 selector,一次取一個值:`useLayoutStore((state) => state.isSiderCollapsed)`。
-- 非元件程式要讀值用 `useXxxStore.getState()`(例:`app/session.ts` 讀 `useSessionStore.getState().accessToken`)。
+- 非元件程式要讀值或寫值用 `useXxxStore.getState()`(例:`app/accessGate.ts` 呼叫 `useAccessStore.getState().block(kind)`)。
 
 **原因**:selector 讓元件只在用到的值改變時重繪;devtools 的 action 名稱讓除錯時看得出是誰改的。
 
@@ -148,11 +148,11 @@ export const useLayoutStore = create<LayoutState>()(
 
 ### 什麼該放 Zustand
 
-| ✅ 適合                          | ❌ 不適合                              |
-| -------------------------------- | -------------------------------------- |
-| 側欄開合、登入 token、主題、語言 | 清單資料、目前使用者(→ TanStack Query) |
-| 跨頁面保留的草稿                 | 篩選、分頁(→ URL)                      |
-| 全域的「目前選取」且不需分享連結 | 只有一個對話框用的開關(→ `useState`)   |
+| ✅ 適合                          | ❌ 不適合                            |
+| -------------------------------- | ------------------------------------ |
+| 側欄開合、閘門狀態、主題、語言   | 清單資料、權限清單(→ TanStack Query) |
+| 跨頁面保留的草稿                 | 篩選、分頁(→ URL)                    |
+| 全域的「目前選取」且不需分享連結 | 只有一個對話框用的開關(→ `useState`) |
 
 ## 7. `useState`
 

@@ -4,10 +4,8 @@ import type { CustomCellRendererProps } from 'ag-grid-react';
 import { Tag } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 
-import Can from '@/components/auth/Can';
 import DataGrid from '@/components/common/DataGrid';
 import IconButton from '@/components/common/IconButton';
-import { PERMISSIONS } from '@/constants/permissions';
 import { useConfirmDestructive } from '@/hooks/useConfirmDestructive';
 import { useDeleteItem } from '@/hooks/useItemMutations';
 import { useItems } from '@/hooks/useItems';
@@ -26,7 +24,7 @@ const StatusCell: React.FC<CustomCellRendererProps<Item>> = ({ data }) => {
   return <Tag color={data.status === 'ACTIVE' ? 'success' : 'default'}>{STATUS_LABELS[data.status]}</Tag>;
 };
 
-/** 操作欄範本:寫入動作用 Can 包住,刪除走 useConfirmDestructive。hook 在儲存格元件裡照常可用。 */
+/** 操作欄範本:刪除走 useConfirmDestructive。hook 在儲存格元件裡照常可用;選了 permissions 模組時寫入按鈕包 RequirePermission。 */
 const ActionsCell: React.FC<CustomCellRendererProps<Item>> = ({ data }) => {
   const deleteItem = useDeleteItem();
   const confirmDestructive = useConfirmDestructive();
@@ -35,21 +33,19 @@ const ActionsCell: React.FC<CustomCellRendererProps<Item>> = ({ data }) => {
     return null;
   }
   return (
-    <Can permission={PERMISSIONS.itemsWrite}>
-      <IconButton
-        danger
-        icon={<DeleteOutlined />}
-        label={`刪除 ${data.name}`}
-        loading={deleteItem.isPending && deleteItem.variables === data.id}
-        onClick={() =>
-          confirmDestructive({
-            title: `確定要刪除「${data.name}」嗎?`,
-            content: '刪除後無法復原。',
-            onConfirm: () => deleteItem.mutateAsync(data.id),
-          })
-        }
-      />
-    </Can>
+    <IconButton
+      danger
+      icon={<DeleteOutlined />}
+      label={`刪除 ${data.name}`}
+      loading={deleteItem.isPending && deleteItem.variables === data.id}
+      onClick={() =>
+        confirmDestructive({
+          title: `確定要刪除「${data.name}」嗎?`,
+          content: '刪除後無法復原。',
+          onConfirm: () => deleteItem.mutateAsync(data.id),
+        })
+      }
+    />
   );
 };
 

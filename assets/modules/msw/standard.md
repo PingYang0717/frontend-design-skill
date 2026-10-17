@@ -8,7 +8,7 @@
 | 檔案                | 用途                                                                                           |
 | ------------------- | ---------------------------------------------------------------------------------------------- |
 | `mocks/handlers.ts` | `pendingHandlers`(後端未上線)、`shippedHandlers`(已上線,只給測試)、`handlers`(兩者合併,測試用) |
-| `mocks/db.ts`       | 假後端的記憶體資料;`resetDb()` 還原種子資料;`MOCK_LOGIN`(帳密)與 `MOCK_ACCESS_TOKEN`           |
+| `mocks/db.ts`       | 假後端的記憶體資料;`resetDb()` 還原種子資料                                                    |
 | `mocks/browser.ts`  | `setupWorker(...pendingHandlers)`,開發期只攔截未上線的端點                                     |
 | `mocks/server.ts`   | `setupServer(...handlers)`,測試攔截全部端點(`test/setup.ts` 啟動)                              |
 
@@ -109,12 +109,13 @@ http.post(api('/items'), () => HttpResponse.json({ code: 'CONFLICT', message: 'd
 const seedItems = (): Item[] => [
   { id: 'item-1', name: '範例項目 A', status: 'ACTIVE', updatedAt: '2026-01-05T09:00:00.000Z' },
 ];
+const seedTags = (): Tag[] => [{ id: 'tag-1', name: '重要' }];
 
-export const db = { items: seedItems(), currentUser: seedUser() };
+export const db = { items: seedItems(), tags: seedTags() };
 
 export const resetDb = () => {
   db.items = seedItems();
-  db.currentUser = seedUser();
+  db.tags = seedTags();
 };
 ```
 
@@ -141,13 +142,13 @@ export const resetDb = () => {
 測試則需要可重現、不依賴後端的資料,所以 handler 保留給測試。
 
 ```ts
-// ✅ GET /me 已上線
+// ✅ GET /tags 已上線
 export const pendingHandlers = [
   http.get(api('/items'), async () => { ... }),
 ];
 
 export const shippedHandlers: typeof pendingHandlers = [
-  http.get(api('/me'), () => HttpResponse.json(db.currentUser)),
+  http.get(api('/tags'), () => HttpResponse.json(db.tags)),
 ];
 ```
 
@@ -158,8 +159,8 @@ export const shippedHandlers: typeof pendingHandlers = [
 
 **規則**:測試一律透過 MSW 打假後端,不 mock `apiClient`、hook、axios,也不 `vi.mock('@/api/*Api')`
 (那是沒選 msw 時的做法,見 [testing.md](./testing.md) 第 7 節;選了 msw 就不用)。
-`test/setup.ts` 啟動 `server`(`onUnhandledFrame: 'error'`)、接上 session,每個測試前把 session 設為已登入
-(`MOCK_ACCESS_TOKEN`),每個測試後 `cleanup()` → `server.resetHandlers()` → `resetDb()` → `localStorage.clear()`。
+`test/setup.ts` 啟動 `server`(`onUnhandledFrame: 'error'`)、接上存取閘門,每個測試後 `cleanup()` → `server.resetHandlers()` → `resetDb()` → `localStorage.clear()`。
+登入與閘門沒有 handler:登入由公司 SDK 處理;要測遮罩,`server.use` 讓某支 API 回閘門的狀態碼(`app/accessGate.ts`)。
 下面的範例斷言引用字典(選了 i18n);沒選 i18n 時直接寫繁中字串。
 預設由 `handlers` 回應;**單一測試**需要不同回應(錯誤、空清單)時,才用 `server.use()` 覆寫;`test/setup.ts` 的 `afterEach` 會 `server.resetHandlers()`
 並 `resetDb()`,覆寫不會漏到下一個測試。
@@ -182,7 +183,7 @@ it('shows an error card with retry when the list fails to load', async () => {
 
 ```ts
 // ✅
-db.currentUser = { ...db.currentUser, permissions: ['items:read'] };
+db.items = []; // 空清單的畫面
 ```
 
 ```ts

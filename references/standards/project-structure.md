@@ -5,21 +5,22 @@
 
 ## 1. 資料夾:放什麼、不放什麼
 
-| 資料夾                 | 放什麼                                                                                                                                                                         | 不放什麼                             |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------ |
-| `api/`                 | `apiClient.ts`、`apiError.ts`、`apiPath.ts`、`expectArray.ts`;每個資源一個 endpoint module(`itemApi.ts`)                                                                       | TanStack Query、React、狀態、文案    |
-| `types/api/`           | 與後端 DTO 逐字一致的型別(`item.ts`、`error.ts`)                                                                                                                               | 前端自己的 view model、元件 props    |
-| `hooks/`               | 資料 hook(`queryOptions` + query / mutation)、跨元件共用的 UI hook(`useDebouncedValue`、`useConfirmDestructive`)                                                               | JSX、只被一個元件用的邏輯            |
-| `stores/`              | Zustand store,只放全域 UI 狀態(`useLayoutStore`)與登入 token(`useSessionStore`)                                                                                                | 任何來自 API 的資料                  |
-| `components/<domain>/` | UI 元件,依業務 domain 分子資料夾(`items/`);共用零件在 `common/`(`DataBoundary`、`IconButton`…;選了模組還有 `DataGrid`、`FormField`),外殼在 `layouts/`,登入與權限守衛在 `auth/` | 直接呼叫 API、路由設定               |
-| `pages/<Name>/`        | 路由頁面 `<Name>Page.tsx` 與它的頁面測試;只組裝元件、放 `DataBoundary`、讀 URL state                                                                                           | 業務邏輯、資料轉換、API 呼叫         |
-| `app/`                 | 啟動組裝:`App.tsx`、`providers.tsx`、`queryClient.ts`、`router.tsx`、`routes.tsx`、`navPages.tsx`、`subPages.tsx`、`session.ts`(選了 ag-grid 還有 `agGrid.ts`)                 | 業務元件                             |
-| `constants/`           | 全域常數的唯一來源:`routes.ts`、`permissions.ts`、`storage.ts`;沒選 i18n 時還有 `app.ts`(系統名稱)                                                                             | 色碼(進 `theme/`);選了 i18n 時的文案 |
-| `i18n/`(模組)          | 選了 i18n 才有:字典 `zhTW.ts`(形狀來源)、`en.ts`、`useTranslations.ts`、`languages.ts`、守門測試                                                                               | 業務邏輯                             |
-| `theme/`               | `tokens.ts`(唯一色票來源)、`antdTheme.ts`、`cssVars.ts`(選了 ag-grid 還有 `agGridTheme.ts`)                                                                                    | 元件樣式(用 CSS Modules 跟著元件)    |
-| `utils/`               | 純函式(`describeError.ts`),不依賴 React                                                                                                                                        | hook、有副作用的程式                 |
-| `mocks/`(模組)         | 選了 msw 才有:MSW `handlers.ts`(`pendingHandlers` / `shippedHandlers`)、記憶體資料 `db.ts`、`browser.ts`(開發期)、`server.ts`(測試)                                            | 正式程式會 import 的任何東西         |
-| `test/`                | `setup.ts`、`renderApp.tsx` 等測試工具                                                                                                                                         | 測試案例本身(與被測檔案同目錄)       |
+| 資料夾                 | 放什麼                                                                                                                                                                                      | 不放什麼                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| `api/`                 | `apiClient.ts`、`apiError.ts`、`apiPath.ts`、`expectArray.ts`;每個資源一個 endpoint module(`itemApi.ts`)                                                                                    | TanStack Query、React、狀態、文案          |
+| `types/api/`           | 與後端 DTO 逐字一致的型別(`item.ts`、`error.ts`)                                                                                                                                            | 前端自己的 view model、元件 props          |
+| `hooks/`               | 資料 hook(`queryOptions` + query / mutation)、跨元件共用的 UI hook(`useDebouncedValue`、`useConfirmDestructive`)                                                                            | JSX、只被一個元件用的邏輯                  |
+| `stores/`              | Zustand store,只放全域 UI 狀態(`useLayoutStore`)與閘門狀態(`useAccessStore`)                                                                                                                | 任何來自 API 的資料、token                 |
+| `components/<domain>/` | UI 元件,依業務 domain 分子資料夾(`items/`);共用零件在 `common/`(`DataBoundary`、`IconButton`…;選了模組還有 `DataGrid`、`FormField`),外殼在 `layouts/`;選了 permissions 模組時守衛在 `auth/` | 直接呼叫 API、路由設定                     |
+| `pages/<Name>/`        | 路由頁面 `<Name>Page.tsx` 與它的頁面測試;只組裝元件、放 `DataBoundary`、讀 URL state                                                                                                        | 業務邏輯、資料轉換、API 呼叫               |
+| `app/`                 | 啟動組裝:`App.tsx`、`providers.tsx`、`queryClient.ts`、`router.tsx`、`routes.tsx`、`navPages.tsx`、`subPages.tsx`、`accessGate.ts`(選了 ag-grid 還有 `agGrid.ts`)                           | 業務元件                                   |
+| `constants/`           | 全域常數的唯一來源:`routes.ts`、`storage.ts`;沒選 i18n 時還有 `app.ts`(系統名稱);選了 permissions 還有 `permissions.ts`                                                                     | 色碼(進 `theme/`);選了 i18n 時的文案       |
+| `i18n/`(模組)          | 選了 i18n 才有:字典 `zhTW.ts`(形狀來源)、`en.ts`、`useTranslations.ts`、`languages.ts`、守門測試                                                                                            | 業務邏輯                                   |
+| `theme/`               | `tokens.ts`(唯一色票來源)、`antdTheme.ts`、`cssVars.ts`(選了 ag-grid 還有 `agGridTheme.ts`)                                                                                                 | 元件樣式(用 CSS Modules 跟著元件)          |
+| `utils/`               | 純函式(`describeError.ts`),不依賴 React                                                                                                                                                     | hook、有副作用的程式                       |
+| `vendor/`              | 公司共用套件的唯一轉接點 `companyUi.tsx`:遮罩元件、(選用時)公司公版外殼、使用者資訊,以專案自己的名字匯出(`access.md` 第 2 節)                                                               | 直接 import 公司套件的其他檔案、資料與狀態 |
+| `mocks/`(模組)         | 選了 msw 才有:MSW `handlers.ts`(`pendingHandlers` / `shippedHandlers`)、記憶體資料 `db.ts`、`browser.ts`(開發期)、`server.ts`(測試)                                                         | 正式程式會 import 的任何東西               |
+| `test/`                | `setup.ts`、`renderApp.tsx` 等測試工具                                                                                                                                                      | 測試案例本身(與被測檔案同目錄)             |
 
 **原因**:同一層的檔案遵守同一套規則(例如 `hooks/` 一律不含 JSX),reviewer 看路徑就知道該檢查什麼;
 依賴方向可以用 lint 強制。
@@ -52,6 +53,8 @@ flowchart TD
   hooks --> i18n["i18n/(模組)"]
   components --> i18n
   i18n --> stores
+  components --> vendor["vendor/"]
+  hooks --> vendor
   components --> utils["utils/"]
   hooks --> utils
   utils --> api
@@ -72,8 +75,10 @@ flowchart TD
 - 元件與頁面**不 import `@/api/*`**,只透過 hooks 取資料;唯一例外是 `@/api/apiError` 的判斷函式。
 - 元件、頁面、hooks 都**不 import `axios`**。
 - `hooks/` 不 import `components/`、`pages/`、`app/`。
-- `stores/` 不 import `api/`、`hooks/`、`components/`、`pages/`。
-- `api/`、`utils/`、`types/`、`constants/` 不反向 import `hooks/`、`stores/`、`components/`、`pages/`、`app/`。
+- `stores/` 不 import `api/`、`hooks/`、`components/`、`pages/`、`vendor/`。
+- `api/`、`utils/`、`types/`、`constants/` 不反向 import `hooks/`、`stores/`、`components/`、`pages/`、`app/`、`vendor/`。
+- `vendor/` 只轉接公司套件:不 import `api/`、`hooks/`、`pages/`、`stores/`;資料與狀態由 `components/`、`hooks/` 以 props 傳入。
+  專案其他地方不直接 import 公司套件,只 import `@/vendor/companyUi`(`access.md` 第 2 節)。
 - `i18n/`(選了 i18n 時)、`theme/` 只依賴 `stores/`、`types/`、`constants/`;不 import `api/`、`hooks/`、`components/`、`pages/`、`app/`。
 - 選了 msw 時,**任何一層都不 import `@/mocks/*`**;只有 `main.tsx` 的開發期開關、`test/` 與測試檔可以。
 - 測試檔(`*.test.ts(x)`)不套用分層規則:測試需要 import mocks、fixtures 與跨層組裝。
@@ -113,7 +118,7 @@ import 的排序交給 `simple-import-sort`,不手動排。
 6. **`pages/ItemDetail/ItemDetailPage.tsx`** — 組裝元件、包 `DataBoundary`、讀 URL 參數。
 7. **`constants/routes.ts` → `components/layouts/navEntries.tsx` → `app/navPages.tsx`** — 加路徑、
    選單入口與頁面對應;不在選單上的子頁直接加在 `app/routes.tsx`([routing.md](./routing.md))。
-   需要權限時先在 `constants/permissions.ts` 加一列([auth.md](./auth.md))。
+   選了 permissions 模組且需要權限時,先在 `constants/permissions.ts` 加一列(`permissions.md`)。
 8. **文案** — 新錯誤 code 加進 `types/api/error.ts` 的 `KNOWN_ERROR_CODES` 並補文案([error-handling.md](./error-handling.md));
    選了 i18n 時所有文案、aria-label 進 `i18n/zhTW.ts`、`en.ts`(`i18n.md`)。
 9. **假後端** — 選了 msw:新端點的 handler 加進 `mocks/handlers.ts` 的 `pendingHandlers`、資料進 `mocks/db.ts`,

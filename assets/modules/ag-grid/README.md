@@ -118,6 +118,6 @@ cp <skill>/assets/modules/ag-grid/adr.md <project>/docs/adr/0018-ag-grid-for-dat
 
 ## 7. 之後的開發
 
-- 新表格:`components/<domain>/<資源>Table.tsx` 用 `DataGrid` + `ColDef<DTO>[]`,操作欄是儲存格元件,寫入按鈕包 `<Can>`
+- 新表格:`components/<domain>/<資源>Table.tsx` 用 `DataGrid` + `ColDef<DTO>[]`,操作欄是儲存格元件,寫入按鈕包 `<RequirePermission>`(選了 permissions 模組時)
 - 不再用 antd `Table`
 - 細則見 `docs/conventions/ag-grid.md`

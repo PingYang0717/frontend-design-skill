@@ -78,7 +78,7 @@ Community:`ModuleRegistry.registerModules([AllCommunityModule])`,沒有授權金
 - `cellRenderer` 給一個 **React 元件**(`React.FC<CustomCellRendererProps<DTO>>`),不給回傳 HTML 字串的函式;
   元件裡 `props.data` 在過濾、分群時可能是 `undefined`,先判斷再用。hook(`useTranslations`、mutation)在儲存格
   元件裡照常可用。
-- 操作欄:`colId: 'actions'`、`flex: 0`、固定 `width`、`sortable: false`、`resizable: false`;寫入按鈕包 `<Can>`,
+- 操作欄:`colId: 'actions'`、`flex: 0`、固定 `width`、`sortable: false`、`resizable: false`;寫入按鈕包 `<RequirePermission>`(選了 permissions 模組時),
   刪除走 `useConfirmDestructive`,純圖示用 `IconButton`([components.md](./components.md) 第 8 節)。
 - 列的 key:一律給 `getRowId={({ data }) => data.id}`,資料更新時 AG Grid 才能保留選取、捲動位置與展開狀態。
 
@@ -166,5 +166,5 @@ Theming API 以外的任何東西。** 真的需要新參數時:先在 `TableTok
 - 公司的授權金鑰取得流程與到期提醒
 - **評估改成表格頁才載入 AG Grid**:目前 `providers.tsx` 啟動時就呼叫 `registerAgGrid()`,每一頁都下載約 2.7 MB
   (gzip 約 750 KB)的 `ag-grid` chunk。可改成在 `DataGrid` 第一次掛載時才 `import('@/app/agGrid')` 並註冊
-  (或把 `DataGrid` 包成 `React.lazy`),登入頁與沒有表格的頁面就不用下載;要一併確認測試與 `DataBoundary` 的
+  (或把 `DataGrid` 包成 `React.lazy`),沒有表格的頁面就不用下載;要一併確認測試與 `DataBoundary` 的
   Suspense 行為。先看舊專案的使用者網路環境與首屏時間再決定

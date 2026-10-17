@@ -3,11 +3,9 @@ import { Button, Card, Flex, Input } from 'antd';
 import { useSearchParams } from 'react-router';
 import { PlusOutlined } from '@ant-design/icons';
 
-import Can from '@/components/auth/Can';
 import DataBoundary from '@/components/common/DataBoundary';
 import ItemCreateDialog from '@/components/items/ItemCreateDialog';
 import ItemTable from '@/components/items/ItemTable';
-import { PERMISSIONS } from '@/constants/permissions';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useTranslations } from '@/i18n/useTranslations';
 
@@ -25,11 +23,9 @@ const ItemsPage: React.FC = () => {
     <Card
       title={t.items.title}
       extra={
-        <Can permission={PERMISSIONS.itemsWrite}>
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)}>
-            {t.common.create}
-          </Button>
-        </Can>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)}>
+          {t.common.create}
+        </Button>
       }
     >
       <Flex vertical gap={16}>

@@ -113,7 +113,7 @@ PR 標題與 commit 訊息格式相同:`feat(items): 新增項目建立對話框
 | 偏離設計稿 | 與 prototype 不同的地方與原因,是否已回報 UX                                                        |
 | 自我檢查   | 逐項勾選(四項檢查、資料抓取寫法、色碼、權限、API 契約表已重產、ADR;選了 i18n、msw 再加字典與 mock) |
 
-自我檢查項目對應的規範:[data-fetching.md](./data-fetching.md)、[styling-theme.md](./styling-theme.md)、[auth.md](./auth.md);
+自我檢查項目對應的規範:[data-fetching.md](./data-fetching.md)、[styling-theme.md](./styling-theme.md)、[access.md](./access.md);
 選了模組時還有 `i18n.md`、`msw.md`。
 偏離團隊規範的決定要寫 ADR(`docs/adr/`,編號接續現有最大號)。
 

@@ -1,16 +1,14 @@
 import { afterEach, beforeAll, beforeEach, vi } from 'vitest';
 import { cleanup, configure } from '@testing-library/react';
 
-import { getCurrentUser } from '@/api/authApi';
-import { connectSession } from '@/app/session';
-import { useSessionStore } from '@/stores/useSessionStore';
-import { TEST_ACCESS_TOKEN, TEST_USER } from './fixtures';
+import { connectAccessGate } from '@/app/accessGate';
+import { useAccessStore } from '@/stores/useAccessStore';
 
 import '@testing-library/jest-dom/vitest';
 
-// 沒有假後端:API 模組由 vi.mock 換成 vi.fn。身分端點每個畫面都會打,在這裡統一換掉;
-// 各資源的 API(例如 @/api/itemApi)由用到的測試檔自己 vi.mock,並在 beforeEach 給預設回應。
-vi.mock('@/api/authApi');
+// 沒有假後端:各資源的 API(例如 @/api/itemApi)由用到的測試檔自己 vi.mock,並在 beforeEach 給預設回應。
+// 公司套件(遮罩、外殼)一律換成測試替身,測試不載入公司 SDK。
+vi.mock('@/vendor/companyUi', () => import('./companyUiStub'));
 
 // 頁面是 lazy 載入且先 suspend;平行跑測試、機器又慢時,第一次渲染可能超過預設的 1 秒。
 configure({ asyncUtilTimeout: 5000 });
@@ -39,13 +37,12 @@ class ResizeObserverStub {
 Object.defineProperty(window, 'ResizeObserver', { writable: true, value: ResizeObserverStub });
 
 beforeAll(() => {
-  connectSession();
+  connectAccessGate();
 });
 
-// 測試預設已登入、擁有全部權限;要測未登入,在測試裡 useSessionStore.setState({ accessToken: null })。
+// 每個測試從「沒有被閘門擋住」開始;要測遮罩,讓某支 API 回閘門的狀態碼(見 AccessMask.test.tsx)。
 beforeEach(() => {
-  useSessionStore.setState({ accessToken: TEST_ACCESS_TOKEN });
-  vi.mocked(getCurrentUser).mockResolvedValue(TEST_USER);
+  useAccessStore.getState().reset();
 });
 
 afterEach(() => {

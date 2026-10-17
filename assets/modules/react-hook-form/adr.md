@@ -52,7 +52,7 @@ const [form] = Form.useForm<CreateItemRequest>();
 
 ## 後果
 
-- 所有表單(含公版登入頁)的狀態機制只有一種;reviewer 看到 `Form.useForm` 就知道不對。
+- 所有表單的狀態機制只有一種;reviewer 看到 `Form.useForm` 就知道不對。
 - 多一個執行期依賴 `react-hook-form`(約 10 KB gzip,進 `vendor` chunk)。
 - antd `Form.Item` 的 `rules` 驗證、`dependencies`、`shouldUpdate` 這些功能不用;對應需求以 React Hook Form 的
   `validate`、`watch`、`useFieldArray` 實作。

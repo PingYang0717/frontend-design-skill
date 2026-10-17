@@ -6,19 +6,19 @@ Vitest + Testing Library。不做 E2E;頁面測試從網址進入、經過真的
 
 ## 1. 工具與設定
 
-| 項目     | 位置                          | 說明                                                                                                         |
-| -------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| 測試執行 | `vite.config.ts` 的 `test`    | `environment: 'jsdom'`、`globals: false`(一律明確 import `describe`/`it`/`expect`)                           |
-| 全域設定 | `src/test/setup.ts`           | `vi.mock('@/api/authApi')`、接上 session、補 `matchMedia` / `ResizeObserver`、每個測試預設已登入、測試後清理 |
-| 假資料   | `src/test/fixtures.ts`        | `TEST_USER`(全部權限)、`TEST_ACCESS_TOKEN`、各資源的假資料(`testItems()`);形狀與契約逐字一致                 |
-| 錯誤回應 | `src/test/responseError.ts`   | 造一個「後端有回應」的 `AxiosError`(`responseError(500, { code: 'BOOM' })`)                                  |
-| 渲染     | `src/test/renderApp.tsx`      | 以真實 Provider 與路由表渲染整個 app                                                                         |
-| 斷言     | `@testing-library/jest-dom`   | `toBeInTheDocument()` 等                                                                                     |
-| 互動     | `@testing-library/user-event` | 點擊、輸入一律用它                                                                                           |
+| 項目     | 位置                          | 說明                                                                                      |
+| -------- | ----------------------------- | ----------------------------------------------------------------------------------------- |
+| 測試執行 | `vite.config.ts` 的 `test`    | `environment: 'jsdom'`、`globals: false`(一律明確 import `describe`/`it`/`expect`)        |
+| 全域設定 | `src/test/setup.ts`           | 接上閘門、把公司套件換成 `companyUiStub`、補 `matchMedia` / `ResizeObserver`、測試後清理  |
+| 假資料   | `src/test/fixtures.ts`        | 各資源的假資料(`testItems()`;選了 permissions 還有 `TEST_PERMISSIONS`);形狀與契約逐字一致 |
+| 錯誤回應 | `src/test/responseError.ts`   | 造一個「後端有回應」的 `AxiosError`(`responseError(500, { code: 'BOOM' })`)               |
+| 渲染     | `src/test/renderApp.tsx`      | 以真實 Provider 與路由表渲染整個 app                                                      |
+| 斷言     | `@testing-library/jest-dom`   | `toBeInTheDocument()` 等                                                                  |
+| 互動     | `@testing-library/user-event` | 點擊、輸入一律用它                                                                        |
 
-`setup.ts` 在每個測試前把 session 設為已登入(`TEST_ACCESS_TOKEN`)、`getCurrentUser` 回 `TEST_USER`;
-每個測試後 `cleanup()` → `vi.resetAllMocks()` → `localStorage.clear()`(選了 i18n 時再把語言重設為 `zh-TW`)。
-所以測試裡覆寫的回應、登出都不會洩漏到下一個測試;要測未登入,在測試裡 `useSessionStore.setState({ accessToken: null })`。
+`setup.ts` 在每個測試前 `useAccessStore.reset()`(沒有被閘門擋住);每個測試後 `cleanup()` → `vi.resetAllMocks()` →
+`localStorage.clear()`(選了 i18n 時再把語言重設為 `zh-TW`)。所以測試裡覆寫的回應、遮罩都不會洩漏到下一個測試。
+登入沒有東西可測(公司 SDK 的事);要測遮罩見 `AccessMask.test.tsx`。
 
 `setup.ts` 以 `configure({ asyncUtilTimeout: 5000 })` 把 `findBy…` / `waitFor` 的預設等待從 1 秒
 拉長到 5 秒:頁面是 lazy 載入且先 suspend,在慢機器上平行跑時,第一次渲染可能超過 1 秒。
@@ -118,7 +118,7 @@ screen.getByRole('button', { name: '新增' }); // 帶圖示時找不到
 ## 7. 用 `vi.mock` 換掉 API 模組(沒選 msw)
 
 **規則:** 頁面測試在檔案頂端 `vi.mock('@/api/<資源>Api')`,在 `beforeEach` 給預設回應;要測錯誤、空清單、
-特殊資料時,在該測試裡覆寫。`@/api/authApi` 已由 `setup.ts` 統一換掉。不 mock hook、不 mock `apiClient`。
+特殊資料時,在該測試裡覆寫。不 mock hook、不 mock `apiClient`、不 mock `@/vendor/companyUi`(`setup.ts` 已統一換成替身)。
 
 ```ts
 vi.mock('@/api/itemApi');
@@ -137,14 +137,14 @@ it('shows an error card with retry when the list fails to load', async () => {
 ```
 
 ```ts
-vi.mocked(getCurrentUser).mockResolvedValue({ ...TEST_USER, permissions: [PERMISSIONS.itemsRead] });
+vi.mocked(listItems).mockResolvedValue([]); // 空清單的畫面
 ```
 
 - 錯誤一律用 `responseError(status, body)`,body 依 `ApiErrorBody` 形狀(`{ code, message? }`),判讀才與正式環境相同。
 - 斷言送出的內容:`expect(vi.mocked(createItem)).toHaveBeenCalledWith({ name: '新的項目' }, expect.anything())`
   (TanStack Query 會多傳一個 context 參數)。
-- 401 由 `app/session.ts` 在 `apiClient` 上處理,`vi.mock` 的函式不經過 axios;要測它時讓函式真的走 `apiClient`,
-  以 `httpClient.defaults.adapter` 回 401(範本:`RequireAuth.test.tsx`),測完還原 adapter。
+- 閘門由 `app/accessGate.ts` 在 `apiClient` 上處理,`vi.mock` 的函式不經過 axios;要測它時讓請求真的走 `httpClient`,
+  以 `httpClient.defaults.adapter` 回閘門的狀態碼(範本:`AccessMask.test.tsx`),測完還原 adapter。
 - 測試環境的 QueryClient 不重試(`src/app/queryClient.ts`),錯誤會立刻呈現。
 
 ## 8. 什麼一定要測
@@ -154,12 +154,12 @@ vi.mocked(getCurrentUser).mockResolvedValue({ ...TEST_USER, permissions: [PERMIS
 1. **正常顯示**:後端資料出現在畫面上。
 2. **主要寫入流程**:例如新增後清單出現新資料(經過 mutation、invalidate、重新抓取)。
 3. **讀取失敗**:錯誤卡出現,按重試能恢復。
-4. **權限**:沒有權限時入口或按鈕不存在;路由被導到 403。登入、登出與 401 由骨架的測試涵蓋,新功能不用重測。
+4. **權限**(選了 permissions 模組):沒有權限時入口或按鈕不存在;路由被導到 403。閘門與遮罩由骨架的測試涵蓋,新功能不用重測。
 5. **URL 狀態**:篩選/分頁/tab 放在網址的,從帶參數的網址進入要正確呈現。
 6. **新的錯誤 code**:由型別(`Record<KnownErrorCode, string>`)強制;選了 i18n 時再由兩支守門測試涵蓋,不需另寫。
 
 範本:`src/pages/Items/ItemsPage.test.tsx`(1–5 都有)、
-`src/components/auth/RequirePermission.test.tsx`(權限)、`src/components/auth/RequireAuth.test.tsx`(登入)。
+`src/components/common/AccessMask.test.tsx`(閘門);選了 permissions 時 `src/components/auth/RequirePermission.test.tsx`(權限)。
 
 ## 9. 不做的事
 

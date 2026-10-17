@@ -22,23 +22,23 @@
 
 ## A. 待補項目(Skill 已知的缺口,優先查)
 
-| #   | 查什麼                                                                                                  | 補到哪裡                                                     |
-| --- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| A1  | AG Grid 用到哪些 Enterprise 功能:分組 / 樞紐、側欄、狀態列、範圍選取、Excel 匯出;各自的設定值           | `assets/modules/ag-grid/standard.md` 第 8 節、`DataGrid.tsx` |
-| A2  | AG Grid 用 Client-Side 還是 Server-Side Row Model;後端分頁時參數怎麼對應 API、怎麼和資料抓取接起來      | 同上                                                         |
-| A3  | 表格的列選取與批次操作(勾選後刪除、匯出、改狀態)怎麼寫                                                  | 同上                                                         |
-| A4  | 儲存格能不能直接編輯;編輯後怎麼存回後端、失敗怎麼還原                                                   | 同上、`references/adr-baseline/0015-*`                       |
-| A5  | 欄寬、欄位順序、排序有沒有記住;存在哪裡(localStorage、後端)                                             | 同上                                                         |
-| A6  | AG Grid 授權金鑰放哪裡、怎麼取得、誰負責續約;是否所有專案都用 Enterprise                                | 同上、`assets/modules/ag-grid/README.md` 細項                |
-| A7  | AG Grid 在哪裡註冊、是否只在表格頁才載入;首屏時間或使用者網路環境有沒有相關抱怨                         | `assets/modules/ag-grid/standard.md` 第 8 節最後一條         |
-| A8  | 表單驗證用 React Hook Form 的 `rules` 還是 zod / yup schema;schema 放哪裡、和 API 型別的關係            | `assets/modules/react-hook-form/standard.md` 第 7 節         |
-| A9  | 動態欄位(`useFieldArray`)、巢狀物件、下拉選項來自 API、檔案上傳的寫法                                   | 同上                                                         |
-| A10 | 多步驟表單、草稿暫存、離開頁面前「尚未儲存」提示                                                        | 同上                                                         |
-| A11 | 檢視與編輯共用同一個表單的寫法;欄位排版規則(label 寬度、兩欄、對話框寬度)                               | 同上                                                         |
-| A12 | 403 頁長什麼樣、有沒有「按鈕停用並說明原因」而不是隱藏;後端回 403 時畫面怎麼呈現                        | `references/standards/auth.md` 第 4.1、5 節、`ForbiddenPage` |
-| A13 | 登入服務的實際端點與欄位名稱;帳密、SSO 還是 gateway cookie;token 存哪裡、有沒有 refresh token、閒置登出 | `references/standards/login.md`、骨架 `authApi.ts`           |
+| #   | 查什麼                                                                                               | 補到哪裡                                                                |
+| --- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| A1  | AG Grid 用到哪些 Enterprise 功能:分組 / 樞紐、側欄、狀態列、範圍選取、Excel 匯出;各自的設定值        | `assets/modules/ag-grid/standard.md` 第 8 節、`DataGrid.tsx`            |
+| A2  | AG Grid 用 Client-Side 還是 Server-Side Row Model;後端分頁時參數怎麼對應 API、怎麼和資料抓取接起來   | 同上                                                                    |
+| A3  | 表格的列選取與批次操作(勾選後刪除、匯出、改狀態)怎麼寫                                               | 同上                                                                    |
+| A4  | 儲存格能不能直接編輯;編輯後怎麼存回後端、失敗怎麼還原                                                | 同上、`references/adr-baseline/0015-*`                                  |
+| A5  | 欄寬、欄位順序、排序有沒有記住;存在哪裡(localStorage、後端)                                          | 同上                                                                    |
+| A6  | AG Grid 授權金鑰放哪裡、怎麼取得、誰負責續約;是否所有專案都用 Enterprise                             | 同上、`assets/modules/ag-grid/README.md` 細項                           |
+| A7  | AG Grid 在哪裡註冊、是否只在表格頁才載入;首屏時間或使用者網路環境有沒有相關抱怨                      | `assets/modules/ag-grid/standard.md` 第 8 節最後一條                    |
+| A8  | 表單驗證用 React Hook Form 的 `rules` 還是 zod / yup schema;schema 放哪裡、和 API 型別的關係         | `assets/modules/react-hook-form/standard.md` 第 7 節                    |
+| A9  | 動態欄位(`useFieldArray`)、巢狀物件、下拉選項來自 API、檔案上傳的寫法                                | 同上                                                                    |
+| A10 | 多步驟表單、草稿暫存、離開頁面前「尚未儲存」提示                                                     | 同上                                                                    |
+| A11 | 檢視與編輯共用同一個表單的寫法;欄位排版規則(label 寬度、兩欄、對話框寬度)                            | 同上                                                                    |
+| A12 | 有沒有細粒度權限;403 頁長什麼樣、有沒有「按鈕停用並說明原因」而不是隱藏;後端回 403 時畫面怎麼呈現    | 模組 `permissions/standard.md` 第 4.1、5 節                             |
+| A13 | 公司登入 SDK 怎麼接;閘門(公司網路、系統權限)後端回什麼狀態碼或 code;遮罩用哪個公司元件、props 是什麼 | `references/standards/access.md`、骨架 `accessGate.ts`、`companyUi.tsx` |
 
-## B. 五個可選模組
+## B. 六個可選模組
 
 每個模組先回答「舊專案有沒有用、用了幾個專案」,這決定收件時的建議答案。
 
@@ -60,7 +60,7 @@
 | C4  | 資料抓取   | TanStack Query 的寫法(`useQuery` / `useSuspenseQuery`)、query key 命名、寫入後怎麼更新    | `data-fetching.md`、ADR-0005                           |
 | C5  | 狀態管理   | 全域狀態用什麼;伺服器資料有沒有放進全域 store;篩選與分頁放 URL 還是 state                 | `state-management.md`、ADR-0004                        |
 | C6  | 錯誤處理   | 讀取失敗與寫入失敗各怎麼呈現;錯誤文案來自後端 `message` 還是前端                          | `error-handling.md`、ADR-0006、ADR-0007                |
-| C7  | 權限       | 權限代碼從哪來、選單與路由怎麼過濾、按鈕怎麼藏                                            | `auth.md`、ADR-0012                                    |
+| C7  | 權限       | 有沒有細粒度權限;有的話代碼從哪來、選單與路由怎麼過濾、按鈕怎麼藏                         | 模組 `permissions/standard.md`、ADR-0012               |
 | C8  | 路由       | history 還是 hash、部署在子路徑嗎、頁面是否 lazy 載入                                     | `routing.md`、`templates/adr-router-mode.md`           |
 | C9  | 樣式與主題 | 顏色從哪來(token、寫死色碼、CSS 檔);CSS Modules、styled-components 還是 Tailwind;圖示庫   | `styling-theme.md`、ADR-0001                           |
 | C10 | 元件寫法   | `function` 還是 arrow function、`React.FC`、export 方式、是否手寫 `useMemo`/`useCallback` | `components.md`、ADR-0008、ADR-0009                    |
@@ -105,3 +105,29 @@
 - 「建議」只寫要改 Skill 的哪個檔案、改成什麼,不要直接改。
 - 需要團隊拍板的(例如「全公司統一用 zod」),寫「需要團隊決定」並列出選項與各自的代價。
 - 舊專案的帳號、金鑰、內部網址不要抄進報告。
+
+## E. 3.x 公版專案升到 4.0
+
+4.0 把登入與權限從基底拆掉(ADR-0017 改寫、ADR-0012 變成 permissions 模組),3.x 產的專案不能直接用 4.0 的 Skill 加畫面
+(`check-placeholders` 會找 `docs/adr/0021-access-gate.md`、`docs/api-contract.md`)。升級照下面做,每步跑 lint / typecheck / test:
+
+1. **刪登入**:`pages/Login/`、`stores/useSessionStore.ts`、`hooks/useSessionMutations.ts`、`components/auth/RequireAuth.tsx`(+ 測試)、
+   `components/layouts/PublicLayout.tsx`、`components/layouts/UserMenu.tsx`(+ 測試)、`types/api/auth.ts`、`api/authApi.ts`、`app/session.ts`;
+   選了 msw 的刪 `handlers.ts` 的 `/auth/*`、`/me` 與 `db.ts` 的 `MOCK_LOGIN`、`MOCK_ACCESS_TOKEN`、`currentUser`;
+   選了 i18n 的刪字典 `pages.login`、`header.logout`、`errors.byCode.INVALID_CREDENTIALS`;`KNOWN_ERROR_CODES` 拿掉 `INVALID_CREDENTIALS`
+2. **接閘門**:從 4.0 骨架複製 `app/accessGate.ts`、`stores/useAccessStore.ts`、`components/common/AccessMask.tsx`(+ 測試)、
+   `vendor/companyUi.tsx` + `.module.css`、`test/companyUiStub.tsx`;`api/apiClient.ts` 改成 4.0 版(cookie、沒有 header provider);
+   `main.tsx` 與 `test/setup.ts` 的 `connectSession()` 改 `connectAccessGate()`,setup 加 `vi.mock('@/vendor/companyUi', …)` 與 `useAccessStore.reset()`;
+   `providers.tsx` 在 `<AntdApp>` 裡放 `<AccessMask />`;`routes.tsx` 拿掉 `PublicLayout` 區域與 `RequireAuth`;`ROUTES` 刪 `login`
+3. **權限二選一**:
+   - 專案其實不需要細粒度權限(多數):刪 `constants/permissions.ts`、`hooks/usePermission.ts`、`hooks/useCurrentUser.ts`、
+     `components/auth/`、`pages/Forbidden/`、`types/api/user.ts`;`navEntries` 拿掉 `permission`、`AppShell` 拿掉過濾、`routes.tsx` 拿掉包裝與 403;
+     所有 `<Can>` 解開;0022 加 `permissions | 否`
+   - 需要:改成 permissions 模組——`hooks/useCurrentUser.ts` 換成模組的 `hooks/usePermission.ts` + `api/permissionApi.ts`
+     (權限清單的 API 收件時確認,不再是 `/me`);`<Can>` 全部改名 `<RequirePermission>`、路由層加 `onDenied="redirect"`;
+     `components/auth/RequirePermission.tsx` 換成模組版;0022 加 `permissions | 是 | <API>`;`docs/conventions/auth.md` 換成 `permissions.md`
+4. **文件**:`docs/conventions/login.md` 換 `access.md`、`docs/adr/0017` 換新版、`docs/adr/0021-auth-mode.md` 改寫成 `0021-access-gate.md`
+   (範本 `templates/adr-access-gate.md`)、`AGENTS.md` 第 7 條與資料夾速查、`README.md` 的路由表與「後端」一節、PR 範本的自我檢查;
+   `docs/conventions/README.md`、`docs/adr/README.md` 索引同步
+5. **契約表**(3.2 以前的專案):複製 `scripts/gen-api-contract.mjs`、加兩個 npm script、CI 加 `api-contract:check`、`npm run api-contract`
+6. `node <skill>/scripts/check-placeholders.mjs .` 0 個 ERROR;全綠後一個 commit:`chore: 升級公版至 4.0.0(存取閘門、permissions 模組)`

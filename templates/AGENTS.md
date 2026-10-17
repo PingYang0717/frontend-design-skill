@@ -24,7 +24,7 @@ React 19 + React Compiler、Vite 8、TypeScript(strict)、Ant Design 6、React R
 
 ## 鐵律
 
-1. **API 資料一律用 TanStack Query,絕不寫進 Zustand。** Zustand 只放全域 UI 狀態與登入 token;篩選、分頁、tab 放 URL。
+1. **API 資料一律用 TanStack Query,絕不寫進 Zustand。** Zustand 只放全域 UI 狀態與閘門狀態;篩選、分頁、tab 放 URL。
 2. **讀取用 `useSuspenseQuery` + 窗格外包 `DataBoundary`;寫入用 `useActionMutation`。** 例外要在 hook 註解寫理由。
 3. **依「層」放檔案。** endpoint → `api/`、DTO → `types/api/`、資料 hook → `hooks/`、UI → `components/<domain>/`、
    store → `stores/`;`pages/` 只組裝與放邊界。跨資料夾用 `@/`,同資料夾用 `./`,不准 `../`。
@@ -34,9 +34,10 @@ React 19 + React Compiler、Vite 8、TypeScript(strict)、Ant Design 6、React R
      沒選 i18n →「**文案直接寫繁中字串**(含 `aria-label`);錯誤文案只在 `utils/describeError.ts`,系統名稱只在 `constants/app.ts`。」 -->
 6. **視覺以 prototype 為準。** 顏色只用 `theme/tokens.ts` 的 token;圖示只用 `@ant-design/icons`,不用 emoji 或文字頂替。
    prototype 是 React 原始碼時,可搬:JSX 結構、表單欄位與驗證、`columnDefs`、互動流程;不搬:它的 router、state、
-   API 呼叫、樣式方案、登入 / 權限 / theme / i18n 實作(ADR-0001 第 6 點)。搬入的片段仍要過規範,不加來源註解。
-7. **登入、權限、401 用公版,不另寫。** 登入狀態只在 `useSessionStore`、401 只在 `app/session.ts`;需要登入的頁面都在
-   `RequireAuth` 底下;權限在 `navEntries.tsx` 設 `permission`、按鈕包 `<Can>`。
+   API 呼叫、樣式方案、登入 / 閘門 / 權限 / theme / i18n 實作(ADR-0001 第 6 點)。搬入的片段仍要過規範,不加來源註解。
+7. **登入交給公司 SDK,閘門只在 `app/accessGate.ts`。** 不做登入頁、不保管 token、不判 401;「不在公司網路」「沒有系統權限」
+   的狀態碼只寫在 `ACCESS_GATE_RULES`,整頁遮罩由 `AccessMask` 負責;公司套件只從 `vendor/companyUi.tsx` import。
+   <!-- FILL: 選了 permissions 模組時接一句「細粒度權限:`navEntries.tsx` 設 `permission`、按鈕包 `<RequirePermission>`」;沒選刪除這個註解。 -->
 8. **不准新增未經同意的套件、不准寫死色碼、不准在元件裡 import axios 或 `@/api` 的 endpoint module。**
    (後兩條由 lint 擋下。)
 9. **新增或修改端點 / DTO 後重跑 `npm run api-contract`,`docs/api-contract.md` 與程式碼一起進 PR。** 端點函式要有 JSDoc
@@ -60,33 +61,35 @@ React 19 + React Compiler、Vite 8、TypeScript(strict)、Ant Design 6、React R
 
 ```
 src/
-  api/          apiClient、apiError、authApi、各資源的 endpoint module
-  app/          Providers、路由表、QueryClient、session(token 與 401)、選單入口 → 頁面對照(navPages、subPages)
-  components/   common/(共用零件)、layouts/(外殼、選單 navEntries、UserMenu)、auth/(RequireAuth、RequirePermission、Can)、<domain>/
-  constants/    routes、permissions、storage key、app(系統名稱;選了 i18n 時沒有這個檔)
+  api/          apiClient(cookie)、apiError、各資源的 endpoint module;選了 permissions 還有 permissionApi
+  app/          Providers、路由表、QueryClient、accessGate(閘門規則與 interceptor)、選單入口 → 頁面對照(navPages、subPages)
+  components/   common/(共用零件、AccessMask)、layouts/(外殼、選單 navEntries)、<domain>/;選了 permissions 還有 auth/(RequirePermission)
+  constants/    routes、storage key、app(系統名稱;選了 i18n 時沒有這個檔);選了 permissions 還有 permissions
   hooks/        資料 hook(queryOptions + useSuspenseQuery)、mutation hook、跨元件 UI hook
-  pages/        路由頁面(只組裝);Login/ 是公版登入頁
-  stores/       Zustand(UI 狀態與 useSessionStore)
-  test/         測試 setup(預設已登入)與 renderApp
+  pages/        路由頁面(只組裝)
+  stores/       Zustand(UI 狀態 useLayoutStore、閘門狀態 useAccessStore)
+  test/         測試 setup、renderApp、companyUiStub(公司套件替身)
   theme/        tokens(唯一色票來源)、antdTheme、cssVars
+  vendor/       companyUi(公司套件的唯一轉接點:遮罩、外殼、使用者資訊)
   types/api/    與後端逐字一致的 DTO
   utils/        純函式
 ```
 
 <!-- FILL: 依 docs/adr/0022 在上面的速查補上選用模組的位置,補完刪除這段:
      i18n → `i18n/  zhTW.ts(字典形狀來源)、en.ts、useTranslations`,`stores/` 加 useLanguageStore,`constants/` 刪掉 app;
-     msw → `mocks/  MSW handler(pendingHandlers 給開發期與測試;shippedHandlers 只給測試)、MOCK_LOGIN`;
-     ag-grid → `app/` 加 agGrid(模組與授權)、`theme/` 加 agGridTheme;dark-mode → `stores/` 加 useThemeStore。 -->
+     msw → `mocks/  MSW handler(pendingHandlers 給開發期與測試;shippedHandlers 只給測試)`;
+     ag-grid → `app/` 加 agGrid(模組與授權)、`theme/` 加 agGridTheme;dark-mode → `stores/` 加 useThemeStore;
+     permissions → `components/auth/`、`pages/Forbidden/`、`hooks/usePermission`。 -->
 
 ## 測試 seam
 
 測試只在這兩個邊界寫:
 
-- **頁面與元件行為**:`renderApp('/路徑')` 從網址進入,經過真的 Provider、路由、`RequireAuth` 與 `DataBoundary`;
+- **頁面與元件行為**:`renderApp('/路徑')` 從網址進入,經過真的 Provider、路由、`AccessMask` 與 `DataBoundary`;
   <!-- FILL: 依 docs/adr/0022 擇一:選了 msw →「打 MSW 假後端(`server.use(...)` 覆寫個別回應)」;
        沒選 msw →「API 模組以 `vi.mock('@/api/<資源>Api')` 換掉,在 `beforeEach` 給預設回應,假資料在 `src/test/fixtures.ts`」。 -->
   斷言畫面文字<!-- FILL: 選了 i18n 寫「(引用字典)」,沒選就刪掉這個註解 -->。不 mock hook、不單獨 render 元件。
-  測試預設已登入;要測未登入用 `useSessionStore.setState({ accessToken: null })`
+  登入沒有東西可測;要測遮罩讓 API 回閘門的狀態碼(`AccessMask.test.tsx`)
 - **純函式**(`utils/`、`api/apiError.ts`):直接單元測試
 
 規格的每個行為一個 `it`;有 scenario 編號就帶在名稱裡。視覺一致性不靠測試,靠 PR 截圖對照 prototype。
@@ -94,7 +97,7 @@ src/
 ## 本專案特有規則
 
 - 路由模式:<!-- FILL: history 或 hash,連到 docs/adr/0020-router-mode.md -->
-- 認證方式:<!-- FILL: 帳密 + Bearer token / SSO / gateway cookie,連到 docs/adr/0021-auth-mode.md -->
+- 閘門與公司套件:<!-- FILL: 一句話,例如「外網 423、無權限 403 + code;遮罩用 @company/ui 的 AccessBlocked」,連到 docs/adr/0021-access-gate.md -->
 - 選用模組:<!-- FILL: 採用的模組與細項(例如「i18n、msw、ag-grid(Enterprise)」),連到 docs/adr/0022-selected-modules.md -->
 
 <!-- FILL: 其他偏離或補充團隊標準的規則,每條連到對應 ADR(docs/adr/0023 起)。沒有就刪除這行。 -->
@@ -119,7 +122,7 @@ src/
 - [ ] 規格裡這個畫面的每個行為都有對應測試,全部通過
 - [ ] <!-- FILL: 選了 i18n →「新增文案都進了 `zhTW.ts` 與 `en.ts`;新的錯誤 code 也進了 `errors.byCode`」;沒選 →「新的錯誤 code 進了 `types/api/error.ts` 與 `utils/describeError.ts`」 -->
 - [ ] 新端點:DTO 在 `types/api/`、與契約逐字一致<!-- FILL: 選了 msw 加「、mock handler 進 `pendingHandlers`」,沒選就刪掉這個註解 -->
-- [ ] 需要權限的入口與按鈕已設 `permission` / `<Can>`;需要登入的頁面在 `RequireAuth` 底下
+- [ ] 沒有自己判 401 或閘門狀態碼;公司套件只從 `vendor/companyUi.tsx` import
 - [ ] 與 prototype 或規格不同之處,已在回報與 PR 的「偏離設計稿」寫明
 - [ ] 回報:改了哪些檔、每個改動一句話、驗證指令與結果、計畫外的發現
 

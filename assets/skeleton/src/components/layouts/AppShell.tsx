@@ -4,7 +4,6 @@ import { Outlet, useLocation, useNavigate } from 'react-router';
 
 import DataBoundary from '@/components/common/DataBoundary';
 import { APP_NAME } from '@/constants/app';
-import { usePermissionChecker } from '@/hooks/usePermission';
 import { useLayoutStore } from '@/stores/useLayoutStore';
 import AppHeader from './AppHeader';
 import { NAV_ENTRIES } from './navEntries';
@@ -15,10 +14,9 @@ import styles from './AppShell.module.css';
 const AppShell: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const isAllowed = usePermissionChecker();
   const isSiderCollapsed = useLayoutStore((state) => state.isSiderCollapsed);
 
-  const menuItems = NAV_ENTRIES.filter((entry) => isAllowed(entry.permission)).map((entry) => ({
+  const menuItems = NAV_ENTRIES.map((entry) => ({
     key: entry.path,
     icon: entry.icon,
     label: entry.label,
