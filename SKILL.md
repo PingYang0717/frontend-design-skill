@@ -25,6 +25,8 @@ description: 拿到 PM 的 SPEC(Markdown)與 UI/UX 的 prototype(HTML 單檔、�
 4. **SPEC 沒說的不要猜。** 擋住寫程式的缺口一輪問完(每題附建議答案);不擋的寫進回報的「待確認」照常做。
 5. **一個畫面一個切片,做完就驗。** 依「加一個新功能」的分層順序實作,每個畫面做完就跑 lint / typecheck / test。
 6. **全綠才算完成。** lint(0 warning)、typecheck、test、build 全過,沒有殘留的 placeholder,範例功能已移除。
+7. **讀得少、抄得多、派出去做。** 怎麼讀、誰來做、怎麼派、何時對抗見 `references/execution.md`:主 agent 只讀該步需要的文件、
+   不自己寫畫面;畫面派給實作層子任務平行做;步驟 2 後與步驟 5 各找一個不同家的模型挑戰一次。
 
 ## 需要的輸入
 
@@ -37,7 +39,7 @@ description: 拿到 PM 的 SPEC(Markdown)與 UI/UX 的 prototype(HTML 單檔、�
 
 ## 流程
 
-建立任務清單追蹤以下五步,每步完成就勾掉。
+建立任務清單追蹤以下五步,每步完成就勾掉。**開工前讀 `references/execution.md`**(讀什麼、三層模型、角色、派工 brief、驗證節奏)。
 
 ### 步驟 1:收件與選模組
 
@@ -61,10 +63,14 @@ SPEC 或訊息已明確說了(例如「不做多語系」)就不問。選擇記�
 ### 步驟 2:對照 SPEC 與 prototype,列出工作清單
 
 依 `references/spec-to-code.md` 把 SPEC 轉成程式碼清單:畫面 → 路由與選單、(permissions)角色 → 權限代碼、欄位 → DTO、
-動作 → 端點與 mutation、prototype → token 與元件對映、行為 → 測試案例。清單放在任務清單裡,不產生文件。
+動作 → 端點與 mutation、prototype → token 與元件對映、行為 → 測試案例。清單寫進 `docs/worklist.md`(範本
+`templates/worklist.md`;一列一畫面,是步驟 4 派工的依據)。
 
-**⏸ 停頓點(只在有缺口時):** 擋住寫程式的缺口(閘門表示法與一般 403 重疊、權限矩陣、欄位型別、端點形狀、prototype 缺的畫面)一輪問完,
-每題附建議答案;「是」就代表接受建議。
+**挑戰一次:** 清單寫好後派 `challenger`(不同家的模型、乾淨 context,範本 `templates/agents/challenger.md`)回答固定五題;
+每條寫「採納 / 不採納 + 理由」,採納的改清單。做法見 `execution.md` 第 6 節。
+
+**⏸ 停頓點(只在有缺口時):** 擋住寫程式的缺口(閘門表示法與一般 403 重疊、權限矩陣、欄位型別、端點形狀、prototype 缺的畫面、
+challenger 指出而你無法自行判斷的)一輪問完,每題附建議答案;「是」就代表接受建議。
 
 ### 步驟 3:建立骨架(只有新專案)
 
@@ -75,6 +81,8 @@ i18n → dark-mode → msw → react-hook-form → ag-grid → permissions,逐�
 
 ### 步驟 4:依 SPEC 產生程式碼
 
+主 agent 先一次填好共用檔(路由、選單、`NAV_PAGES`、字典的 `nav.*`、msw 註冊點),再把每個畫面派給 `screen-builder`
+子任務(實作層,brief 見 `execution.md` 第 5 節)**平行做**;紅字派 `lint-fixer`,主 agent 只收回報與跑檢查。
 每個畫面依 `references/workflow-detail.md` 步驟 4 的分層順序實作:DTO → endpoint → (msw)mock → hook → 元件 → 頁面 →
 路由 / 選單 / (permissions)權限 → (i18n)字典 → 測試。閘門、錯誤處理、主題一律用骨架既有機制(登入交給公司 SDK,什麼都不寫);表格、表單、文案、測試的假後端
 **依所選模組**:選了就用模組的機制(`DataGrid`、`FormField`、字典、MSW),沒選就用基底的做法(antd `Table`、antd `Form`、
@@ -89,7 +97,8 @@ npm run api-contract            # 從 src/api 與 src/types/api 產 docs/api-con
 node <skill>/scripts/check-placeholders.mjs <project>
 ```
 
-四項全綠(lint 沒有 warning)、契約表已產生、檢查腳本 0 個 ERROR 才算完成;接著 commit。回報格式見 `references/workflow-detail.md` 步驟 5。
+四項全綠(lint 沒有 warning)、契約表已產生、檢查腳本 0 個 ERROR 之後,派 `reviewer`(乾淨 context,範本 `templates/agents/reviewer.md`)
+對照 SPEC、契約表與回報草稿找漏做與偏離,逐條採納 / 不採納;處理完再 commit。回報格式見 `references/workflow-detail.md` 步驟 5。
 
 使用者不在場時:有建議答案的採用建議並標記「採用建議(暫定)」(模組全選、AG Grid Enterprise、專案名稱用預設),
 沒有建議答案的寫「待確認」,照常繼續;兩者都列在回報裡。唯一要停下的情況是專案資料夾有內容卻不是公版產生的。
@@ -121,14 +130,16 @@ node <skill>/scripts/check-placeholders.mjs <project>
 
 ### 依 SPEC 填寫
 
-| 範本                                | 產出                                                                |
-| ----------------------------------- | ------------------------------------------------------------------- |
-| `templates/AGENTS.md`               | 專案根目錄:coding agent 的規則,與模組相關的句子依 0022 填           |
-| `templates/README.md`               | 專案根目錄:名稱、啟動方式、路由表、後端、待確認                     |
-| `templates/adr-router-mode.md`      | `docs/adr/0020-router-mode.md`                                      |
-| `templates/adr-access-gate.md`      | `docs/adr/0021-access-gate.md`:公司套件、閘門表示法、權限 API、外殼 |
-| `templates/adr-selected-modules.md` | `docs/adr/0022-selected-modules.md`:一列一模組的固定表格            |
-| `templates/adr.md`                  | 其他偏離團隊標準的決定(0023 起);另存一份到 `docs/templates/`        |
+| 範本                                | 產出                                                                                             |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `templates/AGENTS.md`               | 專案根目錄:coding agent 的規則,與模組相關的句子依 0022 填                                        |
+| `templates/README.md`               | 專案根目錄:名稱、啟動方式、路由表、後端、待確認                                                  |
+| `templates/adr-router-mode.md`      | `docs/adr/0020-router-mode.md`                                                                   |
+| `templates/adr-access-gate.md`      | `docs/adr/0021-access-gate.md`:公司套件、閘門表示法、權限 API、外殼                              |
+| `templates/adr-selected-modules.md` | `docs/adr/0022-selected-modules.md`:一列一模組的固定表格                                         |
+| `templates/adr.md`                  | 其他偏離團隊標準的決定(0023 起);另存一份到 `docs/templates/`                                     |
+| `templates/worklist.md`             | `docs/worklist.md`:步驟 2 的工作清單,一列一畫面,步驟 4 派工用                                    |
+| `templates/agents/*.md`             | `docs/agents/`:四個子任務角色的提示詞(screen-builder、lint-fixer、challenger、reviewer),原樣複製 |
 
 ### 公版的登入、閘門與權限
 
@@ -145,6 +156,7 @@ node <skill>/scripts/check-placeholders.mjs <project>
 
 | 路徑                                               | 什麼時候讀                                                                              |
 | -------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `references/execution.md`                          | 開工前:讀什麼、三層模型、角色、派工 brief、對抗、驗證節奏                               |
 | `references/workflow-detail.md`                    | 每一步的具體做法、指令與檔案對照                                                        |
 | `references/spec-to-code.md`                       | 步驟 2;SPEC 最少要有什麼                                                                |
 | `assets/modules/<模組>/README.md`                  | 步驟 3,選了該模組時                                                                     |

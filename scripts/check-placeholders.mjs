@@ -151,6 +151,12 @@ for (const found of findDirs(join(root, 'docs/prototype'), ['node_modules', 'dis
 // 後端契約表由骨架的 scripts/gen-api-contract.mjs 產生(步驟 5 的 npm run api-contract);是否與程式碼一致由 CI 的 --check 擋
 if (!existsSync(join(root, 'docs/api-contract.md')))
   errors.push('缺少 docs/api-contract.md;執行 npm run api-contract 產生後端契約表(workflow-detail.md 步驟 5)');
+for (const role of ['screen-builder', 'lint-fixer', 'challenger', 'reviewer']) {
+  if (!existsSync(join(root, 'docs/agents', `${role}.md`)))
+    errors.push(`缺少 docs/agents/${role}.md;從 templates/agents/ 原樣複製(workflow-detail.md 步驟 3)`);
+}
+if (!existsSync(join(root, 'docs/worklist.md')))
+  errors.push('缺少 docs/worklist.md;步驟 2 的工作清單(範本 templates/worklist.md)');
 for (const rel of ['docs/adr/0020-router-mode.md', 'docs/adr/0021-access-gate.md']) {
   if (!existsSync(join(root, rel))) errors.push(`缺少 ${rel}`);
 }

@@ -41,7 +41,9 @@ SPEC 或訊息已明確說了的(例如「不做多語系」「表格用 antd �
 
 ## 步驟 2:對照 SPEC 與 prototype
 
-依 `references/spec-to-code.md` 列出工作清單(放任務清單)。有擋住寫程式的缺口才停下來問,一輪問完。
+依 `references/spec-to-code.md` 列出工作清單,寫進 `docs/worklist.md`(範本 `templates/worklist.md`):一列一畫面,
+欄位是路由、選單 key、SPEC 節號、prototype 檔或片段、端點、DTO、(permissions)權限、依賴的其他畫面。
+清單寫好派 `challenger`(`execution.md` 第 6 節),逐條採納 / 不採納後更新清單。有擋住寫程式的缺口才停下來問,一輪問完。
 
 ## 步驟 3:建立骨架(只有新專案)
 
@@ -60,6 +62,7 @@ cp -R <skill>/references/standards docs/conventions
 cp -R <skill>/references/adr-baseline docs/adr
 cp <skill>/templates/CLAUDE.md <skill>/templates/AGENTS.md <skill>/templates/README.md ./   # AGENTS、README 在第 8 點填寫
 cp <skill>/templates/adr.md docs/templates/
+mkdir -p docs/agents && cp <skill>/templates/agents/*.md docs/agents/   # 子任務角色提示詞,原樣複製
 ```
 
 骨架的 lint、format 與測試設定已排除 `docs/prototype/`(`eslint.config.js`、`.oxlintrc.json`、`.prettierignore`、
@@ -103,6 +106,11 @@ cp <skill>/templates/adr.md docs/templates/
 (React 原始碼同樣排除 `node_modules`、`dist`、lockfile)。
 
 ## 步驟 4:依 SPEC 產生程式碼
+
+**先填共用檔,再平行派工**(`execution.md` 第 4、5 節):主 agent 依 `docs/worklist.md` 一次填好 `constants/routes.ts`、
+`navEntries.tsx`、`app/navPages.tsx`(頁面檔先放最小殼)、(i18n)字典的 `nav.*` 與各畫面 `title`、(msw)handlers / db 的註冊位置,
+typecheck 綠了 commit 一次;然後每個畫面派一個 `screen-builder`(brief 照範本填空),同時派。紅字派 `lint-fixer`。
+主 agent 不自己寫畫面。
 
 每個畫面一個切片,依 `docs/conventions/project-structure.md` 第 4 節的順序。括號是只有選了該模組才做的步驟:
 
@@ -158,6 +166,7 @@ node <skill>/scripts/check-placeholders.mjs .
 
 - 四個指令全綠(lint 不得有 warning);`api-contract` 的 WARN 逐一處理(改回 `apiClient` + `apiPath` 的寫法再重跑);
   `check-placeholders` 0 個 ERROR
+- 派 `reviewer`(乾淨 context;給 SPEC、契約表、回報草稿、`git diff --stat`),逐條採納 / 不採納,必修的回去改、再跑四項
 - 翻一次 `docs/api-contract.md`:每支端點的「功能」與「使用畫面」都有填(空的回去補 JSDoc)、DTO 草案的欄位已標在說明欄
 - 實際開一次:選了 msw 用 `npm run dev:mock`(假後端不經過閘門,不用登入),沒選用 `npm run dev` 接後端(要有公司 cookie,見 README「後端」);
   選了 dark-mode 時淺色、深色各看過一次每個畫面
@@ -171,6 +180,7 @@ node <skill>/scripts/check-placeholders.mjs .
   4. 仍待確認的問題(含 DTO 草案、找不到對應圖示、缺的畫面)
   5. 下一步:驗收方式;選了 msw 時,後端上線後把對應 handler 搬到 `shippedHandlers`
   6. 後端契約表:`docs/api-contract.md`,N 支端點;有 WARN 時列出哪些 export 未解析
+  7. 挑戰與審查:challenger 與 reviewer 各提了幾條、採納幾條、不採納的理由
 
 ## 無人值守時
 

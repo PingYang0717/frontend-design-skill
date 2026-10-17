@@ -10,8 +10,16 @@
 
 1. 這份 `AGENTS.md`
 2. 規格 [`docs/spec/`](./docs/spec/)(PM 提供,需求的唯一來源)與 prototype [`docs/prototype/`](./docs/prototype/)(UI/UX 提供,視覺驗收標準;HTML 或 React 原始碼都只是設計稿,不是可複製的程式碼)
-3. 任務碰到的領域對應的 `docs/conventions/` 與 `docs/adr/`
+3. 任務碰到的那一層的 `docs/conventions/`(只讀規則與 ✅ / ❌ 範例;「原因」段落略過);`docs/adr/` **不讀**——它解釋為什麼,
+   lint 與規範已經擋住該擋的。**先抄範例再翻規範**:`src/` 裡既有的同層檔案是最短的規範
 4. 與既有 ADR 衝突時,**在回報裡明講**,不要默默蓋過
+
+## 怎麼做事(多 agent)
+
+- 一個畫面一個子任務,角色提示詞在 [`docs/agents/`](./docs/agents/):`screen-builder`(做畫面)、`lint-fixer`(修紅字)、
+  `challenger`(動工前挑戰工作清單)、`reviewer`(完工後審查)。主對話只填共用檔、派工、跑檢查,不自己寫畫面。
+- 模型三層:決策(收件、清單、審查)/ 實作(畫面)/ 雜務(疊模組、測試、修紅字);挑戰者用不同家的模型。思考深度:有權衡才高,照抄就低。
+- 改一個檔只 `npx eslint <檔>`;一個畫面做完才 `tsc -b` 與該頁測試;整包四項檢查主對話收回一批跑一次;build 最後一次。
 
 ## 技術棧
 

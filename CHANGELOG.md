@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## 4.1.0(2026-10-17)
+
+**給 agent 的執行方式:讀什麼、誰來做、怎麼派、何時對抗。** 4.0 之前 skill 只說「做什麼」,沒說怎麼做才快、才省、品質才穩;
+這版補上,不改任何程式碼,3.x / 4.0 產的專案不用升級。
+
+- **新增 `references/execution.md`**:三條原則(讀得少抄得多;動腦的給決策層、照抄的給雜務層;只在兩個點對抗)、
+  每一步「只讀這些 / 不讀」的表、三層模型與公司對應(決策 / 挑戰 / 實作 / 雜務,含 effort 高中低與為什麼)、五個角色、
+  步驟 4 的平行切法(主 agent 先填共用檔再 swarm 派畫面)、固定 15 行的派工 brief、兩次對抗性驗證的固定題目、驗證的節奏、
+  Kimi Code 的對應(子任務 / 模型 / effort / swarm)
+- **新增 `templates/agents/`**:`screen-builder`、`lint-fixer`、`challenger`、`reviewer` 四個工具無關的角色提示詞,步驟 3 原樣複製到
+  專案 `docs/agents/`,之後加畫面的人直接用
+- **新增 `templates/worklist.md`** → `docs/worklist.md`:步驟 2 的工作清單一列一畫面(路由、選單 key、SPEC 節、prototype 片段、端點、
+  DTO、權限、依賴、狀態),步驟 4 的 brief 從這裡填空;底下記 challenger 的意見與採納 / 不採納
+- **流程接線**:`SKILL.md` 加原則 7「讀得少、抄得多、派出去做」與「開工前讀 execution.md」;步驟 2 寫 worklist 並派 challenger;
+  步驟 4 主 agent 先填共用檔再平行派 screen-builder、紅字派 lint-fixer;步驟 5 派 reviewer 後才 commit,回報加第 7 項「挑戰與審查」;
+  `workflow-detail.md` 同步;`templates/AGENTS.md` 的「開工前要讀」改成只讀規則與範例、不讀 ADR、先抄範例,新增「怎麼做事(多 agent)」;
+  `standards/README.md` 第一段加 agent 的讀法
+- **`check-placeholders`** 多擋兩樣:`docs/agents/` 四個角色檔、`docs/worklist.md`
+
 ## 4.0.0(2026-10-17)
 
 **破壞性改版:基底的登入與權限換成公司的實況。** 3.x 假設每個系統自己做登入(登入頁、token、401 清 session)並打 `GET /me`
